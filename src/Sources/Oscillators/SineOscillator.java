@@ -1,8 +1,10 @@
 package Sources.Oscillators;
 
+import Sources.SignalSource;
+
 public class SineOscillator extends AbstractOscillator {
-    public SineOscillator(double frequency) {
-        super(frequency);
+    public SineOscillator(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
     @Override

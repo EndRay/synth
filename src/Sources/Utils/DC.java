@@ -18,6 +18,14 @@ public class DC implements SignalSource {
         this.offset = offset;
     }
 
+    public void setFrequency(double frequency){
+        this.offset = SignalSource.frequencyToVoltage(frequency);
+    }
+
+    public static DC getFrequencyDC(double frequency){
+        return new DC(SignalSource.frequencyToVoltage(frequency));
+    }
+
     @Override
     public double getSample(int sampleId) {
         return offset;

@@ -1,8 +1,10 @@
 package Sources.Oscillators;
 
+import Sources.SignalSource;
+
 public class SawOscillator extends AbstractOscillator {
-    public SawOscillator(double frequency) {
-        super(frequency);
+    public SawOscillator(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
     @Override

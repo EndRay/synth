@@ -1,6 +1,8 @@
 package Sources.Filters;
 
+import Sources.SignalSource;
+
 public interface ResonantFilter extends Filter{
-    double getResonance();
-    void setResonance(double resonance);
+    double getResonance(int sampleId);
+    void setResonance(SignalSource resonanceSource);
 }

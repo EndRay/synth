@@ -5,31 +5,31 @@ import Sources.SignalSource;
 
 abstract public class AbstractFilter extends AbstractSoundSource implements Filter{
     final SignalSource source;
+    SignalSource frequencySource;
     double currentSample;
-    double cutoff;
 
     AbstractFilter(SignalSource source){
         this.source = source;
         currentSample = 0;
         open();
     }
-    AbstractFilter(SignalSource source, double frequency){
+    AbstractFilter(SignalSource source, SignalSource frequencySource){
         this(source);
-        setFrequency(frequency);
+        setFrequency(frequencySource);
     }
 
     @Override
-    public double getFrequency() {
-        return cutoff;
+    public double getFrequency(int sampleId) {
+        return SignalSource.voltageToFrequency(frequencySource.getSample(sampleId));
     }
 
     @Override
-    public void setFrequency(double frequency) {
-        cutoff = frequency;
+    public void setFrequency(SignalSource frequencySource) {
+        this.frequencySource = frequencySource;
     }
 
-    public double getAlpha(){
-        double tmp = 2*Math.PI * samplingPeriod * cutoff;
+    public double getAlpha(int sampleId){
+        double tmp = 2*Math.PI * samplingPeriod * getFrequency(sampleId);
         return tmp / (tmp+1);
     }
 

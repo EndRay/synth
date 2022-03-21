@@ -1,13 +1,14 @@
 package Sources.Oscillators;
 
 import Sources.AbstractSoundSource;
+import Sources.SignalSource;
 
 abstract public class AbstractOscillator extends AbstractSoundSource implements Oscillator {
-    double frequency;
+    SignalSource frequencySource;
     double phase;
 
-    AbstractOscillator(double frequency) {
-        this.frequency = frequency;
+    AbstractOscillator(SignalSource frequencySource) {
+        this.frequencySource = frequencySource;
         phase = 0;
     }
 
@@ -15,16 +16,18 @@ abstract public class AbstractOscillator extends AbstractSoundSource implements 
         return phase;
     }
 
-    public double getFrequency() {
-        return frequency;
-    }
-
     public void setPhase(double phase) {
         this.phase = phase;
     }
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
+    @Override
+    public double getFrequency(int sampleId) {
+        return SignalSource.voltageToFrequency(frequencySource.getSample(sampleId));
+    }
+
+    @Override
+    public void setFrequency(SignalSource frequencySource) {
+        this.frequencySource = frequencySource;
     }
 
     public void hardSync() {
@@ -36,7 +39,7 @@ abstract public class AbstractOscillator extends AbstractSoundSource implements 
      */
     void nextSample(int sampleId) {
         if(checkAndUpdateSampleId(sampleId)) {
-            phase += frequency / sampleRate;
+            phase += getFrequency(sampleId) / sampleRate;
             if (phase < 0)
                 phase += 1;
             if (phase >= 1)

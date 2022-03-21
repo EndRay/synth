@@ -7,6 +7,7 @@ import Sources.Oscillators.SineOscillator;
 import Sources.SignalSource;
 import Sources.Utils.Attenuator;
 import Sources.Utils.DC;
+import Sources.Utils.FrequencyAdder;
 import Sources.Utils.Mixer;
 
 import javax.sound.sampled.AudioFormat;
@@ -47,17 +48,33 @@ public class Synth {
         }
     }
 
+//    public static void main(String[] args) throws LineUnavailableException {
+//        Oscillator osc = new SawOscillator(DC.getFrequencyDC(110));
+//        Oscillator osc2 = new SawOscillator(DC.getFrequencyDC(110.5));
+//        Oscillator osc3 = new SawOscillator(DC.getFrequencyDC(110.25));
+//        Oscillator sub = new SineOscillator(DC.getFrequencyDC(55));
+//        Mixer mixer = new Mixer(osc, osc2, osc3, sub);
+//        SignalSource modLFO = new SineOscillator(DC.getFrequencyDC(0.5));
+//        modLFO = new Attenuator(modLFO, 0.05);
+//        modLFO = new Mixer(DC.getFrequencyDC(6), modLFO);
+//        SignalSource LFO = new SawOscillator(modLFO);
+//        SignalSource resonant_cutoff = new Mixer(new Attenuator(LFO, -0.1), DC.getFrequencyDC(1300));
+//        SignalSource filter = new LowPass1PoleFilter(mixer, DC.getFrequencyDC(110));
+//        SignalSource resonant = new ResonantLowPass2PoleFilter(mixer, resonant_cutoff, new DC(0.8));
+//        SignalSource result = new Attenuator(new Mixer(filter, resonant), 0.1);
+//
+//        Output output = new Output(result);
+//        output.play(20);
+//    }
     public static void main(String[] args) throws LineUnavailableException {
-        Oscillator osc = new SawOscillator(110);
-        Oscillator osc2 = new SawOscillator(110.5);
-        Oscillator osc3 = new SawOscillator(110.25);
-        Oscillator sub = new SineOscillator(55);
-        Mixer mixer = new Mixer(osc, osc2, osc3, sub);
-        Filter filter = new LowPass1PoleFilter(mixer, 110);
-        SignalSource resonant = new ResonantLowPass2PoleFilter(mixer, 1600, 0.8);
-        SignalSource result = new Attenuator(new Mixer(filter, resonant), 0.1);
+        DC frequency = DC.getFrequencyDC(110);
+        Oscillator osc = new SawOscillator(frequency);
+        Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
+        frequency.setFrequency(220);
+
+        SignalSource result = new Attenuator(new Mixer(osc, osc2), 0.2);
 
         Output output = new Output(result);
-        output.play(6);
+        output.play(20);
     }
 }

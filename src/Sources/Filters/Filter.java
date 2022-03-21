@@ -2,11 +2,12 @@ package Sources.Filters;
 
 import Sources.Oscillators.Oscillator;
 import Sources.SignalSource;
+import Sources.Utils.DC;
 
 public interface Filter extends SignalSource, Oscillator {
-    double getFrequency();
-    void setFrequency(double frequency);
+    double getFrequency(int sampleId);
+    void setFrequency(SignalSource frequencySource);
     default void open(){
-        setFrequency(maxFrequency);
+        setFrequency(new DC(maxFrequency));
     }
 }
