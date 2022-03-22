@@ -1,5 +1,8 @@
 package Sources;
 
+import Sources.Utils.Attenuator;
+import Sources.Utils.DC;
+
 public interface SignalSource {
     int sampleRate = 44100;
     double samplingPeriod = 1.0 / sampleRate;
@@ -13,5 +16,13 @@ public interface SignalSource {
 
     static double voltageToFrequency(double voltage) {
         return Math.pow(maxFrequency / minFrequency, voltage) * minFrequency;
+    }
+
+    default SignalSource attenuated(double coefficient){
+        return new Attenuator(this, new DC(coefficient));
+    }
+
+    default SignalSource attenuated(SignalSource coefficientSource){
+        return new Attenuator(this, coefficientSource);
     }
 }
