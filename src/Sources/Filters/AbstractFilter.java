@@ -3,19 +3,25 @@ package Sources.Filters;
 import Sources.AbstractSoundSource;
 import Sources.SignalSource;
 
-abstract public class AbstractFilter extends AbstractSoundSource implements Filter{
-    final SignalSource source;
+abstract public class AbstractFilter extends AbstractSoundSource implements Filter {
+    SignalSource source;
     SignalSource frequencySource;
     double currentSample;
 
-    AbstractFilter(SignalSource source){
+    AbstractFilter(SignalSource source) {
         this.source = source;
         currentSample = 0;
         open();
     }
-    AbstractFilter(SignalSource source, SignalSource frequencySource){
+
+    AbstractFilter(SignalSource source, SignalSource frequencySource) {
         this(source);
         setFrequency(frequencySource);
+    }
+
+    @Override
+    public void setSoundSource(SignalSource source) {
+        this.source = source;
     }
 
     @Override
@@ -28,9 +34,9 @@ abstract public class AbstractFilter extends AbstractSoundSource implements Filt
         this.frequencySource = frequencySource;
     }
 
-    public double getAlpha(int sampleId){
-        double tmp = 2*Math.PI * samplingPeriod * getFrequency(sampleId);
-        return tmp / (tmp+1);
+    public double getAlpha(int sampleId) {
+        double tmp = 2 * Math.PI * samplingPeriod * getFrequency(sampleId);
+        return tmp / (tmp + 1);
     }
 
     abstract public double getSample(int sampleId);

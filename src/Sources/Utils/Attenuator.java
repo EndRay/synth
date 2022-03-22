@@ -6,22 +6,25 @@ import Sources.SignalSource;
 public class Attenuator extends AbstractSoundSource {
 
     SignalSource source;
-    double coefficient;
+    SignalSource coefficientSource;
     double lastSample;
 
-    public Attenuator(SignalSource source, double coefficient){
+    public Attenuator(SignalSource source, SignalSource coefficientSource){
         this.source = source;
-        this.coefficient = coefficient;
+        this.coefficientSource = coefficientSource;
     }
 
-    public void setCoefficient(double coefficient){
-        this.coefficient = coefficient;
+    public void setCoefficient(SignalSource coefficientSource){
+        this.coefficientSource = coefficientSource;
+    }
+    public double getCoefficient(int sampleId){
+        return coefficientSource.getSample(sampleId);
     }
 
     @Override
     public double getSample(int sampleId) {
         if(checkAndUpdateSampleId(sampleId))
-            lastSample = source.getSample(sampleId) * coefficient;
+            lastSample = source.getSample(sampleId) * getCoefficient(sampleId);
         return lastSample;
     }
 }

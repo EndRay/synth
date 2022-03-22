@@ -5,9 +5,13 @@ import Sources.SignalSource;
 import Sources.Utils.DC;
 
 public interface Filter extends SignalSource, Oscillator {
+    void setSoundSource(SignalSource source);
+
     double getFrequency(int sampleId);
+
     void setFrequency(SignalSource frequencySource);
-    default void open(){
+
+    default void open() {
         setFrequency(new DC(maxFrequency));
     }
 }

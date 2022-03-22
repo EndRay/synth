@@ -38,7 +38,7 @@ abstract public class AbstractOscillator extends AbstractSoundSource implements 
      * frequency < sampleRate
      */
     void nextSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)) {
+        if (checkAndUpdateSampleId(sampleId)) {
             phase += getFrequency(sampleId) / sampleRate;
             if (phase < 0)
                 phase += 1;
