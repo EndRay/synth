@@ -18,6 +18,10 @@ public interface SignalSource {
         return Math.pow(maxFrequency / minFrequency, voltage) * minFrequency;
     }
 
+    static double frequencyCoefficientToVoltage(double frequencyCoefficient){
+        return Math.log(frequencyCoefficient) / Math.log(maxFrequency / minFrequency);
+    }
+
     default SignalSource attenuated(double coefficient){
         return new Attenuator(this, new DC(coefficient));
     }

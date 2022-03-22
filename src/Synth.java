@@ -49,27 +49,28 @@ public class Synth {
     }
 
     public static void main(String[] args) throws LineUnavailableException {
-        Oscillator osc = new SawOscillator(DC.getFrequencyDC(110));
-        Oscillator osc2 = new SawOscillator(DC.getFrequencyDC(110.5));
-        Oscillator osc3 = new SawOscillator(DC.getFrequencyDC(110.25));
-        Oscillator sub = new SineOscillator(DC.getFrequencyDC(55));
-        Mixer mixer = new Mixer(osc, osc2, osc3, sub);
-        SignalSource modLFO = getSineOscillator(DC.getFrequencyDC(0.5), DC.getFrequencyDC(3), DC.getFrequencyDC(12));
-        SignalSource LFO = new SawOscillator(modLFO);
-        SignalSource resonant_cutoff = new Mixer(new Attenuator(LFO, new DC(-0.1)), DC.getFrequencyDC(1300));
-        SignalSource filter = new LowPass1PoleFilter(mixer, DC.getFrequencyDC(110));
-        SignalSource resonant = new ResonantLowPass2PoleFilter(mixer, resonant_cutoff, new DC(0.8));
-        SignalSource result = new Attenuator(new UnityMixer(filter, resonant), new DC(0.2));
+//        Oscillator osc = new SawOscillator(DC.getFrequencyDC(110));
+//        Oscillator osc2 = new SawOscillator(DC.getFrequencyDC(110.5));
+//        Oscillator osc3 = new SawOscillator(DC.getFrequencyDC(110.25));
+//        Oscillator sub = new SineOscillator(DC.getFrequencyDC(55));
+//        Mixer mixer = new Mixer(osc, osc2, osc3, sub);
+//        SignalSource modLFO = getSineOscillator(DC.getFrequencyDC(0.5), DC.getFrequencyDC(3), DC.getFrequencyDC(12));
+//        SignalSource LFO = new SawOscillator(modLFO);
+//        SignalSource resonant_cutoff = new Mixer(new Attenuator(LFO, new DC(-0.1)), DC.getFrequencyDC(1300));
+//        SignalSource filter = new LowPass1PoleFilter(mixer, DC.getFrequencyDC(110));
+//        SignalSource resonant = new ResonantLowPass2PoleFilter(mixer, resonant_cutoff, new DC(0.8));
+//        SignalSource result = new Attenuator(new UnityMixer(filter, resonant), new DC(0.2));
 
-//        DC frequency = DC.getFrequencyDC(110);
-//        Oscillator osc = new SawOscillator(frequency);
-//        SignalSource vibratoAmount = new DC(0.0001);
-//        SignalSource LFO = getSineOscillator(DC.getFrequencyDC(4), new Mixer(frequency, vibratoAmount), new Mixer(frequency, vibratoAmount.attenuated(-1)));
-//        osc.setFrequency(LFO);
-//        Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
-//        osc = new ResonantLowPass2PoleFilter(osc, DC.getFrequencyDC(2000));
-//        frequency.setFrequency(220);
-//        SignalSource result = new UnityMixer(osc, osc2).attenuated(0.2);
+        DC frequency = DC.getFrequencyDC(110);
+        Oscillator osc = new SawOscillator(frequency);
+        SignalSource vibratoPercent = DC.getFrequencyCoefficientDC(2);
+        SignalSource LFO = getSineOscillator(DC.getFrequencyDC(0.1), new Mixer(frequency, vibratoPercent), new Mixer(frequency, vibratoPercent.attenuated(-1)));
+        osc.setFrequency(LFO);
+        Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
+        osc = new ResonantLowPass2PoleFilter(osc, DC.getFrequencyDC(2000));
+        frequency.setFrequency(220);
+        SignalSource osc3 = new AC();
+        SignalSource result = new UnityMixer(osc, osc2, osc3, osc3, osc3, osc3).attenuated(0.2);
 
         Output output = new Output(result);
         output.play(20);

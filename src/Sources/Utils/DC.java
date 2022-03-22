@@ -19,15 +19,17 @@ public class DC implements SignalSource {
     }
 
     public void setFrequency(double frequency) {
-        this.offset = SignalSource.frequencyToVoltage(frequency);
+        setOffset(SignalSource.frequencyToVoltage(frequency));
     }
 
     public static DC getFrequencyDC(double frequency) {
         return new DC(SignalSource.frequencyToVoltage(frequency));
     }
 
+    public static DC getFrequencyCoefficientDC(double frequencyCoefficient){ return new DC(SignalSource.frequencyCoefficientToVoltage(frequencyCoefficient)); }
+
     @Override
     public double getSample(int sampleId) {
-        return offset;
+        return getOffset();
     }
 }
