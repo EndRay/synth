@@ -4,7 +4,6 @@ import sources.utils.SourceValue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 
@@ -22,14 +21,14 @@ public class MyMonoSynth implements Synth{
     }
 
     @Override
-    public void noteOn(int note, double velocity) {
+    public void noteOn(int note, int velocity) {
         notes.add(note);
         pitch.setValue(SignalSource.frequencyToVoltage(getFrequencyBySemitones(note)));
         gate.gateOn();
     }
 
     @Override
-    public void noteOff(int note, double velocity) {
+    public void noteOff(int note, int velocity) {
         notes.removeAll(List.of(new Integer[]{note}));
         List<Integer> newNotes = new ArrayList<>();
         for(Integer el : notes)

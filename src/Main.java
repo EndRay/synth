@@ -1,4 +1,6 @@
+import sources.Gated;
 import sources.SignalSource;
+import sources.Triggerable;
 import sources.filters.ResonantLowPass2PoleFilter;
 import sources.modulators.SimpleADSREnvelope;
 import sources.modulators.Envelope;
@@ -6,6 +8,7 @@ import sources.oscillators.Oscillator;
 import sources.oscillators.SawOscillator;
 import sources.oscillators.SineOscillator;
 import sources.utils.*;
+import sources.voices.Voice;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
@@ -64,19 +67,33 @@ public class Main {
     }
 
     public static void main(String[] args) throws LineUnavailableException {
-        SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
-        Oscillator osc = new SawOscillator(frequency);
-        Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(0.25)));
-        Oscillator osc3 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(0.5)));
-        Oscillator sub = new SineOscillator(new Mixer(frequency, DC.getFrequencyCoefficientDC(0.5)));
-        Mixer mixer = new Mixer(osc, osc2, osc3, sub);
-        SignalSource LFO = new SineOscillator(DC.getFrequencyDC(0.2));
-        Envelope env = new SimpleADSREnvelope(0.01, 5, 0.5, 2, false, false);
-        Envelope filterEnv = new SimpleADSREnvelope(4);
-        SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.map(frequencyToVoltage(50), frequencyToVoltage(3000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
-        SignalSource result = filter.attenuated(env).attenuated(0.2);
+        final int voicesCount = 6;
 
-        Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
+        SourceValue unusedSourceValue = new SourceValue("Unused value");
+
+        Voice[] voices = new Voice[voicesCount];
+
+        SignalSource LFO = new SineOscillator(DC.getFrequencyDC(0.2));
+
+        for(int i = 0; i < voicesCount; ++i) {
+            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
+            SourceValue velocity = new SourceValue("note velocity");
+            Oscillator osc = new SawOscillator(frequency);
+            Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
+            Mixer mixer = new Mixer(osc, osc2);
+            Envelope env = new SimpleADSREnvelope(2, 5, 4);
+            Envelope filterEnv = new SimpleADSREnvelope(3, 4);
+            SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.attenuated(velocity.map(0.5, 1)).map(frequencyToVoltage(600), frequencyToVoltage(4000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
+            SignalSource result = filter.attenuated(env).attenuated(0.2);
+            Gated multiGate = new MultiGate(env, filterEnv);
+            Triggerable multiTrigger = new MultiTrigger();
+
+            Voice voice = new Voice(result, frequency, velocity, unusedSourceValue, unusedSourceValue, multiGate, multiTrigger);
+            voices[i] = voice;
+        }
+
+        //Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
+        Synth synth = new MyPolySynth(voices);
         play(synth);
     }
 }
