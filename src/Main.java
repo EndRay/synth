@@ -43,7 +43,7 @@ public class Main {
 
 
             } catch (MidiUnavailableException e) {
-                System.out.println("wtf bro");
+                System.out.println("Device " + i + " error");
             }
         }
         byte[] buf = new byte[2];
@@ -73,7 +73,7 @@ public class Main {
         SignalSource LFO = new SineOscillator(DC.getFrequencyDC(0.2));
         Envelope env = new SimpleADSREnvelope(0.01, 5, 0.5, 2, false, false);
         Envelope filterEnv = new SimpleADSREnvelope(4);
-        SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.map(frequencyToVoltage(50), frequencyToVoltage(1000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
+        SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.map(frequencyToVoltage(50), frequencyToVoltage(3000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
         SignalSource result = filter.attenuated(env).attenuated(0.2);
 
         Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
