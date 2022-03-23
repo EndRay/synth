@@ -1,9 +1,9 @@
 package realisations.oscillators;
 
 import sources.SignalSource;
-import sources.oscillators.AbstractSimpleOscillator;
+import sources.oscillators.AbstractOscillator;
 
-public class TriangleOscillator extends AbstractSimpleOscillator {
+public class TriangleOscillator extends AbstractOscillator {
     public TriangleOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }
@@ -13,8 +13,7 @@ public class TriangleOscillator extends AbstractSimpleOscillator {
 
     @Override
     public double getSample(int sampleId) {
-        nextSample(sampleId);
-        double p = getPhase();
+        double p = getPtr(sampleId);
         return (p < 0.5 ? 4*p-1 : 3-4*p);
     }
 }

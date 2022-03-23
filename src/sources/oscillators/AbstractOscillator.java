@@ -5,25 +5,17 @@ import sources.SignalSource;
 
 import java.util.Random;
 
-abstract public class AbstractSimpleOscillator extends AbstractSignalSource implements Oscillator {
+abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
     SignalSource frequencySource;
     Random rd = new Random();
-    double phase;
+    private double ptr;
 
-    public AbstractSimpleOscillator(SignalSource frequencySource) {
+    public AbstractOscillator(SignalSource frequencySource) {
         this(frequencySource, false);
     }
-    public AbstractSimpleOscillator(SignalSource frequencySource, boolean randomPhase) {
+    public AbstractOscillator(SignalSource frequencySource, boolean randomPhase) {
         this.frequencySource = frequencySource;
-        phase = randomPhase ? rd.nextDouble() : 0;
-    }
-
-    public double getPhase() {
-        return phase;
-    }
-
-    public void setPhase(double phase) {
-        this.phase = phase;
+        ptr = randomPhase ? rd.nextDouble() : 0;
     }
 
     @Override
@@ -37,19 +29,20 @@ abstract public class AbstractSimpleOscillator extends AbstractSignalSource impl
     }
 
     public void hardSync() {
-         setPhase(0);
+         ptr = 0;
     }
 
     /**
      * frequency < sampleRate
      */
-    protected void nextSample(int sampleId) {
+    public double getPtr(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            phase += getFrequency(sampleId) / sampleRate;
-            if (phase < 0)
-                phase += 1;
-            if (phase >= 1)
-                phase -= 1;
+            ptr += getFrequency(sampleId) / sampleRate;
+            if (ptr < 0)
+                ptr += 1;
+            if (ptr >= 1)
+                ptr -= 1;
         }
+        return ptr;
     }
 }

@@ -1,9 +1,12 @@
 package realisations.oscillators;
 
 import sources.SignalSource;
-import sources.oscillators.AbstractSimpleOscillator;
+import sources.oscillators.AbstractOscillator;
 
-public class SineOscillator extends AbstractSimpleOscillator {
+import static java.lang.Math.PI;
+import static java.lang.Math.sin;
+
+public class SineOscillator extends AbstractOscillator {
     public SineOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }
@@ -13,7 +16,6 @@ public class SineOscillator extends AbstractSimpleOscillator {
 
     @Override
     public double getSample(int sampleId) {
-        nextSample(sampleId);
-        return Math.sin((getPhase()) * 2 * Math.PI);
+        return sin((getPtr(sampleId)) * 2 * PI);
     }
 }

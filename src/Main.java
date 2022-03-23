@@ -1,6 +1,8 @@
 import realisations.filters.ResonantLowPass2PoleFilter;
 import realisations.modulators.SimpleADSREnvelope;
+import realisations.oscillators.PMSineOscillator;
 import realisations.oscillators.SawOscillator;
+import realisations.oscillators.SineOscillator;
 import realisations.oscillators.TriangleOscillator;
 import sources.Gated;
 import sources.SignalSource;
@@ -19,6 +21,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.util.List;
 
+import static sources.SignalSource.frequencyCoefficientToVoltage;
 import static sources.SignalSource.frequencyToVoltage;
 
 public class Main {
@@ -79,20 +82,20 @@ public class Main {
         SourceValue mix3 = new SourceValue("Oscillator #3 Volume", 0.25);
         SourceValue mix4 = new SourceValue("Oscillator #4 Volume", 0.25);
 
+        SourceValue FMAmount = new SourceValue("FM Amount", 0.5);
+        SourceValue FMEnvAmount = new SourceValue("FM Envelope Amount", 0.5);
+        SourceValue FMRatio = new SourceValue("FM Ratio", 0);
+
         Voice[] voices = new Voice[voicesCount];
-        SourceValue[] CCValues = {filterCutoff, filterResonance, filterKeytrack, filterEnvAmount, mix1, mix2, mix3, mix4};
+        SourceValue[] CCValues = {FMAmount, FMEnvAmount, FMRatio};
 
         for (int i = 0; i < voicesCount; ++i) {
             SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
             SourceValue velocity = new SourceValue("note velocity");
-            SignalSource osc = new SawOscillator(frequency, true);
-            SignalSource osc2 = new SawOscillator(frequency.add(DC.getFrequencyCoefficientDC(1.01)), true);
-            SignalSource osc3 = new SawOscillator(frequency.add(DC.getFrequencyCoefficientDC(1.02)), true);
-            SignalSource sub = new TriangleOscillator(frequency.add(DC.getFrequencyCoefficientDC(0.5))).attenuate(0.5);
-            Mixer mixer = new Mixer(osc.attenuate(mix1), osc2.attenuate(mix2), osc3.attenuate(mix3), sub.attenuate(mix4));
-            Envelope env = new SimpleADSREnvelope(0.02, 3, 0.4, 0.5);
-            SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterCutoff.add(frequency.attenuate(filterKeytrack)).add(env.attenuate(filterEnvAmount.mapUni(-1, 1))).clipUni(), filterResonance);
-            SignalSource result = filter.attenuate(env).attenuate(0.1);
+            SignalSource modulator = new SineOscillator(frequency.add(FMRatio.mapUni(frequencyCoefficientToVoltage(1), frequencyToVoltage(5))));
+            Envelope env = new SimpleADSREnvelope(0.005, 6, 0, 1.5);
+            SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(FMAmount.mapUni(-3, 3)).add(env.attenuate(FMEnvAmount.mapUni(-3, 3))));
+            SignalSource result = carrier.attenuate(env).attenuate(0.1);
             Gated multiGate = new MultiGate(env);
             Triggerable multiTrigger = new MultiTrigger();
 

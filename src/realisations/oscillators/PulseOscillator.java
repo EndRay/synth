@@ -1,10 +1,10 @@
 package realisations.oscillators;
 
 import sources.SignalSource;
-import sources.oscillators.AbstractSimpleOscillator;
+import sources.oscillators.AbstractOscillator;
 import sources.utils.DC;
 
-public class PulseOscillator extends AbstractSimpleOscillator {
+public class PulseOscillator extends AbstractOscillator {
 
     SignalSource pulseWidthSource;
 
@@ -43,7 +43,6 @@ public class PulseOscillator extends AbstractSimpleOscillator {
 
     @Override
     public double getSample(int sampleId) {
-        nextSample(sampleId);
-        return (getPhase() < getPulseWidth(sampleId) ? 1 : -1);
+        return (getPtr(sampleId) < getPulseWidth(sampleId) ? 1 : -1);
     }
 }

@@ -1,9 +1,9 @@
 package realisations.oscillators;
 
 import sources.SignalSource;
-import sources.oscillators.AbstractSimpleOscillator;
+import sources.oscillators.AbstractOscillator;
 
-public class SawOscillator extends AbstractSimpleOscillator {
+public class SawOscillator extends AbstractOscillator {
     public SawOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }
@@ -13,7 +13,6 @@ public class SawOscillator extends AbstractSimpleOscillator {
 
     @Override
     public double getSample(int sampleId) {
-        nextSample(sampleId);
-        return ((getPhase() - 0.5) * 2);
+        return ((getPtr(sampleId) - 0.5) * 2);
     }
 }
