@@ -26,6 +26,14 @@ public class SourceValue implements SignalSource {
         this.value = value;
     }
 
+    public String getDescription(){
+        return description;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
     @Override
     public double getSample(int sampleId) {
         return value;

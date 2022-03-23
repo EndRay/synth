@@ -13,15 +13,20 @@ public class SynthMidiReceiver implements Receiver {
 
     @Override
     public void send(MidiMessage message, long timeStamp) {
-        System.out.println("I am SynthMidiReceiver and I got this message: " + Arrays.toString(message.getMessage()));
-        switch (message.getMessage()[0]) {
+        //System.out.println("I am SynthMidiReceiver and I got this message: " + Arrays.toString(message.getMessage()));
+        byte[] mArr = message.getMessage();
+        switch (mArr[0]) {
+            case -80:
+                for(Synth synth : synths)
+                    synth.midiCC(mArr[1], mArr[2]);
+                break;
             case -112:
                 for (Synth synth : synths)
-                    synth.noteOn(message.getMessage()[1], message.getMessage()[2]);
+                    synth.noteOn(mArr[1], mArr[2]);
                 break;
             case -128:
                 for (Synth synth : synths)
-                    synth.noteOff(message.getMessage()[1], message.getMessage()[2]);
+                    synth.noteOff(mArr[1], mArr[2]);
                 break;
         }
     }

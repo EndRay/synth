@@ -3,13 +3,19 @@ package sources.oscillators;
 import sources.AbstractSignalSource;
 import sources.SignalSource;
 
-abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
+import java.util.Random;
+
+abstract public class AbstractSimpleOscillator extends AbstractSignalSource implements Oscillator {
     SignalSource frequencySource;
+    Random rd = new Random();
     double phase;
 
-    AbstractOscillator(SignalSource frequencySource) {
+    public AbstractSimpleOscillator(SignalSource frequencySource) {
+        this(frequencySource, false);
+    }
+    public AbstractSimpleOscillator(SignalSource frequencySource, boolean randomPhase) {
         this.frequencySource = frequencySource;
-        phase = 0;
+        phase = randomPhase ? rd.nextDouble() : 0;
     }
 
     public double getPhase() {
@@ -37,7 +43,7 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
     /**
      * frequency < sampleRate
      */
-    void nextSample(int sampleId) {
+    protected void nextSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
             phase += getFrequency(sampleId) / sampleRate;
             if (phase < 0)

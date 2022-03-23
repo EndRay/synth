@@ -2,13 +2,12 @@ package sources.utils;
 
 import sources.SignalSource;
 
-import static java.lang.Math.pow;
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 import static utils.FrequencyManipulations.getSemitonesShift;
 
 public class DC implements SignalSource {
 
-    double offset;
+    final double offset;
 
     public DC() {
         this(0);
@@ -20,14 +19,6 @@ public class DC implements SignalSource {
 
     public double getOffset() {
         return offset;
-    }
-
-    public void setOffset(double offset) {
-        this.offset = offset;
-    }
-
-    public void setFrequency(double frequency) {
-        setOffset(SignalSource.frequencyToVoltage(frequency));
     }
 
     public static DC getFrequencyDC(double frequency) {

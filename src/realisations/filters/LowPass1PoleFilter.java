@@ -1,8 +1,13 @@
-package sources.filters;
+package realisations.filters;
 
 import sources.SignalSource;
+import sources.filters.AbstractFilter;
+import sources.filters.Filter;
 
 public class LowPass1PoleFilter extends AbstractFilter implements Filter {
+
+    private double currentSample = 0;
+
     public LowPass1PoleFilter(SignalSource source) {
         super(source);
     }
@@ -14,9 +19,9 @@ public class LowPass1PoleFilter extends AbstractFilter implements Filter {
     @Override
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            source.getSample(sampleId);
+            getSourceSample(sampleId);
             double f = getAlpha(sampleId);
-            currentSample = currentSample + (source.getSample(sampleId) - currentSample) * f;
+            currentSample = currentSample + (getSourceSample(sampleId) - currentSample) * f;
         }
         return currentSample;
     }

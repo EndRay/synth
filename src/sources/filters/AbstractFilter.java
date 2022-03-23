@@ -1,27 +1,19 @@
 package sources.filters;
 
-import sources.AbstractSignalSource;
+import sources.AbstractSignalProcessor;
 import sources.SignalSource;
 
-abstract public class AbstractFilter extends AbstractSignalSource implements Filter {
-    SignalSource source;
-    SignalSource frequencySource;
-    double currentSample;
+abstract public class AbstractFilter extends AbstractSignalProcessor implements Filter {
+    private SignalSource frequencySource;
 
-    AbstractFilter(SignalSource source) {
-        this.source = source;
-        currentSample = 0;
+    public AbstractFilter(SignalSource source) {
+        super(source);
         open();
     }
 
-    AbstractFilter(SignalSource source, SignalSource frequencySource) {
+    public AbstractFilter(SignalSource source, SignalSource frequencySource) {
         this(source);
         setFrequency(frequencySource);
-    }
-
-    @Override
-    public void setSoundSource(SignalSource source) {
-        this.source = source;
     }
 
     @Override

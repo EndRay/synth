@@ -1,6 +1,7 @@
 package sources;
 
 import sources.utils.Attenuator;
+import sources.utils.Clipper;
 import sources.utils.DC;
 import sources.utils.Mixer;
 
@@ -23,11 +24,11 @@ public interface SignalSource {
         return Math.log(frequencyCoefficient) / Math.log(maxFrequency / minFrequency);
     }
 
-    default SignalSource attenuated(double coefficient){
+    default SignalSource attenuate(double coefficient){
         return new Attenuator(this, new DC(coefficient));
     }
 
-    default SignalSource attenuated(SignalSource coefficientSource){
+    default SignalSource attenuate(SignalSource coefficientSource){
         return new Attenuator(this, coefficientSource);
     }
 
@@ -44,10 +45,21 @@ public interface SignalSource {
     }
 
     default SignalSource sub(SignalSource valueSource){
-        return this.add(valueSource.attenuated(-1));
+        return this.add(valueSource.attenuate(-1));
     }
 
-    default SignalSource map(double min, double max){
-        return this.attenuated(max-min).add(min);
+    default SignalSource mapUni(double min, double max){
+        return this.attenuate(max-min).add(min);
+    }
+    default SignalSource mapBi(double min, double max){
+        return this.attenuate((max-min)/2).add((min+max)/2);
+    }
+
+    default SignalSource clipUni(){
+        return new Clipper(this, false);
+    }
+
+    default SignalSource clipBi(){
+        return new Clipper(this, true);
     }
 }

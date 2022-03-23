@@ -9,4 +9,5 @@ public interface Synth extends SignalSource {
     default void noteOff(int note){
         noteOff(note, 0);
     }
+    void midiCC(int CC, int value);
 }

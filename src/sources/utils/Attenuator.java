@@ -1,16 +1,16 @@
 package sources.utils;
 
+import sources.AbstractSignalProcessor;
 import sources.AbstractSignalSource;
 import sources.SignalSource;
 
-public class Attenuator extends AbstractSignalSource {
+public class Attenuator extends AbstractSignalProcessor {
 
-    SignalSource source;
     SignalSource coefficientSource;
     double lastSample;
 
     public Attenuator(SignalSource source, SignalSource coefficientSource){
-        this.source = source;
+        super(source);
         this.coefficientSource = coefficientSource;
     }
 
@@ -24,7 +24,7 @@ public class Attenuator extends AbstractSignalSource {
     @Override
     public double getSample(int sampleId) {
         if(checkAndUpdateSampleId(sampleId))
-            lastSample = source.getSample(sampleId) * getCoefficient(sampleId);
+            lastSample = getSourceSample(sampleId) * getCoefficient(sampleId);
         return lastSample;
     }
 }

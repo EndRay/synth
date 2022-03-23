@@ -1,9 +1,9 @@
-package sources.modulators;
+package realisations.modulators;
 
 import sources.AbstractSignalSource;
+import sources.modulators.Envelope;
 
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 public class SimpleADSREnvelope extends AbstractSignalSource implements Envelope {
     double attack, decay, sustain, release;

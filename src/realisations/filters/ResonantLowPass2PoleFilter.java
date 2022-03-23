@@ -1,18 +1,23 @@
-package sources.filters;
+package realisations.filters;
 
 import sources.SignalSource;
+import sources.filters.AbstractFilter;
+import sources.filters.ResonantFilter;
 import sources.utils.DC;
 
 public class ResonantLowPass2PoleFilter extends AbstractFilter implements ResonantFilter {
     SignalSource resonanceSource;
     double[] buf;
 
-    public ResonantLowPass2PoleFilter(SignalSource source) {
-        super(source);
-        setResonance(new DC(0));
+    {
         buf = new double[2];
         buf[0] = 0;
         buf[1] = 0;
+    }
+
+    public ResonantLowPass2PoleFilter(SignalSource source) {
+        super(source);
+        setResonance(new DC(0));
     }
 
     public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource) {
@@ -22,16 +27,13 @@ public class ResonantLowPass2PoleFilter extends AbstractFilter implements Resona
     public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource, SignalSource resonanceSource) {
         super(source, frequencySource);
         setResonance(resonanceSource);
-        buf = new double[2];
-        buf[0] = 0;
-        buf[1] = 0;
     }
 
     @Override
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
             double f = getAlpha(sampleId);
-            buf[0] = buf[0] + f * (source.getSample(sampleId) - buf[0] + getFeedback(sampleId) * (buf[0] - buf[1]));
+            buf[0] = buf[0] + f * (getSourceSample(sampleId) - buf[0] + getFeedback(sampleId) * (buf[0] - buf[1]));
             buf[1] = buf[1] + f * (buf[0] - buf[1]);
         }
         return buf[1];

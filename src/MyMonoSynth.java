@@ -44,6 +44,11 @@ public class MyMonoSynth implements Synth{
         }
     }
 
+    @Override
+    public void midiCC(int CC, int value) {
+        System.out.println("I am monosynth and I received CC#" + CC + " message and I ignoring it");
+    }
+
 
     @Override
     public double getSample(int sampleId) {

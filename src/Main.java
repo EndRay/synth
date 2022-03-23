@@ -1,12 +1,11 @@
+import realisations.filters.ResonantLowPass2PoleFilter;
+import realisations.modulators.SimpleADSREnvelope;
+import realisations.oscillators.SawOscillator;
+import realisations.oscillators.TriangleOscillator;
 import sources.Gated;
 import sources.SignalSource;
 import sources.Triggerable;
-import sources.filters.ResonantLowPass2PoleFilter;
-import sources.modulators.SimpleADSREnvelope;
 import sources.modulators.Envelope;
-import sources.oscillators.Oscillator;
-import sources.oscillators.SawOscillator;
-import sources.oscillators.SineOscillator;
 import sources.utils.*;
 import sources.voices.Voice;
 
@@ -20,7 +19,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.util.List;
 
-import static sources.SignalSource.frequencyCoefficientToVoltage;
 import static sources.SignalSource.frequencyToVoltage;
 
 public class Main {
@@ -42,17 +40,17 @@ public class Main {
                 Transmitter trans = device.getTransmitter();
                 trans.setReceiver(midiReceiver);
                 device.open();
-                System.out.println(device.getDeviceInfo()+" Was Opened");
+                //System.out.println(device.getDeviceInfo()+" Was Opened");
 
 
             } catch (MidiUnavailableException e) {
-                System.out.println("Device " + i + " error");
+                //System.out.println("Device " + i + " error");
             }
         }
         byte[] buf = new byte[2];
         AudioFormat af = new AudioFormat((float) sampleRate, 16, 1, true, false);
         SourceDataLine sdl = AudioSystem.getSourceDataLine(af);
-        sdl.open(af, (int)(0.1*sampleRate));
+        sdl.open(af, (int) (0.1 * sampleRate));
         sdl.start();
         int samples = (int) (200 * (float) sampleRate);
         for (int i = 0; i < samples; i++) {
@@ -71,21 +69,31 @@ public class Main {
 
         SourceValue unusedSourceValue = new SourceValue("Unused value");
 
+        SourceValue filterCutoff = new SourceValue("Filter Cutoff", 0.3);
+        SourceValue filterResonance = new SourceValue("Filter Resonance", 0.2);
+        SourceValue filterKeytrack = new SourceValue("Filter Keytrack", 0.8);
+        SourceValue filterEnvAmount = new SourceValue("Filter Envelope Amount", 0.7);
+
+        SourceValue mix1 = new SourceValue("Oscillator #1 Volume", 0.25);
+        SourceValue mix2 = new SourceValue("Oscillator #2 Volume", 0.25);
+        SourceValue mix3 = new SourceValue("Oscillator #3 Volume", 0.25);
+        SourceValue mix4 = new SourceValue("Oscillator #4 Volume", 0.25);
+
         Voice[] voices = new Voice[voicesCount];
+        SourceValue[] CCValues = {filterCutoff, filterResonance, filterKeytrack, filterEnvAmount, mix1, mix2, mix3, mix4};
 
-        SignalSource LFO = new SineOscillator(DC.getFrequencyDC(0.2));
-
-        for(int i = 0; i < voicesCount; ++i) {
+        for (int i = 0; i < voicesCount; ++i) {
             SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
             SourceValue velocity = new SourceValue("note velocity");
-            Oscillator osc = new SawOscillator(frequency);
-            Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
-            Mixer mixer = new Mixer(osc, osc2);
-            Envelope env = new SimpleADSREnvelope(2, 5, 4);
-            Envelope filterEnv = new SimpleADSREnvelope(3, 4);
-            SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.attenuated(velocity.map(0.5, 1)).map(frequencyToVoltage(600), frequencyToVoltage(4000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
-            SignalSource result = filter.attenuated(env).attenuated(0.2);
-            Gated multiGate = new MultiGate(env, filterEnv);
+            SignalSource osc = new SawOscillator(frequency, true);
+            SignalSource osc2 = new SawOscillator(frequency.add(DC.getFrequencyCoefficientDC(1.01)), true);
+            SignalSource osc3 = new SawOscillator(frequency.add(DC.getFrequencyCoefficientDC(1.02)), true);
+            SignalSource sub = new TriangleOscillator(frequency.add(DC.getFrequencyCoefficientDC(0.5))).attenuate(0.5);
+            Mixer mixer = new Mixer(osc.attenuate(mix1), osc2.attenuate(mix2), osc3.attenuate(mix3), sub.attenuate(mix4));
+            Envelope env = new SimpleADSREnvelope(0.02, 3, 0.4, 0.5);
+            SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterCutoff.add(frequency.attenuate(filterKeytrack)).add(env.attenuate(filterEnvAmount.mapUni(-1, 1))).clipUni(), filterResonance);
+            SignalSource result = filter.attenuate(env).attenuate(0.1);
+            Gated multiGate = new MultiGate(env);
             Triggerable multiTrigger = new MultiTrigger();
 
             Voice voice = new Voice(result, frequency, velocity, unusedSourceValue, unusedSourceValue, multiGate, multiTrigger);
@@ -93,7 +101,7 @@ public class Main {
         }
 
         //Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
-        Synth synth = new MyPolySynth(voices);
+        Synth synth = new MyPolySynth(voices, new Mixer(voices).clipBi(), CCValues);
         play(synth);
     }
 }

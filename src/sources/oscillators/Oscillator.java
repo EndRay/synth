@@ -10,9 +10,4 @@ public interface Oscillator extends SignalSource {
     double getFrequency(int sampleId);
 
     void setFrequency(SignalSource frequencySource);
-
-    @Override
-    default SignalSource map(double min, double max){
-        return this.attenuated((max-min)/2).add((min+max)/2);
-    }
 }
