@@ -1,9 +1,9 @@
-package Sources.Utils;
+package sources.utils;
 
-import Sources.AbstractSoundSource;
-import Sources.SignalSource;
+import sources.AbstractSignalSource;
+import sources.SignalSource;
 
-public class Attenuator extends AbstractSoundSource {
+public class Attenuator extends AbstractSignalSource {
 
     SignalSource source;
     SignalSource coefficientSource;

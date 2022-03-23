@@ -1,9 +1,9 @@
-package Sources;
+package sources;
 
-abstract public class AbstractSoundSource implements SignalSource {
+abstract public class AbstractSignalSource implements SignalSource {
     int lastSampleId;
 
-    public AbstractSoundSource() {
+    public AbstractSignalSource() {
         lastSampleId = -1;
     }
 

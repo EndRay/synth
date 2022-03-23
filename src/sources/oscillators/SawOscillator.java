@@ -1,6 +1,6 @@
-package Sources.Oscillators;
+package sources.oscillators;
 
-import Sources.SignalSource;
+import sources.SignalSource;
 
 public class SawOscillator extends AbstractOscillator {
     public SawOscillator(SignalSource frequencySource) {

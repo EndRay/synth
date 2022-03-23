@@ -1,6 +1,6 @@
-package Sources.Filters;
+package sources.filters;
 
-import Sources.SignalSource;
+import sources.SignalSource;
 
 public class LowPass1PoleFilter extends AbstractFilter implements Filter {
     public LowPass1PoleFilter(SignalSource source) {

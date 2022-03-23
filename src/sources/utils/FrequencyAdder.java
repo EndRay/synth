@@ -1,9 +1,9 @@
-package Sources.Utils;
+package sources.utils;
 
-import Sources.AbstractSoundSource;
-import Sources.SignalSource;
+import sources.AbstractSignalSource;
+import sources.SignalSource;
 
-public class FrequencyAdder extends AbstractSoundSource {
+public class FrequencyAdder extends AbstractSignalSource {
 
     SignalSource[] sources;
     double lastSample;

@@ -1,7 +1,7 @@
-package Sources;
+package sources;
 
-import Sources.Utils.Attenuator;
-import Sources.Utils.DC;
+import sources.utils.Attenuator;
+import sources.utils.DC;
 
 public interface SignalSource {
     int sampleRate = 44100;

@@ -1,7 +1,7 @@
-package Sources.Filters;
+package sources.filters;
 
-import Sources.SignalSource;
-import Sources.Utils.DC;
+import sources.SignalSource;
+import sources.utils.DC;
 
 public class ResonantLowPass2PoleFilter extends AbstractFilter implements ResonantFilter {
     SignalSource resonanceSource;

@@ -1,9 +1,9 @@
-package Sources.Filters;
+package sources.filters;
 
-import Sources.AbstractSoundSource;
-import Sources.SignalSource;
+import sources.AbstractSignalSource;
+import sources.SignalSource;
 
-abstract public class AbstractFilter extends AbstractSoundSource implements Filter {
+abstract public class AbstractFilter extends AbstractSignalSource implements Filter {
     SignalSource source;
     SignalSource frequencySource;
     double currentSample;

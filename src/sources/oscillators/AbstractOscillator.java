@@ -1,9 +1,9 @@
-package Sources.Oscillators;
+package sources.oscillators;
 
-import Sources.AbstractSoundSource;
-import Sources.SignalSource;
+import sources.AbstractSignalSource;
+import sources.SignalSource;
 
-abstract public class AbstractOscillator extends AbstractSoundSource implements Oscillator {
+abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
     SignalSource frequencySource;
     double phase;
 
@@ -31,7 +31,7 @@ abstract public class AbstractOscillator extends AbstractSoundSource implements 
     }
 
     public void hardSync() {
-        phase = 0;
+         setPhase(0);
     }
 
     /**

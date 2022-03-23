@@ -1,11 +1,15 @@
-package Sources.Utils;
+package sources.utils;
 
-import Sources.SignalSource;
+import sources.AbstractSignalSource;
+import sources.SignalSource;
 
-public class UnityMixer extends Mixer{
+public class Mixer extends AbstractSignalSource {
 
-    public UnityMixer(SignalSource... sources) {
-        super(sources);
+    SignalSource[] sources;
+    double lastSample;
+
+    public Mixer(SignalSource... sources) {
+        this.sources = sources;
     }
 
     @Override
@@ -14,7 +18,6 @@ public class UnityMixer extends Mixer{
             lastSample = 0;
             for (SignalSource source : sources)
                 lastSample += source.getSample(sampleId);
-            lastSample /= sources.length;
         }
         return lastSample;
     }

@@ -1,8 +1,8 @@
-package Sources.Filters;
+package sources.filters;
 
-import Sources.Oscillators.Oscillator;
-import Sources.SignalSource;
-import Sources.Utils.DC;
+import sources.oscillators.Oscillator;
+import sources.SignalSource;
+import sources.utils.DC;
 
 public interface Filter extends SignalSource, Oscillator {
     void setSoundSource(SignalSource source);
