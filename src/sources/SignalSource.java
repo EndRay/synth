@@ -2,6 +2,7 @@ package sources;
 
 import sources.utils.Attenuator;
 import sources.utils.DC;
+import sources.utils.Mixer;
 
 public interface SignalSource {
     int sampleRate = 44100;
@@ -28,5 +29,25 @@ public interface SignalSource {
 
     default SignalSource attenuated(SignalSource coefficientSource){
         return new Attenuator(this, coefficientSource);
+    }
+
+    default SignalSource add(double value){
+        return this.add(new DC(value));
+    }
+
+    default SignalSource add(SignalSource valueSource){
+        return new Mixer(this, valueSource);
+    }
+
+    default SignalSource sub(double value){
+        return this.add(-value);
+    }
+
+    default SignalSource sub(SignalSource valueSource){
+        return this.add(valueSource.attenuated(-1));
+    }
+
+    default SignalSource map(double min, double max){
+        return this.attenuated(max-min).add(min);
     }
 }

@@ -17,6 +17,9 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.util.List;
 
+import static sources.SignalSource.frequencyCoefficientToVoltage;
+import static sources.SignalSource.frequencyToVoltage;
+
 public class Main {
     final static int sampleRate = 44100;
 
@@ -60,41 +63,20 @@ public class Main {
         sdl.stop();
     }
 
-    static SignalSource getSineOscillator(SignalSource frequencySource, SignalSource min, SignalSource max){
-        SignalSource osc = new SineOscillator(frequencySource);
-        SignalSource dif = new UnityMixer(max, min.attenuated(-1));
-        SignalSource avg = new UnityMixer(max, min);
-        osc = new Mixer(avg, osc.attenuated(dif));
-        return osc;
-    }
-
     public static void main(String[] args) throws LineUnavailableException {
-        SourceValue frequency = new SourceValue("note frequency", SignalSource.frequencyToVoltage(110));
+        SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
         Oscillator osc = new SawOscillator(frequency);
         Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(0.25)));
         Oscillator osc3 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(0.5)));
         Oscillator sub = new SineOscillator(new Mixer(frequency, DC.getFrequencyCoefficientDC(0.5)));
         Mixer mixer = new Mixer(osc, osc2, osc3, sub);
-        Envelope env = new SimpleADSREnvelope(0.01, 2, 0.4, 0.1, true, false);
-//        Envelope filterEnv = new SimpleADSREnvelope(1);
-        SignalSource filter = new ResonantLowPass2PoleFilter(mixer, DC.getFrequencyDC(1000), new DC(0.7));
+        SignalSource LFO = new SineOscillator(DC.getFrequencyDC(0.2));
+        Envelope env = new SimpleADSREnvelope(0.01, 5, 0.5, 2, false, false);
+        Envelope filterEnv = new SimpleADSREnvelope(4);
+        SignalSource filter = new ResonantLowPass2PoleFilter(mixer, filterEnv.map(frequencyToVoltage(50), frequencyToVoltage(1000)).add(LFO.map(frequencyCoefficientToVoltage(0.8), frequencyCoefficientToVoltage(1.2))), new DC(0.7));
         SignalSource result = filter.attenuated(env).attenuated(0.2);
 
-
-
-//        DC frequency = DC.getFrequencyDC(110);
-//        Oscillator osc = new SawOscillator(frequency);
-//        SignalSource vibratoPercent = DC.getFrequencyCoefficientDC(2);
-//        SignalSource LFO = getSineOscillator(DC.getFrequencyDC(0.1), new Mixer(frequency, vibratoPercent), new Mixer(frequency, vibratoPercent.attenuated(-1)));
-//        osc.setFrequency(LFO);
-//        Oscillator osc2 = new SawOscillator(new FrequencyAdder(frequency, DC.getFrequencyDC(1)));
-//        osc = new ResonantLowPass2PoleFilter(osc, DC.getFrequencyDC(2000));
-//        frequency.setFrequency(220);
-//        SignalSource osc3 = new DC();
-//        SignalSource result = new UnityMixer(osc, osc2, osc3, osc3, osc3, osc3).attenuated(0.2);
-
-
-        Synth synth = new MyMonoSynth(result, frequency, env);
+        Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
         play(synth);
     }
 }

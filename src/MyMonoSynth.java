@@ -1,3 +1,4 @@
+import sources.Gated;
 import sources.SignalSource;
 import sources.modulators.Envelope;
 import sources.utils.DC;
@@ -9,13 +10,13 @@ public class MyMonoSynth implements Synth{
 
     SignalSource voice;
     SourceValue pitch;
-    Envelope envelope;
+    Gated gate;
     int note;
 
-    public MyMonoSynth(SignalSource voice, SourceValue pitch, Envelope envelope){
+    public MyMonoSynth(SignalSource voice, SourceValue pitch, Gated gate){
         this.voice = voice;
         this.pitch = pitch;
-        this.envelope = envelope;
+        this.gate = gate;
         note = -1;
     }
 
@@ -23,13 +24,13 @@ public class MyMonoSynth implements Synth{
     public void noteOn(int note, double velocity) {
         pitch.setValue(SignalSource.frequencyToVoltage(getFrequencyBySemitones(note)));
         this.note = note;
-        envelope.gateOn();
+        gate.gateOn();
     }
 
     @Override
     public void noteOff(int note, double velocity) {
         if(note == this.note)
-            envelope.gateOff();
+            gate.gateOff();
     }
 
 
