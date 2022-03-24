@@ -1,9 +1,6 @@
 package sources;
 
-import sources.utils.Attenuator;
-import sources.utils.Clipper;
-import sources.utils.DC;
-import sources.utils.Mixer;
+import sources.utils.*;
 
 public interface SignalSource {
     int sampleRate = 44100;
@@ -20,8 +17,8 @@ public interface SignalSource {
         return Math.pow(maxFrequency / minFrequency, voltage) * minFrequency;
     }
 
-    static double frequencyCoefficientToVoltage(double frequencyCoefficient){
-        return Math.log(frequencyCoefficient) / Math.log(maxFrequency / minFrequency);
+    static double frequencyRatioToVoltage(double frequencyRatio){
+        return Math.log(frequencyRatio) / Math.log(maxFrequency / minFrequency);
     }
 
     default SignalSource attenuate(double coefficient){
@@ -61,5 +58,17 @@ public interface SignalSource {
 
     default SignalSource clipBi(){
         return new Clipper(this, true);
+    }
+
+    default SignalSource multiplyFrequency(double ratio){
+        return this.add(frequencyRatioToVoltage(ratio));
+    }
+
+    default SignalSource addFrequency(double frequency){
+        return this.addFrequency(DC.getFrequencyDC(frequency));
+    }
+
+    default SignalSource addFrequency(SignalSource frequencySource){
+        return new FrequencyAdder(this, frequencySource);
     }
 }

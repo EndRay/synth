@@ -12,7 +12,7 @@ public interface Filter extends SignalProcessor, Oscillator {
     void setFrequency(SignalSource frequencySource);
 
     double getSourceSample(int sampleId);
-    void setSoundSource(SignalSource source);
+    void setSignalSource(SignalSource source);
 
     default void open() {
         setFrequency(DC.getFrequencyDC(maxFrequency));

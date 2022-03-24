@@ -1,10 +1,14 @@
 package sources;
 
-import sources.utils.SourceValue;
+import sources.utils.DC;
 
 abstract public class AbstractSignalProcessor extends AbstractSignalSource implements SignalProcessor {
 
     private SignalSource source;
+
+    public AbstractSignalProcessor(){
+        this(new DC());
+    }
 
     public AbstractSignalProcessor(SignalSource source){
         this.source = source;
@@ -16,8 +20,12 @@ abstract public class AbstractSignalProcessor extends AbstractSignalSource imple
     }
 
     @Override
-    public void setSoundSource(SignalSource source){
+    public void setSignalSource(SignalSource source){
         this.source = source;
     }
 
+    @Override
+    public SignalSource getSignalSource(){
+        return source;
+    }
 }

@@ -25,12 +25,12 @@ public class DC implements SignalSource {
         return new DC(SignalSource.frequencyToVoltage(frequency));
     }
 
-    public static DC getFrequencyCoefficientDC(double frequencyCoefficient){
-        return new DC(SignalSource.frequencyCoefficientToVoltage(frequencyCoefficient));
+    public static DC getFrequencyRatioDC(double frequencyRatio){
+        return new DC(SignalSource.frequencyRatioToVoltage(frequencyRatio));
     }
 
     public static DC getSemitonesShiftDC(double semitones){
-        return getFrequencyCoefficientDC(getSemitonesShift(semitones));
+        return getFrequencyRatioDC(getSemitonesShift(semitones));
     }
 
     public static DC getFrequencyDCBySemitones(double semitones) {

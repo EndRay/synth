@@ -1,7 +1,5 @@
-import realisations.filters.ResonantLowPass2PoleFilter;
 import realisations.modulators.SimpleADSREnvelope;
 import realisations.oscillators.PMSineOscillator;
-import realisations.oscillators.SawOscillator;
 import realisations.oscillators.SineOscillator;
 import realisations.oscillators.TriangleOscillator;
 import sources.Gated;
@@ -21,8 +19,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.util.List;
 
-import static sources.SignalSource.frequencyCoefficientToVoltage;
 import static sources.SignalSource.frequencyToVoltage;
+import static sources.SignalSource.voltageToFrequency;
 
 public class Main {
     final static int sampleRate = 44100;
@@ -68,40 +66,29 @@ public class Main {
     }
 
     public static void main(String[] args) throws LineUnavailableException {
-        final int voicesCount = 6;
+        final int voicesCount = 1;
 
         SourceValue unusedSourceValue = new SourceValue("Unused value");
 
-        SourceValue filterCutoff = new SourceValue("Filter Cutoff", 0.3);
-        SourceValue filterResonance = new SourceValue("Filter Resonance", 0.2);
-        SourceValue filterKeytrack = new SourceValue("Filter Keytrack", 0.8);
-        SourceValue filterEnvAmount = new SourceValue("Filter Envelope Amount", 0.7);
-
-        SourceValue mix1 = new SourceValue("Oscillator #1 Volume", 0.25);
-        SourceValue mix2 = new SourceValue("Oscillator #2 Volume", 0.25);
-        SourceValue mix3 = new SourceValue("Oscillator #3 Volume", 0.25);
-        SourceValue mix4 = new SourceValue("Oscillator #4 Volume", 0.25);
-
-        SourceValue FMAmount = new SourceValue("FM Amount", 0.5);
-        SourceValue FMEnvAmount = new SourceValue("FM Envelope Amount", 0.5);
-        SourceValue FMRatio = new SourceValue("FM Ratio", 0);
-
         Voice[] voices = new Voice[voicesCount];
-        SourceValue[] CCValues = {FMAmount, FMEnvAmount, FMRatio};
+        SourceValue[] CCValues = {};
 
         for (int i = 0; i < voicesCount; ++i) {
-            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110));
+            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(220));
             SourceValue velocity = new SourceValue("note velocity");
-            SignalSource modulator = new SineOscillator(frequency.add(FMRatio.mapUni(frequencyCoefficientToVoltage(1), frequencyToVoltage(5))));
-            Envelope env = new SimpleADSREnvelope(0.005, 6, 0, 1.5);
-            SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(FMAmount.mapUni(-3, 3)).add(env.attenuate(FMEnvAmount.mapUni(-3, 3))));
-            SignalSource result = carrier.attenuate(env).attenuate(0.1);
+            SignalSource modulator = new SineOscillator(frequency.multiplyFrequency(3));
+            Envelope env = new SimpleADSREnvelope(0, 5, 0, 5);
+            SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(env).attenuate(0.3));
+            SignalSource result = carrier.attenuate(0.2);
             Gated multiGate = new MultiGate(env);
             Triggerable multiTrigger = new MultiTrigger();
 
-            Voice voice = new Voice(result, frequency, velocity, unusedSourceValue, unusedSourceValue, multiGate, multiTrigger);
+            Voice voice = new Voice(result, unusedSourceValue, velocity, unusedSourceValue, unusedSourceValue, multiGate, multiTrigger);
             voices[i] = voice;
+
+            multiGate.gateOn();
         }
+
 
         //Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
         Synth synth = new MyPolySynth(voices, new Mixer(voices).clipBi(), CCValues);
