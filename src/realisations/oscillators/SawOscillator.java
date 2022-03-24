@@ -3,6 +3,10 @@ package realisations.oscillators;
 import sources.SignalSource;
 import sources.oscillators.AbstractOscillator;
 
+/**
+ * ramp-down saw
+ */
+
 public class SawOscillator extends AbstractOscillator {
     public SawOscillator(SignalSource frequencySource) {
         super(frequencySource);
@@ -13,6 +17,6 @@ public class SawOscillator extends AbstractOscillator {
 
     @Override
     public double getSample(int sampleId) {
-        return ((getPtr(sampleId) - 0.5) * 2);
+        return ((0.5 - getPtr(sampleId)) * 2);
     }
 }

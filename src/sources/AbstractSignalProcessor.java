@@ -20,12 +20,12 @@ abstract public class AbstractSignalProcessor extends AbstractSignalSource imple
     }
 
     @Override
-    public void setSignalSource(SignalSource source){
+    public void bind(SignalSource source){
         this.source = source;
     }
 
     @Override
-    public SignalSource getSignalSource(){
+    public SignalSource getSource(){
         return source;
     }
 }

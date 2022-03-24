@@ -65,10 +65,7 @@ public interface SignalSource {
     }
 
     default SignalSource addFrequency(double frequency){
-        return this.addFrequency(DC.getFrequencyDC(frequency));
+        return new FrequencyAdder(this, frequency);
     }
 
-    default SignalSource addFrequency(SignalSource frequencySource){
-        return new FrequencyAdder(this, frequencySource);
-    }
 }

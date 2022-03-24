@@ -2,19 +2,13 @@ package sources.filters;
 
 import sources.SignalProcessor;
 import sources.oscillators.Oscillator;
-import sources.SignalSource;
-import sources.utils.DC;
+import sources.utils.Socket;
 
 public interface Filter extends SignalProcessor, Oscillator {
 
-    double getFrequency(int sampleId);
-
-    void setFrequency(SignalSource frequencySource);
-
-    double getSourceSample(int sampleId);
-    void setSignalSource(SignalSource source);
+    Socket frequency();
 
     default void open() {
-        setFrequency(DC.getFrequencyDC(maxFrequency));
+        frequency().setFrequency(maxFrequency);
     }
 }

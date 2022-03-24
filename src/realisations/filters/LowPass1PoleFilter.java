@@ -1,10 +1,9 @@
 package realisations.filters;
 
 import sources.SignalSource;
-import sources.filters.AbstractFilter;
 import sources.filters.Filter;
 
-public class LowPass1PoleFilter extends AbstractFilter implements Filter {
+public class LowPass1PoleFilter extends AbstractSimpleLowPassFilter implements Filter {
 
     private double currentSample = 0;
 
@@ -15,6 +14,7 @@ public class LowPass1PoleFilter extends AbstractFilter implements Filter {
     public LowPass1PoleFilter(SignalSource source, SignalSource frequencySource) {
         super(source, frequencySource);
     }
+
 
     @Override
     public double getSample(int sampleId) {

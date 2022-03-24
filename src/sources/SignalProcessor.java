@@ -1,11 +1,11 @@
 package sources;
 
-public interface SignalProcessor extends SignalSource  {
+public interface SignalProcessor extends SignalSource {
     double getSourceSample(int sampleId);
-    void setSignalSource(SignalSource source);
-    SignalSource getSignalSource();
+    void bind(SignalSource source);
+    SignalSource getSource();
     default void preprocess(SignalProcessor processor){
-        processor.setSignalSource(getSignalSource());
-        setSignalSource(processor);
+        processor.bind(getSource());
+        bind(processor);
     }
 }

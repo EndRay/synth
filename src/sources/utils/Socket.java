@@ -4,20 +4,27 @@ import sources.AbstractSignalProcessor;
 import sources.SignalSource;
 
 public class Socket extends AbstractSignalProcessor {
+    public Socket(){
+        super();
+    }
     public Socket(SignalSource source) {
         super(source);
     }
 
     public void set(double value){
-        setSignalSource(new DC(value));
+        bind(new DC(value));
     }
 
     public void setFrequency(double frequency){
-        setSignalSource(DC.getFrequencyDC(frequency));
+        bind(DC.getFrequencyDC(frequency));
+    }
+
+    public double getFrequency(int sampleId){
+        return SignalSource.voltageToFrequency(getSample(sampleId));
     }
 
     public void modulate(SignalSource modulator){
-        setSignalSource(getSignalSource().add(modulator));
+        bind(getSource().add(modulator));
     }
 
     @Override

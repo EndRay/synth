@@ -1,12 +1,11 @@
 package realisations.filters;
 
 import sources.SignalSource;
-import sources.filters.AbstractFilter;
 import sources.filters.ResonantFilter;
-import sources.utils.DC;
+import sources.utils.Socket;
 
-public class ResonantLowPass2PoleFilter extends AbstractFilter implements ResonantFilter {
-    SignalSource resonanceSource;
+public class ResonantLowPass2PoleFilter extends AbstractSimpleLowPassFilter implements ResonantFilter {
+    private final Socket resonance = new Socket();
     double[] buf;
 
     {
@@ -17,16 +16,15 @@ public class ResonantLowPass2PoleFilter extends AbstractFilter implements Resona
 
     public ResonantLowPass2PoleFilter(SignalSource source) {
         super(source);
-        setResonance(new DC(0));
     }
 
     public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource) {
-        this(source, frequencySource, new DC(0));
+        super(source, frequencySource);
     }
 
     public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource, SignalSource resonanceSource) {
         super(source, frequencySource);
-        setResonance(resonanceSource);
+        resonance.bind(resonanceSource);
     }
 
     @Override
@@ -39,19 +37,13 @@ public class ResonantLowPass2PoleFilter extends AbstractFilter implements Resona
         return buf[1];
     }
 
-
-    @Override
-    public double getResonance(int sampleId) {
-        return resonanceSource.getSample(sampleId);
-    }
-
-    @Override
-    public void setResonance(SignalSource resonanceSource) {
-        this.resonanceSource = resonanceSource;
-    }
-
-    public double getFeedback(int sampleId) {
-        double q = getResonance(sampleId);
+    protected double getFeedback(int sampleId) {
+        double q = resonance().getSample(sampleId);
         return q + q / (1.0 - getAlpha(sampleId));
+    }
+
+    @Override
+    public Socket resonance() {
+        return resonance;
     }
 }

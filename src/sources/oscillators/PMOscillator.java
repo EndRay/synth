@@ -1,8 +1,7 @@
 package sources.oscillators;
 
-import sources.SignalSource;
+import sources.utils.Socket;
 
 public interface PMOscillator extends Oscillator{
-    double getPhase(int sampleId);
-    void setPhase(SignalSource phaseSource);
+    Socket phase();
 }

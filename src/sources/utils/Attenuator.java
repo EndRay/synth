@@ -6,25 +6,22 @@ import sources.SignalSource;
 
 public class Attenuator extends AbstractSignalProcessor {
 
-    SignalSource coefficientSource;
+    private final Socket coefficient = new Socket();
     double lastSample;
 
     public Attenuator(SignalSource source, SignalSource coefficientSource){
         super(source);
-        this.coefficientSource = coefficientSource;
+        coefficient().bind(coefficientSource);
     }
 
-    public void setCoefficient(SignalSource coefficientSource){
-        this.coefficientSource = coefficientSource;
-    }
-    public double getCoefficient(int sampleId){
-        return coefficientSource.getSample(sampleId);
+    public Socket coefficient(){
+        return coefficient;
     }
 
     @Override
     public double getSample(int sampleId) {
         if(checkAndUpdateSampleId(sampleId))
-            lastSample = getSourceSample(sampleId) * getCoefficient(sampleId);
+            lastSample = getSourceSample(sampleId) * coefficient().getSample(sampleId);
         return lastSample;
     }
 }

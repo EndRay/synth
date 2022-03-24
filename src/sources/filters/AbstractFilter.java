@@ -2,9 +2,10 @@ package sources.filters;
 
 import sources.AbstractSignalProcessor;
 import sources.SignalSource;
+import sources.utils.Socket;
 
 abstract public class AbstractFilter extends AbstractSignalProcessor implements Filter {
-    private SignalSource frequencySource;
+    private final Socket frequency = new Socket();
 
     public AbstractFilter(SignalSource source) {
         super(source);
@@ -13,22 +14,12 @@ abstract public class AbstractFilter extends AbstractSignalProcessor implements 
 
     public AbstractFilter(SignalSource source, SignalSource frequencySource) {
         this(source);
-        setFrequency(frequencySource);
+        frequency().bind(frequencySource);
     }
 
     @Override
-    public double getFrequency(int sampleId) {
-        return SignalSource.voltageToFrequency(frequencySource.getSample(sampleId));
-    }
-
-    @Override
-    public void setFrequency(SignalSource frequencySource) {
-        this.frequencySource = frequencySource;
-    }
-
-    public double getAlpha(int sampleId) {
-        double tmp = 2 * Math.PI * samplingPeriod * getFrequency(sampleId);
-        return tmp / (tmp + 1);
+    public Socket frequency(){
+        return frequency;
     }
 
     abstract public double getSample(int sampleId);

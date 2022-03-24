@@ -2,30 +2,26 @@ package sources.oscillators;
 
 import sources.AbstractSignalSource;
 import sources.SignalSource;
+import sources.utils.Socket;
 
 import java.util.Random;
 
 abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
-    SignalSource frequencySource;
-    Random rd = new Random();
+    private final Socket frequency = new Socket();
+    protected Random rd = new Random();
     private double ptr;
 
     public AbstractOscillator(SignalSource frequencySource) {
         this(frequencySource, false);
     }
     public AbstractOscillator(SignalSource frequencySource, boolean randomPhase) {
-        this.frequencySource = frequencySource;
+        frequency().bind(frequencySource);
         ptr = randomPhase ? rd.nextDouble() : 0;
     }
 
     @Override
-    public double getFrequency(int sampleId) {
-        return SignalSource.voltageToFrequency(frequencySource.getSample(sampleId));
-    }
-
-    @Override
-    public void setFrequency(SignalSource frequencySource) {
-        this.frequencySource = frequencySource;
+    public Socket frequency(){
+        return frequency;
     }
 
     public void hardSync() {
@@ -37,7 +33,7 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
      */
     public double getPtr(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            ptr += getFrequency(sampleId) / sampleRate;
+            ptr += frequency().getFrequency(sampleId) / sampleRate;
             if (ptr < 0)
                 ptr += 1;
             if (ptr >= 1)

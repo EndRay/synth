@@ -1,11 +1,16 @@
+import realisations.filters.ResonantLowPass2PoleFilter;
 import realisations.modulators.SimpleADSREnvelope;
 import realisations.oscillators.PMSineOscillator;
+import realisations.oscillators.SawOscillator;
 import realisations.oscillators.SineOscillator;
 import realisations.oscillators.TriangleOscillator;
 import sources.Gated;
 import sources.SignalSource;
 import sources.Triggerable;
+import sources.filters.Filter;
+import sources.filters.ResonantFilter;
 import sources.modulators.Envelope;
+import sources.oscillators.Oscillator;
 import sources.utils.*;
 import sources.voices.Voice;
 
@@ -21,6 +26,7 @@ import java.util.List;
 
 import static sources.SignalSource.frequencyToVoltage;
 import static sources.SignalSource.voltageToFrequency;
+import static utils.FrequencyManipulations.getFrequency;
 
 public class Main {
     final static int sampleRate = 44100;
@@ -77,9 +83,19 @@ public class Main {
             SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(220));
             SourceValue velocity = new SourceValue("note velocity");
             SignalSource modulator = new SineOscillator(frequency.multiplyFrequency(3));
+
+            SignalSource macroOsc = new UnityMixer(new SawOscillator(frequency.addFrequency(-1), true), new SawOscillator(frequency, true), new SawOscillator(frequency.addFrequency(1), true));
+            ResonantFilter filter = new ResonantLowPass2PoleFilter(macroOsc);
+            filter.resonance().set(0.2);
+
+            SignalSource LFO = new SawOscillator(DC.getFrequencyDC(6));
+
             Envelope env = new SimpleADSREnvelope(0, 5, 0, 5);
+            filter.frequency().set(frequencyToVoltage(100));
+            filter.frequency().modulate(env.attenuate(0.4));
+            filter.frequency().modulate(LFO.attenuate(0.1));
             SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(env).attenuate(0.3));
-            SignalSource result = carrier.attenuate(0.2);
+            SignalSource result = new Mixer(carrier, filter).attenuate(0.15);
             Gated multiGate = new MultiGate(env);
             Triggerable multiTrigger = new MultiTrigger();
 

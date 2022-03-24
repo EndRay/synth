@@ -1,9 +1,7 @@
 package sources.filters;
 
-import sources.SignalSource;
+import sources.utils.Socket;
 
 public interface ResonantFilter extends Filter {
-    double getResonance(int sampleId);
-
-    void setResonance(SignalSource resonanceSource);
+    Socket resonance();
 }
