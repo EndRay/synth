@@ -7,6 +7,8 @@ public class LowPass1PoleFilter extends AbstractSimpleLowPassFilter implements F
 
     private double currentSample = 0;
 
+    public LowPass1PoleFilter(){}
+
     public LowPass1PoleFilter(SignalSource source) {
         super(source);
     }
@@ -19,9 +21,8 @@ public class LowPass1PoleFilter extends AbstractSimpleLowPassFilter implements F
     @Override
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            getSourceSample(sampleId);
             double f = getAlpha(sampleId);
-            currentSample = currentSample + (getSourceSample(sampleId) - currentSample) * f;
+            currentSample = currentSample + (source().getSample(sampleId) - currentSample) * f;
         }
         return currentSample;
     }

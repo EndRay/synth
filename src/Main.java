@@ -80,12 +80,14 @@ public class Main {
         SourceValue[] CCValues = {};
 
         for (int i = 0; i < voicesCount; ++i) {
-            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(220));
+            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110+i));
             SourceValue velocity = new SourceValue("note velocity");
             SignalSource modulator = new SineOscillator(frequency.multiplyFrequency(3));
 
             SignalSource macroOsc = new UnityMixer(new SawOscillator(frequency.addFrequency(-1), true), new SawOscillator(frequency, true), new SawOscillator(frequency.addFrequency(1), true));
-            ResonantFilter filter = new ResonantLowPass2PoleFilter(macroOsc);
+            ResonantFilter filter = new ResonantLowPass2PoleFilter();
+            filter.source().bind(macroOsc);
+            filter.source().process(new Attenuator(3));
             filter.resonance().set(0.2);
 
             SignalSource LFO = new SawOscillator(DC.getFrequencyDC(6));
@@ -94,6 +96,7 @@ public class Main {
             filter.frequency().set(frequencyToVoltage(100));
             filter.frequency().modulate(env.attenuate(0.4));
             filter.frequency().modulate(LFO.attenuate(0.1));
+
             SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(env).attenuate(0.3));
             SignalSource result = new Mixer(carrier, filter).attenuate(0.15);
             Gated multiGate = new MultiGate(env);

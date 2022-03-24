@@ -1,18 +1,23 @@
 package sources.utils;
 
 import sources.AbstractSignalProcessor;
+import sources.AbstractSignalSource;
+import sources.SignalProcessor;
 import sources.SignalSource;
 
-public class Socket extends AbstractSignalProcessor {
+public class Socket extends AbstractSignalSource {
+
+    SignalSource source;
+
     public Socket(){
-        super();
+        source = new DC();
     }
     public Socket(SignalSource source) {
-        super(source);
+        this.source = source;
     }
 
     public void set(double value){
-        bind(new DC(value));
+        source = new DC(value);
     }
 
     public void setFrequency(double frequency){
@@ -23,12 +28,25 @@ public class Socket extends AbstractSignalProcessor {
         return SignalSource.voltageToFrequency(getSample(sampleId));
     }
 
+    public void bind(SignalSource source){
+        this.source = source;
+    }
+
+    public SignalSource getSource(){
+        return source;
+    }
+
     public void modulate(SignalSource modulator){
-        bind(getSource().add(modulator));
+        source = source.add(modulator);
+    }
+
+    public void process(SignalProcessor processor){
+        processor.source().bind(source);
+        source = processor;
     }
 
     @Override
     public double getSample(int sampleId) {
-        return getSourceSample(sampleId);
+        return source.getSample(sampleId);
     }
 }

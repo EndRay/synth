@@ -7,6 +7,8 @@ abstract public class AbstractResonantFilter extends AbstractFilter implements R
 
     private final Socket resonance = new Socket();
 
+    public AbstractResonantFilter(){}
+
     public AbstractResonantFilter(SignalSource source) {
         super(source);
     }

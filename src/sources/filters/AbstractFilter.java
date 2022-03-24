@@ -7,6 +7,8 @@ import sources.utils.Socket;
 abstract public class AbstractFilter extends AbstractSignalProcessor implements Filter {
     private final Socket frequency = new Socket();
 
+    public AbstractFilter(){}
+
     public AbstractFilter(SignalSource source) {
         super(source);
         open();

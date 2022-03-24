@@ -1,31 +1,19 @@
 package sources;
 
-import sources.utils.DC;
+import sources.utils.Socket;
 
 abstract public class AbstractSignalProcessor extends AbstractSignalSource implements SignalProcessor {
 
-    private SignalSource source;
+    private final Socket source = new Socket();
 
-    public AbstractSignalProcessor(){
-        this(new DC());
-    }
+    public AbstractSignalProcessor(){}
 
     public AbstractSignalProcessor(SignalSource source){
-        this.source = source;
+        this.source.bind(source);
     }
 
     @Override
-    public double getSourceSample(int sampleId){
-        return source.getSample(sampleId);
-    }
-
-    @Override
-    public void bind(SignalSource source){
-        this.source = source;
-    }
-
-    @Override
-    public SignalSource getSource(){
+    public Socket source(){
         return source;
     }
 }

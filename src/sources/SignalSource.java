@@ -67,5 +67,4 @@ public interface SignalSource {
     default SignalSource addFrequency(double frequency){
         return new FrequencyAdder(this, frequency);
     }
-
 }

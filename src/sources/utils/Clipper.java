@@ -23,7 +23,7 @@ public class Clipper extends AbstractSignalProcessor {
     @Override
     public double getSample(int sampleId) {
         if(checkAndUpdateSampleId(sampleId)){
-            lastSample = getSourceSample(sampleId);
+            lastSample = source().getSample(sampleId);
             lastSample = min(lastSample, 1);
             if(bipolar) lastSample = max(lastSample, -1);
             else lastSample = max(lastSample, 0);

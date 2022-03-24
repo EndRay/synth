@@ -12,9 +12,9 @@ public class UnityMixer extends Mixer{
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
             lastSample = 0;
-            for (SignalSource source : sources)
-                lastSample += source.getSample(sampleId);
-            lastSample /= sources.length;
+            for(int i = 0; i < size(); ++i)
+                lastSample += get(i).getSample(sampleId);
+            lastSample /= size();
         }
         return lastSample;
     }
