@@ -1,5 +1,7 @@
+import sources.Gated;
 import sources.SignalSource;
 import sources.utils.Mixer;
+import sources.utils.MultiGate;
 import sources.utils.SourceValue;
 import sources.voices.Voice;
 
@@ -7,45 +9,39 @@ import java.util.*;
 
 public class MyPolySynth implements Synth {
     Voice[] voices;
-    Map<Integer, Voice> voiceByNote;
-    Set<Voice> freeVoices, releasedVoices, gatedVoices;
+    Map<Integer, Voice> voiceByNote = new HashMap<>();
+    Set<Voice> freeVoices = new LinkedHashSet<>(), releasedVoices = new LinkedHashSet<>(), gatedVoices = new LinkedHashSet<>();
     SignalSource soundSource;
-    LinkedList<SourceValue> valuesToMap;
-    Map<Integer, SourceValue> valueByCC;
+    LinkedList<SourceValue> valuesToMap = new LinkedList<>();
+    Map<Integer, SourceValue> valueByCC = new HashMap<>();
+
+    Gated paraphonicGated;
 
     public MyPolySynth(Voice[] voices) {
         this(voices, new Mixer(voices));
     }
 
-    public MyPolySynth(Voice[] voices, SourceValue[] values) {
-        this(voices, new Mixer(voices), values);
-    }
-
     public MyPolySynth(Voice[] voices, SignalSource soundSource) {
-        this(voices, soundSource, new SourceValue[0]);
+        this(voices, soundSource, new MultiGate());
     }
 
-    public MyPolySynth(Voice[] voices, SignalSource soundSource, SourceValue[] values) {
+    public MyPolySynth(Voice[] voices, SignalSource soundSource, Gated paraphonicGated) {
         this.voices = voices;
         this.soundSource = soundSource;
-        valueByCC = new HashMap<>();
-        valuesToMap = new LinkedList<>(List.of(values));
+        this.paraphonicGated = paraphonicGated;
         printTryingToMap();
-        voiceByNote = new HashMap<>();
-        freeVoices = new LinkedHashSet<>();
         freeVoices.addAll(Arrays.asList(voices));
-        releasedVoices = new LinkedHashSet<>();
-        gatedVoices = new LinkedHashSet<>();
     }
 
-    private void printTryingToMap(){
-        if(valuesToMap.isEmpty())
+    private void printTryingToMap() {
+        if (valuesToMap.isEmpty())
             return;
         System.out.println("Mapping \"" + valuesToMap.getFirst().getDescription() + "\"");
     }
 
     @Override
     public void noteOn(int note, int velocity) {
+        paraphonicGated.gateOn();
         Voice voice;
         if (!freeVoices.isEmpty()) {
             Iterator<Voice> it = freeVoices.iterator();
@@ -76,18 +72,20 @@ public class MyPolySynth implements Synth {
             releasedVoices.add(voice);
             voice.noteOff(velocity);
         }
+        if (gatedVoices.isEmpty())
+            paraphonicGated.gateOff();
     }
 
     @Override
     public void midiCC(int CC, int value) {
-        if(!valueByCC.containsKey(CC)){
-            if(valuesToMap.isEmpty())
+        if (!valueByCC.containsKey(CC)) {
+            if (valuesToMap.isEmpty())
                 return;
             valueByCC.put(CC, valuesToMap.removeFirst());
             System.out.println("\"" + valueByCC.get(CC).getDescription() + "\" mapped to CC#" + CC);
             printTryingToMap();
         }
-        valueByCC.get(CC).setValue(value/128.0);
+        valueByCC.get(CC).setValue(value / 128.0);
     }
 
 

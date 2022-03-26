@@ -6,23 +6,21 @@ import sources.utils.SourceValue;
 
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 
-public class Voice extends AbstractSignalProcessor implements Gated, Triggerable {
+public class Voice extends AbstractSignalProcessor implements Gated {
 
     SourceValue pitch, velocity, aftertouch, releaseVelocity;
     Gated gated;
-    Triggerable triggerable;
 
-    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated, Triggerable triggerable){
-        this(new Socket(), pitch, velocity, aftertouch, releaseVelocity, gated, triggerable);
+    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated){
+        this(new Socket(), pitch, velocity, aftertouch, releaseVelocity, gated);
     }
-    public Voice(SignalSource source, SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated, Triggerable triggerable) {
+    public Voice(SignalSource source, SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated) {
         super(source);
         this.pitch = pitch;
         this.velocity = velocity;
         this.aftertouch = aftertouch;
         this.releaseVelocity = releaseVelocity;
         this.gated = gated;
-        this.triggerable = triggerable;
     }
 
     @Override
@@ -38,7 +36,6 @@ public class Voice extends AbstractSignalProcessor implements Gated, Triggerable
         pitch.setValue(SignalSource.frequencyToVoltage(getFrequencyBySemitones(note)));
         this.velocity.setValue(velocity / 128.0);
         gated.gateOn();
-        triggerable.trigger();
     }
 
     public void noteOff(){
@@ -58,11 +55,6 @@ public class Voice extends AbstractSignalProcessor implements Gated, Triggerable
     @Override
     public void gateOff() {
         gated.gateOff();
-    }
-
-    @Override
-    public void trigger() {
-        triggerable.trigger();
     }
 
 }

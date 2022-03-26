@@ -1,8 +1,10 @@
 import sources.Gated;
 import sources.SignalProcessor;
 import sources.SignalSource;
-import sources.Triggerable;
-import sources.utils.*;
+import sources.utils.Mixer;
+import sources.utils.MultiGate;
+import sources.utils.Socket;
+import sources.utils.SourceValue;
 import sources.voices.Voice;
 
 import java.io.File;
@@ -48,11 +50,26 @@ class NoSuchClassException extends Exception {
 class NoSuchConstructorException extends Exception {
 }
 
+class VoiceAndGlobalInteractionException extends Exception{}
+
 class IsNotAProcessorException extends Exception {
     public IsNotAProcessorException(String message) {
         super(message);
     }
 }
+
+/**
+ * output
+ * vMix
+ * aftertouchCh
+ * v: pitch
+ * v: velocity
+ * v: aftertouch
+ * v: releaseVelocity
+ *
+ * TODO: CC's mapping
+ *
+ */
 
 public class SynthBuilder {
 
@@ -61,7 +78,7 @@ public class SynthBuilder {
 
     static {
         String usableObjectsFilePath = "C:\\Users\\aikov\\Documents\\java_projects\\MySynth\\src\\UsableObjects";
-        Pattern shiftSearcher = Pattern.compile("(    |\\t)");
+        Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
         try {
             File usable = new File(usableObjectsFilePath);
             Scanner reader = new Scanner(usable);
@@ -126,54 +143,58 @@ public class SynthBuilder {
     private final Synth synth;
     private final Voice[] voices;
     private final Socket output;
-    Map<String, SignalSource> objects;
-    Map<String, SignalSource[]> voiceObjects;
+    private final Socket[] voiceOutputs;
+    private final Map<String, SignalSource> objects = new HashMap<>();
+    private final Map<String, SignalSource[]> voiceObjects = new HashMap<>();
+
+    private final MultiGate gated;
+    private final MultiGate[] voiceGated;
 
     public enum EditMode {GLOBAL, VOICE}
 
     EditMode editMode;
 
-    SynthBuilder(int voices_count) {
-        voices = new Voice[voices_count];
-        this.output = new Socket(new Mixer(voices_count));
-        for (int i = 0; i < voices_count; ++i) {
-            SourceValue pitch = new SourceValue("voice #" + i + " frequency", 440),
+    SynthBuilder(int voicesCount) {
+        voices = new Voice[voicesCount];
+        this.output = new Socket();
+        voiceOutputs = new Socket[voicesCount];
+        objects.put("aftertouchCh", new SourceValue("channel aftertouch"));
+        voiceObjects.put("pitch", new SignalSource[voicesCount]);
+        voiceObjects.put("velocity", new SignalSource[voicesCount]);
+        voiceObjects.put("aftertouch", new SignalSource[voicesCount]);
+        voiceObjects.put("releaseVelocity", new SignalSource[voicesCount]);
+        gated = new MultiGate();
+        voiceGated = new MultiGate[voicesCount];
+        for (int i = 0; i < voicesCount; ++i) {
+            voiceOutputs[i] = new Socket();
+            SourceValue pitch = new SourceValue("voice #" + i + " frequency", frequencyToVoltage(440)),
                     velocity = new SourceValue("voice #" + i + " velocity", 0.5),
                     aftertouch = new SourceValue("voice #" + i + " aftertouch", 0),
                     releaseVelocity = new SourceValue("voice #" + i + " release velocity", 0);
-            Gated gated = new MultiGate();
-            Triggerable triggerable = new MultiTrigger();
-            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gated, triggerable);
+            voiceObjects.get("pitch")[i] = pitch;
+            voiceObjects.get("velocity")[i] = velocity;
+            voiceObjects.get("aftertouch")[i] = aftertouch;
+            voiceObjects.get("releaseVelocity")[i] = releaseVelocity;
+            voiceGated[i] = new MultiGate();
+            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, voiceGated[i]);
         }
-        synth = new MyPolySynth(voices, output);
-        objects = new HashMap<>();
-        voiceObjects = new HashMap<>();
+        synth = new MyPolySynth(voices, output, gated);
+        objects.put("vMix", new Mixer(voiceOutputs));
     }
 
     public Synth getSynth() {
         return synth;
     }
 
-    public void assignName(String name, SignalSource signal) {
-        if (objects.containsKey(name))
-            System.out.println(name + " reassigning");
-        objects.put(name, signal);
-    }
-
-    private int getEndOfFunc(String str, int i) throws IncorrectFormatException {
-        int braces = 0;
-        for (; i < str.length(); ++i) {
-            if (str.charAt(i) == '(') {
-                ++braces;
-            } else if (str.charAt(i) == ')') {
-                --braces;
-                if (braces < 0)
-                    throw new IncorrectFormatException();
-                if (braces == 0)
-                    return i + 1;
-            }
+    public void assignName(int voiceId, String name, SignalSource signal) {
+        if(voiceId == -1) {
+            objects.put(name, signal);
         }
-        throw new IncorrectFormatException();
+        else{
+            if (!voiceObjects.containsKey(name))
+                voiceObjects.put(name, new SignalSource[voices.length]);
+            voiceObjects.get(name)[voiceId] = signal;
+        }
     }
 
     private int getStartOfLastFunc(String str) throws IncorrectFormatException {
@@ -223,15 +244,15 @@ public class SynthBuilder {
         return strArgs.toArray(new String[0]);
     }
 
-    private ObjClassPair[] getArguments(String args) throws IncorrectFormatException, NoSuchObjectException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException {
+    private ObjClassPair[] getArguments(int voiceId, String args) throws IncorrectFormatException, NoSuchObjectException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
         String[] strArgs = getStrArguments(args);
         ObjClassPair[] res = new ObjClassPair[strArgs.length];
         for (int i = 0; i < strArgs.length; ++i)
-            res[i] = parseArgument(strArgs[i]);
+            res[i] = parseArgument(voiceId, strArgs[i]);
         return res;
     }
 
-    public SignalSource createNewSignal(Class<? extends SignalSource> objClass, ObjClassPair[] objClassArgs) throws NoSuchConstructorException {
+    public SignalSource createNewSignal(int voiceId, Class<? extends SignalSource> objClass, ObjClassPair[] objClassArgs) throws NoSuchConstructorException {
         try {
             Object[] args = new Object[objClassArgs.length];
             Class<?>[] argTypes = new Class<?>[objClassArgs.length];
@@ -239,7 +260,13 @@ public class SynthBuilder {
                 args[i] = objClassArgs[i].getObj();
                 argTypes[i] = objClassArgs[i].getObjClass();
             }
-            return objClass.getConstructor(argTypes).newInstance(args);
+            SignalSource createdObj = objClass.getConstructor(argTypes).newInstance(args);
+            if(createdObj instanceof Gated gatedObj){
+                if(voiceId == -1)
+                    gated.addDestination(gatedObj);
+                else voiceGated[voiceId].addDestination(gatedObj);
+            }
+            return createdObj;
         } catch (InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
             throw new RuntimeException();
@@ -248,7 +275,13 @@ public class SynthBuilder {
         }
     }
 
-    private SignalSource parseObject(String str) throws NoSuchObjectException {
+    private SignalSource parseObject(int voiceId, String str, boolean onlyVoice) throws NoSuchObjectException, VoiceAndGlobalInteractionException {
+        if(voiceId != -1) {
+            if(voiceObjects.containsKey(str))
+                return voiceObjects.get(str)[voiceId];
+            else if(onlyVoice)
+                throw new VoiceAndGlobalInteractionException();
+        }
         if (!objects.containsKey(str))
             throw new NoSuchObjectException(str);
         return objects.get(str);
@@ -272,11 +305,11 @@ public class SynthBuilder {
         return Double.parseDouble(arg);
     }
 
-    private ObjClassPair parseArgument(String arg) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException {
+    private ObjClassPair parseArgument(int voiceId, String arg) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
         try {
             return new ObjClassPair(parseDouble(arg), double.class);
         } catch (NumberFormatException e) {
-            return new ObjClassPair(parseSignal(arg), SignalSource.class);
+            return new ObjClassPair(parseSignal(voiceId, arg), SignalSource.class);
         }
     }
 
@@ -290,11 +323,10 @@ f.sub(f2.mapBi(3, 7.2))
 tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
  */
 
-    private SignalSource parseSignal(String str) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException {
-        System.out.println("parsing: " + str);
+    private SignalSource parseSignal(int voiceId, String str) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
         str = str.trim();
         if (!str.endsWith(")"))
-            return parseObject(str);
+            return parseObject(voiceId, str, false);
         int start = getStartOfLastFunc(str);
         if (start == 0) {
             if (str.startsWith("new ")) {
@@ -305,28 +337,27 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
                 String name = str.substring(0, bracePos);
                 if (!permittedClasses.containsKey(name))
                     throw new NoSuchClassException(name);
-                return createNewSignal(permittedClasses.get(name), getArguments(str.substring(bracePos + 1, str.length() - 1)));
+                return createNewSignal(voiceId, permittedClasses.get(name), getArguments(voiceId, str.substring(bracePos + 1, str.length() - 1)));
             }
             if (str.startsWith("("))
-                return parseSignal(str.substring(1, str.length() - 1));
-            System.out.println("this is function returning signal ??? (TODO (do i have one?))");
-            throw new RuntimeException();
+                return parseSignal(voiceId, str.substring(1, str.length() - 1));
+            System.out.println("function returning signal ??? (TODO (do i have one?))");
+            throw new IncorrectFormatException();
         }
-        SignalSource signal = parseSignal(str.substring(0, start - 1));
+        SignalSource signal = parseSignal(voiceId, str.substring(0, start - 1));
         str = str.substring(start, str.length() - 1);
         int bracePos = str.indexOf("(");
 
         String name = str.substring(0, bracePos);
-        ObjClassPair[] objClassArgs = getArguments(str.substring(bracePos + 1));
+        ObjClassPair[] objClassArgs = getArguments(voiceId, str.substring(bracePos + 1));
         Object[] args = new Object[objClassArgs.length];
         Class<?>[] argTypes = new Class<?>[objClassArgs.length];
         for (int j = 0; j < objClassArgs.length; ++j) {
             args[j] = objClassArgs[j].getObj();
             argTypes[j] = objClassArgs[j].getObjClass();
-            System.out.println("arg " + j + ": " + args[j] + " " + argTypes[j]);
+            //System.out.println("arg " + j + ": " + args[j] + " " + argTypes[j]);
         }
         try {
-            System.out.println("getting method " + name + " with args " + Arrays.toString(args));
             Method method = SignalSource.class.getMethod(name, argTypes);
             signal = (SignalSource) method.invoke(signal, args);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -335,22 +366,18 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         return signal;
     }
 
-    private Socket parseSocket(String str) throws NoSuchObjectException, IncorrectFormatException, NoSuchSocketException {
-        System.out.println("parsing socket: " + str);
+    private Socket parseSocket(int voiceId, String str, boolean onlyVoice) throws NoSuchObjectException, IncorrectFormatException, NoSuchSocketException, VoiceAndGlobalInteractionException {
         str = str.trim();
-        if(str.equals("output"))
-            return output;
+        if(str.equals("output")) {
+            return voiceId == -1 ? output : voiceOutputs[voiceId];
+        }
         String[] split = str.split("\\.");
         if (split.length != 2) {
-            if(split.length == 1 && objects.get(str) instanceof Socket socket)
+            if(split.length == 1 && parseObject(voiceId, str, onlyVoice) instanceof Socket socket)
                 return socket;
             throw new IncorrectFormatException();
         }
-        if (editMode == EditMode.VOICE) {
-            System.out.println("TODO");
-            throw new UnsupportedOperationException();
-        }
-        SignalSource obj = parseObject(split[0]);
+        SignalSource obj = parseObject(voiceId, split[0], onlyVoice);
         Method[] methods = obj.getClass().getMethods();
         Optional<Method> method = Arrays.stream(methods).filter(x -> x.getName().equals(split[1])).findAny();
         if (method.isEmpty())
@@ -362,56 +389,71 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         }
     }
 
-    public void handleCommand(String command) {
-        try {
-            command = command.trim();
-            if (command.isBlank())
-                return;
-            if (command.contains("->") || command.contains("<-") ||
-                    command.contains("=>") || command.contains("<=") ||
-                    command.contains("->-") || command.contains("-<-")) {
-                String[] split = command.split("\\s*(->-|-<-|->|<-|=>|<=)\\s*");
-                if (split.length != 2)
-                    throw new IncorrectFormatException();
-                if (command.contains("->") || command.contains("=>") || command.contains("->-")) {
-                    SignalSource signal = parseSignal(split[0]);
-                    System.out.println("PARSED");
-                    Socket socket = parseSocket(split[1]);
-                    if(command.contains("->-")){
-                        if (!(signal instanceof SignalProcessor processor))
-                            throw new IsNotAProcessorException(split[0]);
-                        socket.process(processor);
-                    }
-                    if (command.contains("->"))
-                        socket.modulate(signal);
-                    else if (command.contains("=>"))
-                        socket.bind(signal);
-                } else if (command.contains("<-") || command.contains("<=") || command.contains("-<-")) {
-                    String flippedArrow;
-                    if (command.contains("<-")) flippedArrow = "->";
-                    else if (command.contains("<=")) flippedArrow = "=>";
-                    else flippedArrow = "->-";
-                    handleCommand(split[1] + flippedArrow + split[0]);
+    public void handleCommand(int voiceId, String command) throws IncorrectFormatException, NoSuchConstructorException, NoSuchClassException, NoSuchObjectException, NoSuchSignalException, NoSuchMethodException, NoSuchSocketException, IsNotAProcessorException, VoiceAndGlobalInteractionException {
+        command = command.trim();
+        if (command.contains("->") || command.contains("<-") ||
+                command.contains("=>") || command.contains("<=") ||
+                command.contains("->-") || command.contains("-<-")) {
+            String[] split = command.split("\\s*(->-|-<-|->|<-|=>|<=)\\s*");
+            if (split.length != 2)
+                throw new IncorrectFormatException();
+            if (command.contains("->") || command.contains("=>") || command.contains("->-")) {
+                SignalSource signal = parseSignal(voiceId, split[0]);
+                if(command.contains("->-")){
+                    Socket socket = parseSocket(voiceId, split[1], true);
+                    if (!(signal instanceof SignalProcessor processor))
+                        throw new IsNotAProcessorException(split[0]);
+                    socket.process(processor);
                 }
-                return;
+                else if (command.contains("=>")) {
+                    Socket socket = parseSocket(voiceId, split[1], true);
+                    socket.bind(signal);
+                }
+                if (command.contains("->")) {
+                    Socket socket = parseSocket(voiceId, split[1], false);
+                    socket.modulate(signal);
+                }
+            } else if (command.contains("<-") || command.contains("<=") || command.contains("-<-")) {
+                String flippedArrow;
+                if (command.contains("<-")) flippedArrow = "->";
+                else if (command.contains("<=")) flippedArrow = "=>";
+                else flippedArrow = "->-";
+                handleCommand(voiceId, split[1] + flippedArrow + split[0]);
             }
+            return;
+        }
 
-            if(command.contains(":=")){
-                String[] tmp = command.split("\\s*:=\\s*");
-                if(tmp.length != 2)
-                    throw new IncorrectFormatException();
-                parseSocket(tmp[0]).set(parseDouble(tmp[1]));
+        if(command.contains(":=")){
+            String[] tmp = command.split("\\s*:=\\s*");
+            if(tmp.length != 2)
+                throw new IncorrectFormatException();
+            parseSocket(voiceId, tmp[0], false).set(parseDouble(tmp[1]));
+            return;
+        }
+        if (command.contains("=")) {
+            String[] tmp = command.split("\\s*=\\s*");
+            if (tmp.length != 2)
+                throw new IncorrectFormatException();
+            assignName(voiceId, tmp[0], parseSignal(voiceId, tmp[1]));
+            return;
+        }
+        throw new IncorrectFormatException();
+    }
+
+    public void handleCommand(String command){
+        command = command.trim();
+        if(command.startsWith("#"))
+            return;
+        if (command.isBlank())
+            return;
+
+        try {
+            if (command.startsWith("v: ")) {
+                for (int i = 0; i < voices.length; ++i)
+                    handleCommand(i, command.substring(3));
                 return;
             }
-            if (command.contains("=")) {
-                String[] tmp = command.split("\\s*=\\s*");
-                if (tmp.length != 2)
-                    throw new IncorrectFormatException();
-                assignName(tmp[0], parseSignal(tmp[1]));
-                return;
-            }
-            System.out.println(parseSignal(command));
-//            System.out.println(command + " is " + parseObject(command).getClass().getSimpleName());
+            handleCommand(-1, command);
         } catch (IncorrectFormatException e) {
             System.out.println("incorrect format");
         } catch (NoSuchClassException e) {
@@ -428,6 +470,10 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             System.out.println("no such constructor");
         } catch (IsNotAProcessorException e) {
             System.out.println(e.getMessage() + " is not a processor");
+        } catch (VoiceAndGlobalInteractionException e) {
+            System.out.println("voice things doing things with global things");
+        } catch (NumberFormatException e){
+            System.out.println("value expected");
         }
     }
 }

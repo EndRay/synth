@@ -13,12 +13,11 @@ abstract public class AbstractFilter extends AbstractSignalProcessor implements 
         frequency().set(frequency);
     }
 
-    public AbstractFilter(SignalSource source) {
-        super(source);
-        open();
+    public AbstractFilter(SignalSource frequencySource) {
+        frequency().bind(frequencySource);
     }
 
-    public AbstractFilter(SignalSource source, SignalSource frequencySource) {
+    public AbstractFilter(SignalSource frequencySource, SignalSource source) {
         this(source);
         frequency().bind(frequencySource);
     }

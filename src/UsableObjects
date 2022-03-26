@@ -10,7 +10,7 @@ realisations
         TriangleOscillator as Triangle, Tri
 sources
     utils
-        Attenuator as VCA, att
+        Attenuator as VCA, Att
         Clip
         DC
         FrequencyAdder as Fadd
