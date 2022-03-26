@@ -4,6 +4,7 @@ import sources.SignalSource;
 
 public class UnityMixer extends Mixer{
 
+    public UnityMixer(int size){ super(size); }
     public UnityMixer(SignalSource... sources) {
         super(sources);
     }

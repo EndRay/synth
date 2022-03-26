@@ -16,6 +16,10 @@ public class ResonantLowPass2PoleFilter extends AbstractSimpleLowPassFilter impl
 
     public ResonantLowPass2PoleFilter(){}
 
+    public ResonantLowPass2PoleFilter(double frequency){
+        super(frequency);
+    }
+
     public ResonantLowPass2PoleFilter(SignalSource source) {
         super(source);
     }

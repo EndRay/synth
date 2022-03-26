@@ -9,6 +9,10 @@ abstract public class AbstractResonantFilter extends AbstractFilter implements R
 
     public AbstractResonantFilter(){}
 
+    public AbstractResonantFilter(double frequency){
+        super(frequency);
+    }
+
     public AbstractResonantFilter(SignalSource source) {
         super(source);
     }

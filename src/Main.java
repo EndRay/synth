@@ -1,19 +1,3 @@
-import realisations.filters.ResonantLowPass2PoleFilter;
-import realisations.modulators.SimpleADSREnvelope;
-import realisations.oscillators.PMSineOscillator;
-import realisations.oscillators.SawOscillator;
-import realisations.oscillators.SineOscillator;
-import realisations.oscillators.TriangleOscillator;
-import sources.Gated;
-import sources.SignalSource;
-import sources.Triggerable;
-import sources.filters.Filter;
-import sources.filters.ResonantFilter;
-import sources.modulators.Envelope;
-import sources.oscillators.Oscillator;
-import sources.utils.*;
-import sources.voices.Voice;
-
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -22,16 +6,18 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.io.IOException;
 import java.util.List;
-
-import static sources.SignalSource.frequencyToVoltage;
-import static sources.SignalSource.voltageToFrequency;
-import static utils.FrequencyManipulations.getFrequency;
+import java.util.Scanner;
 
 public class Main {
     final static int sampleRate = 44100;
 
-    static void play(Synth synth) throws LineUnavailableException {
+    static void play() throws LineUnavailableException, IOException {
+
+
+        SynthBuilder builder = new SynthBuilder(6);
+        Synth synth = builder.getSynth();
 
         SynthMidiReceiver midiReceiver = new SynthMidiReceiver(synth);
         MidiDevice device;
@@ -59,9 +45,26 @@ public class Main {
         SourceDataLine sdl = AudioSystem.getSourceDataLine(af);
         sdl.open(af, (int) (0.1 * sampleRate));
         sdl.start();
-        int samples = (int) (200 * (float) sampleRate);
-        for (int i = 0; i < samples; i++) {
-            double sample = synth.getSample(i);
+        //int samples = (int) (200 * (float) sampleRate);
+
+        Scanner console = new Scanner(System.in);
+
+        Synth output = builder.getSynth();//new Socket(synth);
+
+        for (int i = 0; true; i++) {
+            if (i % 100 == 0 && System.in.available() > 0) {
+                String line = console.nextLine();
+                if(line.equals("quit"))
+                    break;
+//                if ("noteOn".equals(line)) {
+//                    synth.noteOn(60);
+//                }
+//                if ("noteOff".equals(line)) {
+//                    synth.noteOff(60);
+//                }
+                builder.handleCommand(line);
+            }
+            double sample = output.getSample(i);
             int sampleInt = (int) (sample * 0x7fffffff);
             buf[1] = (byte) ((sampleInt >> 24) & 0xff);
             buf[0] = (byte) ((sampleInt >> 16) & 0xff);
@@ -71,46 +74,7 @@ public class Main {
         sdl.stop();
     }
 
-    public static void main(String[] args) throws LineUnavailableException {
-        final int voicesCount = 1;
-
-        SourceValue unusedSourceValue = new SourceValue("Unused value");
-
-        Voice[] voices = new Voice[voicesCount];
-        SourceValue[] CCValues = {};
-
-        for (int i = 0; i < voicesCount; ++i) {
-            SourceValue frequency = new SourceValue("note frequency", frequencyToVoltage(110+i));
-            SourceValue velocity = new SourceValue("note velocity");
-            SignalSource modulator = new SineOscillator(frequency.multiplyFrequency(3));
-
-            SignalSource macroOsc = new UnityMixer(new SawOscillator(frequency.addFrequency(-1), true), new SawOscillator(frequency, true), new SawOscillator(frequency.addFrequency(1), true));
-            ResonantFilter filter = new ResonantLowPass2PoleFilter();
-            filter.source().bind(macroOsc);
-            filter.source().process(new Attenuator(3));
-            filter.resonance().set(0.2);
-
-            SignalSource LFO = new SawOscillator(DC.getFrequencyDC(6));
-
-            Envelope env = new SimpleADSREnvelope(0, 5, 0, 5);
-            filter.frequency().set(frequencyToVoltage(100));
-            filter.frequency().modulate(env.attenuate(0.4));
-            filter.frequency().modulate(LFO.attenuate(0.1));
-
-            SignalSource carrier = new PMSineOscillator(frequency, modulator.attenuate(env).attenuate(0.3));
-            SignalSource result = new Mixer(carrier, filter).attenuate(0.15);
-            Gated multiGate = new MultiGate(env);
-            Triggerable multiTrigger = new MultiTrigger();
-
-            Voice voice = new Voice(result, unusedSourceValue, velocity, unusedSourceValue, unusedSourceValue, multiGate, multiTrigger);
-            voices[i] = voice;
-
-            multiGate.gateOn();
-        }
-
-
-        //Synth synth = new MyMonoSynth(result, frequency, new MultiGate(env, filterEnv));
-        Synth synth = new MyPolySynth(voices, new Mixer(voices).clipBi(), CCValues);
-        play(synth);
+    public static void main(String[] args) throws LineUnavailableException, IOException {
+        play();
     }
 }

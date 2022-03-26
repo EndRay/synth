@@ -8,6 +8,12 @@ public class Mixer extends AbstractSignalSource {
     private final Socket[] sources;
     double lastSample;
 
+    public Mixer(int size){
+        sources = new Socket[size];
+        for(int i = 0; i < size; ++i)
+            sources[i] = new Socket();
+    }
+
     public Mixer(SignalSource... sources) {
         this.sources = new Socket[sources.length];
         for(int i = 0; i < sources.length; ++i) {

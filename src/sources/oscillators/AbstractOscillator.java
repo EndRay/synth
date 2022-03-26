@@ -11,6 +11,8 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
     protected Random rd = new Random();
     private double ptr;
 
+    public AbstractOscillator(){}
+    public AbstractOscillator(double frequency){ frequency().set(frequency); }
     public AbstractOscillator(SignalSource frequencySource) {
         this(frequencySource, false);
     }

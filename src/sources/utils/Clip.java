@@ -6,16 +6,16 @@ import sources.SignalSource;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Clipper extends AbstractSignalProcessor {
+public class Clip extends AbstractSignalProcessor {
 
     double lastSample;
     boolean bipolar;
 
-    public Clipper(SignalSource source){
+    public Clip(SignalSource source){
         this(source, false);
     }
 
-    public Clipper(SignalSource source, boolean bipolar){
+    public Clip(SignalSource source, boolean bipolar){
         super(source);
         this.bipolar = bipolar;
     }

@@ -9,6 +9,10 @@ abstract public class AbstractFilter extends AbstractSignalProcessor implements 
 
     public AbstractFilter(){}
 
+    public AbstractFilter(double frequency){
+        frequency().set(frequency);
+    }
+
     public AbstractFilter(SignalSource source) {
         super(source);
         open();

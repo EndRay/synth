@@ -8,9 +8,17 @@ import sources.oscillators.AbstractOscillator;
  */
 
 public class SawOscillator extends AbstractOscillator {
+    public SawOscillator() {
+    }
+
+    public SawOscillator(double frequency) {
+        super(frequency);
+    }
+
     public SawOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }
+
     public SawOscillator(SignalSource frequencySource, boolean randomPhase) {
         super(frequencySource, randomPhase);
     }

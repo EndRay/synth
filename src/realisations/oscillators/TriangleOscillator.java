@@ -4,6 +4,13 @@ import sources.SignalSource;
 import sources.oscillators.AbstractOscillator;
 
 public class TriangleOscillator extends AbstractOscillator {
+    public TriangleOscillator() {
+    }
+
+    public TriangleOscillator(double frequency) {
+        super(frequency);
+    }
+
     public TriangleOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }

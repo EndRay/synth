@@ -12,6 +12,7 @@ public class Socket extends AbstractSignalSource {
     public Socket(){
         source = new DC();
     }
+    public Socket(double value){ source = new DC(value); }
     public Socket(SignalSource source) {
         this.source = source;
     }

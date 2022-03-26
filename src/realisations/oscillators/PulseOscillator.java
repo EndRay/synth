@@ -8,6 +8,7 @@ public class PulseOscillator extends AbstractOscillator {
 
     SignalSource pulseWidthSource;
 
+
     public PulseOscillator(SignalSource frequencySource) {
         this(frequencySource, 0.5, false);
     }

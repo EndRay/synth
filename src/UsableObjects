@@ -1,0 +1,20 @@
+realisations
+    filters
+        ResonantLowPass2PoleFilter as 2Pole, Filter
+    modulators
+        SimpleADSREnvelope as ADSR
+    oscillators
+        PMSineOscillator as PMSine
+        SawOscillator as Saw
+        SineOscillator as Sine
+        TriangleOscillator as Triangle, Tri
+sources
+    utils
+        Attenuator as VCA, att
+        Clip
+        DC
+        FrequencyAdder as Fadd
+        Mixer as Mix
+        Socket as Value
+        SourceValue as CC
+        UnityMixer as UMixer, UMix

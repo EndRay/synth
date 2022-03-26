@@ -53,11 +53,11 @@ public interface SignalSource {
     }
 
     default SignalSource clipUni(){
-        return new Clipper(this, false);
+        return new Clip(this, false);
     }
 
     default SignalSource clipBi(){
-        return new Clipper(this, true);
+        return new Clip(this, true);
     }
 
     default SignalSource multiplyFrequency(double ratio){

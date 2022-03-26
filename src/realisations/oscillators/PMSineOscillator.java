@@ -7,6 +7,13 @@ import static java.lang.Math.PI;
 import static java.lang.Math.sin;
 
 public class PMSineOscillator extends AbstractPMOscillator {
+    public PMSineOscillator() {
+    }
+
+    public PMSineOscillator(double frequency) {
+        super(frequency);
+    }
+
     public PMSineOscillator(SignalSource frequencySource) {
         super(frequencySource);
     }
