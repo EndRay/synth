@@ -1,4 +1,5 @@
 import sources.SignalSource;
+import sources.utils.SourceValue;
 
 public interface Synth extends SignalSource {
     void noteOn(int note, int velocity);
@@ -10,4 +11,7 @@ public interface Synth extends SignalSource {
         noteOff(note, 0);
     }
     void midiCC(int CC, int value);
+    void addToMap(SourceValue value);
+    void startMapping();
+    void stopMapping();
 }

@@ -6,6 +6,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
@@ -13,10 +15,9 @@ import java.util.Scanner;
 public class Main {
     final static int sampleRate = 44100;
 
-    static void play() throws LineUnavailableException, IOException {
+    static void play(SynthBuilder builder) throws LineUnavailableException, IOException {
 
 
-        SynthBuilder builder = new SynthBuilder(6);
         Synth synth = builder.getSynth();
 
         SynthMidiReceiver midiReceiver = new SynthMidiReceiver(synth);
@@ -75,6 +76,18 @@ public class Main {
     }
 
     public static void main(String[] args) throws LineUnavailableException, IOException {
-        play();
+        SynthBuilder builder = new SynthBuilder(6);
+        if(args.length > 0){
+            try{
+                File basic = new File(args[0]);
+                Scanner reader = new Scanner(basic);
+                while (reader.hasNextLine())
+                    builder.handleCommand(reader.nextLine());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        play(builder);
     }
 }

@@ -49,6 +49,21 @@ public class MyMonoSynth implements Synth{
         System.out.println("I am monosynth and I received CC#" + CC + " message and I ignoring it");
     }
 
+    @Override
+    public void addToMap(SourceValue value) {
+        System.out.println("I don't parse CC's");
+    }
+
+    @Override
+    public void startMapping() {
+        System.out.println("I don't parse CC's");
+    }
+
+    @Override
+    public void stopMapping() {
+        System.out.println("I don't parse CC's");
+    }
+
 
     @Override
     public double getSample(int sampleId) {

@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static sources.SignalSource.frequencyRatioToVoltage;
 import static sources.SignalSource.frequencyToVoltage;
 
 class IncorrectFormatException extends Exception {
@@ -67,7 +68,14 @@ class IsNotAProcessorException extends Exception {
  * v: aftertouch
  * v: releaseVelocity
  *
- * TODO: CC's mapping
+ * TODO: MIDI channels
+ * TODO: Aliases
+ * TODO: modulatable ADSR
+ * TODO: exponential envelope stages
+ * TODO: slope limiter
+ * TODO: Effects
+ * TODO: Stereo
+ * TODO: Arithmetic-style operations
  *
  */
 
@@ -77,7 +85,8 @@ public class SynthBuilder {
     static final Method[] signalMethods = SignalSource.class.getMethods();
 
     static {
-        String usableObjectsFilePath = "C:\\Users\\aikov\\Documents\\java_projects\\MySynth\\src\\UsableObjects";
+        //String usableObjectsFilePath = "C:\\Users\\aikov\\Documents\\java_projects\\MySynth\\src\\UsableObjects";
+        String usableObjectsFilePath = "src/UsableObjects";
         Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
         try {
             File usable = new File(usableObjectsFilePath);
@@ -252,7 +261,7 @@ public class SynthBuilder {
         return res;
     }
 
-    public SignalSource createNewSignal(int voiceId, Class<? extends SignalSource> objClass, ObjClassPair[] objClassArgs) throws NoSuchConstructorException {
+    public SignalSource createNewSignal(int voiceId, Class<? extends SignalSource> objClass, ObjClassPair[] objClassArgs) throws NoSuchConstructorException, IncorrectFormatException {
         try {
             Object[] args = new Object[objClassArgs.length];
             Class<?>[] argTypes = new Class<?>[objClassArgs.length];
@@ -265,6 +274,11 @@ public class SynthBuilder {
                 if(voiceId == -1)
                     gated.addDestination(gatedObj);
                 else voiceGated[voiceId].addDestination(gatedObj);
+            }
+            if(createdObj instanceof SourceValue sourceValue){
+                if(voiceId == -1)
+                    synth.addToMap(sourceValue);
+                else throw new IncorrectFormatException();
             }
             return createdObj;
         } catch (InstantiationException | InvocationTargetException e) {
@@ -302,10 +316,15 @@ public class SynthBuilder {
         arg = arg.trim();
         if(arg.endsWith("hz"))
             return frequencyToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 2)));
+        if(arg.endsWith("x"))
+            return frequencyRatioToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 1)));
         return Double.parseDouble(arg);
     }
 
     private ObjClassPair parseArgument(int voiceId, String arg) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
+        arg = arg.trim();
+        if(arg.startsWith("\"") && arg.endsWith("\""))
+            return new ObjClassPair(arg.substring(1, arg.length()-1), String.class);
         try {
             return new ObjClassPair(parseDouble(arg), double.class);
         } catch (NumberFormatException e) {
@@ -389,7 +408,7 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         }
     }
 
-    public void handleCommand(int voiceId, String command) throws IncorrectFormatException, NoSuchConstructorException, NoSuchClassException, NoSuchObjectException, NoSuchSignalException, NoSuchMethodException, NoSuchSocketException, IsNotAProcessorException, VoiceAndGlobalInteractionException {
+    private void handleCommand(int voiceId, String command) throws IncorrectFormatException, NoSuchConstructorException, NoSuchClassException, NoSuchObjectException, NoSuchSignalException, NoSuchMethodException, NoSuchSocketException, IsNotAProcessorException, VoiceAndGlobalInteractionException {
         command = command.trim();
         if (command.contains("->") || command.contains("<-") ||
                 command.contains("=>") || command.contains("<=") ||
@@ -446,7 +465,14 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             return;
         if (command.isBlank())
             return;
-
+        if(command.equals("map")){
+            synth.startMapping();
+            return;
+        }
+        if(command.equals("stop map")){
+            synth.stopMapping();
+            return;
+        }
         try {
             if (command.startsWith("v: ")) {
                 for (int i = 0; i < voices.length; ++i)

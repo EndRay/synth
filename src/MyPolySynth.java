@@ -14,6 +14,7 @@ public class MyPolySynth implements Synth {
     SignalSource soundSource;
     LinkedList<SourceValue> valuesToMap = new LinkedList<>();
     Map<Integer, SourceValue> valueByCC = new HashMap<>();
+    boolean nowMapping = false;
 
     Gated paraphonicGated;
 
@@ -29,14 +30,26 @@ public class MyPolySynth implements Synth {
         this.voices = voices;
         this.soundSource = soundSource;
         this.paraphonicGated = paraphonicGated;
-        printTryingToMap();
         freeVoices.addAll(Arrays.asList(voices));
     }
 
-    private void printTryingToMap() {
-        if (valuesToMap.isEmpty())
+    private void tryToMap(){
+        if(!nowMapping || valuesToMap.isEmpty())
             return;
         System.out.println("Mapping \"" + valuesToMap.getFirst().getDescription() + "\"");
+    }
+
+    public void addToMap(SourceValue value){
+        valuesToMap.add(value);
+    }
+
+    public void startMapping(){
+        nowMapping = true;
+        tryToMap();
+    }
+
+    public void stopMapping(){
+        nowMapping = false;
     }
 
     @Override
@@ -79,11 +92,11 @@ public class MyPolySynth implements Synth {
     @Override
     public void midiCC(int CC, int value) {
         if (!valueByCC.containsKey(CC)) {
-            if (valuesToMap.isEmpty())
+            if (!nowMapping || valuesToMap.isEmpty())
                 return;
             valueByCC.put(CC, valuesToMap.removeFirst());
-            System.out.println("\"" + valueByCC.get(CC).getDescription() + "\" mapped to CC#" + CC);
-            printTryingToMap();
+            System.out.println("\"" + valueByCC.get(CC).getDescription() + "\" mapped to CC" + CC);
+            tryToMap();
         }
         valueByCC.get(CC).setValue(value / 128.0);
     }
