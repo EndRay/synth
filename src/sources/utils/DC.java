@@ -2,6 +2,7 @@ package sources.utils;
 
 import sources.SignalSource;
 
+import static sources.SignalSource.voltageToFrequency;
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 import static utils.FrequencyManipulations.getSemitonesShift;
 
@@ -25,11 +26,11 @@ public class DC implements SignalSource {
         return new DC(SignalSource.frequencyToVoltage(frequency));
     }
 
-    public static DC getFrequencyRatioDC(double frequencyRatio){
+    public static DC getFrequencyRatioDC(double frequencyRatio) {
         return new DC(SignalSource.frequencyRatioToVoltage(frequencyRatio));
     }
 
-    public static DC getSemitonesShiftDC(double semitones){
+    public static DC getSemitonesShiftDC(double semitones) {
         return getFrequencyRatioDC(getSemitonesShift(semitones));
     }
 
@@ -37,9 +38,24 @@ public class DC implements SignalSource {
         return getFrequencyDC(getFrequencyBySemitones(semitones));
     }
 
-
     @Override
     public double getSample(int sampleId) {
         return getOffset();
+    }
+
+    public SignalSource attenuate(SignalSource coefficientSource) {
+        if(coefficientSource instanceof DC anotherDC)
+            return new DC(getOffset() * anotherDC.getOffset());
+        return new Attenuator(this, coefficientSource);
+    }
+
+    public SignalSource add(SignalSource valueSource) {
+        if(valueSource instanceof DC anotherDC)
+            return new DC(getOffset() + anotherDC.getOffset());
+        return new Mixer(this, valueSource);
+    }
+
+    public SignalSource addFrequency(double frequency) {
+        return getFrequencyDC(voltageToFrequency(getOffset() + frequency));
     }
 }

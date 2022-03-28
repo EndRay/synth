@@ -1,11 +1,10 @@
 package sources.utils;
 
-import sources.AbstractSignalProcessor;
 import sources.AbstractSignalSource;
 import sources.SignalProcessor;
 import sources.SignalSource;
 
-public class Socket extends AbstractSignalSource {
+public class Socket extends AbstractSignalSource implements PseudoSocket {
 
     SignalSource source;
 
@@ -15,14 +14,6 @@ public class Socket extends AbstractSignalSource {
     public Socket(double value){ source = new DC(value); }
     public Socket(SignalSource source) {
         this.source = source;
-    }
-
-    public void set(double value){
-        source = new DC(value);
-    }
-
-    public void setFrequency(double frequency){
-        bind(DC.getFrequencyDC(frequency));
     }
 
     public double getFrequency(int sampleId){

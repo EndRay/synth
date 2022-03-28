@@ -12,10 +12,10 @@ envAmount = envAmountCC.mapUni(-1, 1)
 keytrack = keytrackCC
 resonance = resonanceCC
 
-v: env = new ADSR(0.005, 2, 0.2, 0.6)
+v: env = new ADSR(0.001 / 2 / 0.1, (0.5 + 0.5) * (1 + 1), 2 * 0.1, 0.6)
 v: osc = new Saw(pitch)
 v: osc2 = new Saw(pitch + 1.01x)
-v: mix = new Socket()
+v: mix = new UMix()
 v: mix <= osc + osc2
 v: mix * env => output
 v: filter = new Filter(cutoff)

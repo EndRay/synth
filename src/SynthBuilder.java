@@ -70,13 +70,11 @@ class IsNotAProcessorException extends Exception {
  *
  *
  * TODO: Aliases
- * TODO: Cool Mixers
  * TODO: modulatable ADSR
  * TODO: exponential envelope stages
  * TODO: slope limiter
  * TODO: Effects
  * TODO: Stereo
- * TODO: Arithmetic-style operations
  * TODO: Mono synth
  *
  */
@@ -226,6 +224,29 @@ public class SynthBuilder {
         return -1;
     }
 
+    private int getFirst(String str, String ch) throws IncorrectFormatException {
+        return getFirst(str, ch, 0);
+    }
+
+    private int getFirst(String str, String ch, int firstIndex) throws IncorrectFormatException {
+        int braces = 0;
+        for (int i = 0; i < str.length(); ++i) {
+            if (str.charAt(i) == '(') {
+                ++braces;
+
+            } else if (str.charAt(i) == ')') {
+                --braces;
+                if (braces < 0)
+                    throw new IncorrectFormatException();
+            }
+            if (i >= firstIndex && braces == 0 && ch.contains(""+str.charAt(i)))
+                return i;
+        }
+        if (braces != 0)
+            throw new IncorrectFormatException();
+        return str.length();
+    }
+
     private int getEndOfArgument(String str, int i) throws IncorrectFormatException {
         int braces = 0;
         for (; i < str.length(); ++i) {
@@ -316,6 +337,24 @@ public class SynthBuilder {
 
     private double parseDouble(String arg) throws NumberFormatException{
         arg = arg.trim();
+        try {
+            int firstInfix = getFirst(arg, "+-", 1);
+            if (firstInfix != arg.length()) {
+                if(arg.charAt(firstInfix) == '+')
+                    return parseDouble(arg.substring(0, firstInfix)) + parseDouble(arg.substring(firstInfix + 1));
+                else return parseDouble(arg.substring(0, firstInfix)) - parseDouble(arg.substring(firstInfix + 1));
+            }
+            firstInfix = getFirst(arg, "*/");
+            if (firstInfix != arg.length()) {
+                if(arg.charAt(firstInfix) == '*')
+                    return parseDouble(arg.substring(0, firstInfix)) * parseDouble(arg.substring(firstInfix + 1));
+                return parseDouble(arg.substring(0, firstInfix)) / parseDouble(arg.substring(firstInfix+1));
+            }
+            if(arg.startsWith("(") && arg.endsWith(")"))
+                return parseDouble(arg.substring(1, arg.length()-1));
+        } catch (IncorrectFormatException e){
+            throw new NumberFormatException();
+        }
         if(arg.endsWith("hz"))
             return frequencyToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 2)));
         if(arg.endsWith("x"))
@@ -346,15 +385,17 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
 
     private SignalSource parseSignal(int voiceId, String str) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
         str = str.trim();
-        int lstInfix = getLast(str, '+');
-        if(lstInfix != -1)
-            return parseSignal(voiceId, str.substring(0, lstInfix)).add(parseSignal(voiceId, str.substring(lstInfix+1)));
-        lstInfix = getLast(str, '-');
-        if(lstInfix != -1)
-            return parseSignal(voiceId, str.substring(0, lstInfix)).sub(parseSignal(voiceId, str.substring(lstInfix+1)));
-        lstInfix = getLast(str, '*');
-        if(lstInfix != -1)
-            return parseSignal(voiceId, str.substring(0, lstInfix)).attenuate(parseSignal(voiceId, str.substring(lstInfix+1)));
+        int firstInfix = getFirst(str, "+-", 1);
+        if(firstInfix != str.length()) {
+            if(str.charAt(firstInfix) == '+')
+                return parseSignal(voiceId, str.substring(0, firstInfix)).add(parseSignal(voiceId, str.substring(firstInfix + 1)));
+            else return parseSignal(voiceId, str.substring(0, firstInfix)).sub(parseSignal(voiceId, str.substring(firstInfix + 1)));
+        }
+        firstInfix = getFirst(str, "*");
+        if(firstInfix != str.length())
+            return parseSignal(voiceId, str.substring(0, firstInfix)).attenuate(parseSignal(voiceId, str.substring(firstInfix + 1)));
+        if(str.startsWith("-"))
+            return parseSignal(voiceId, str.substring(1)).attenuate(-1);
         if (!str.endsWith(")")) {
             try{
                 return new DC(parseDouble(str));
@@ -401,14 +442,23 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
     }
 
     private Socket parseSocket(int voiceId, String str, boolean onlyVoice) throws NoSuchObjectException, IncorrectFormatException, NoSuchSocketException, VoiceAndGlobalInteractionException {
+        return (Socket) parseSocket(voiceId, str, onlyVoice, true);
+    }
+
+    private PseudoSocket parseSocket(int voiceId, String str, boolean onlyVoice, boolean trueSocket) throws NoSuchObjectException, IncorrectFormatException, NoSuchSocketException, VoiceAndGlobalInteractionException {
         str = str.trim();
         if(str.equals("output")) {
             return voiceId == -1 ? output : voiceOutputs[voiceId];
         }
         String[] split = str.split("\\.");
         if (split.length != 2) {
-            if(split.length == 1 && parseObject(voiceId, str, onlyVoice) instanceof Socket socket)
-                return socket;
+            if(split.length == 1){
+                SignalSource signal = parseObject(voiceId, str, onlyVoice);
+                if(signal instanceof Socket socket)
+                    return socket;
+                if(!trueSocket && signal instanceof PseudoSocket pseudo)
+                    return pseudo;
+            }
             throw new IncorrectFormatException();
         }
         SignalSource obj = parseObject(voiceId, split[0], onlyVoice);
@@ -417,7 +467,7 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         if (method.isEmpty())
             throw new NoSuchSocketException(split[1]);
         try {
-            return (Socket) method.get().invoke(obj);
+            return (PseudoSocket) method.get().invoke(obj);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new NoSuchSocketException(split[1]);
         }
@@ -440,11 +490,11 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
                     socket.process(processor);
                 }
                 else if (command.contains("=>")) {
-                    Socket socket = parseSocket(voiceId, split[1], true);
+                    PseudoSocket socket = parseSocket(voiceId, split[1], true, false);
                     socket.bind(signal);
                 }
                 if (command.contains("->")) {
-                    Socket socket = parseSocket(voiceId, split[1], false);
+                    PseudoSocket socket = parseSocket(voiceId, split[1], false, false);
                     socket.modulate(signal);
                 }
             } else if (command.contains("<-") || command.contains("<=") || command.contains("-<-")) {

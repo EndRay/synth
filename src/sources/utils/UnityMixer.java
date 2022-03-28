@@ -2,9 +2,10 @@ package sources.utils;
 
 import sources.SignalSource;
 
-public class UnityMixer extends Mixer{
+public class UnityMixer extends Mixer implements PseudoSocket{
 
-    public UnityMixer(int size){ super(size); }
+    public UnityMixer(){ super(0); }
+    //public UnityMixer(int size){ super(size); }
     public UnityMixer(SignalSource... sources) {
         super(sources);
     }

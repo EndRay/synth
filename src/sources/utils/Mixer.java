@@ -1,33 +1,37 @@
 package sources.utils;
 
 import sources.AbstractSignalSource;
+import sources.SignalProcessor;
 import sources.SignalSource;
 
-public class Mixer extends AbstractSignalSource {
+import java.util.ArrayList;
+import java.util.List;
 
-    private final Socket[] sources;
+public class Mixer extends AbstractSignalSource implements PseudoSocket {
+
+    private final List<Socket> sources;
     double lastSample;
 
     public Mixer(int size){
-        sources = new Socket[size];
+        sources = new ArrayList<>(size);
         for(int i = 0; i < size; ++i)
-            sources[i] = new Socket();
+            sources.add(new Socket());
     }
 
     public Mixer(SignalSource... sources) {
-        this.sources = new Socket[sources.length];
+        this.sources = new ArrayList<>(sources.length);
         for(int i = 0; i < sources.length; ++i) {
-            this.sources[i] = new Socket();
-            this.sources[i].bind(sources[i]);
+            this.sources.add(new Socket());
+            this.sources.get(i).bind(sources[i]);
         }
     }
 
     public Socket get(int index){
-        return sources[index];
+        return sources.get(index);
     }
 
     public int size(){
-        return sources.length;
+        return sources.size();
     }
 
     @Override
@@ -38,5 +42,16 @@ public class Mixer extends AbstractSignalSource {
                 lastSample += get(i).getSample(sampleId);
         }
         return lastSample;
+    }
+
+    @Override
+    public void bind(SignalSource source) {
+        sources.clear();
+        sources.add(new Socket(source));
+    }
+
+    @Override
+    public void modulate(SignalSource modulator) {
+        sources.add(new Socket(modulator));
     }
 }
