@@ -12,7 +12,7 @@ public class ConsoleHandler {
 
     final int channels = 16;
 
-    int editedChannel = 0;
+    int editedChannel = -1;
     SynthBuilder[] builders = new SynthBuilder[channels];
     Synth[][] synths = new Synth[channels][];
 

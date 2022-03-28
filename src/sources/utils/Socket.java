@@ -19,6 +19,9 @@ public class Socket extends AbstractSignalSource implements PseudoSocket {
     public double getFrequency(int sampleId){
         return SignalSource.voltageToFrequency(getSample(sampleId));
     }
+    public double getTime(int sampleId){
+        return SignalSource.voltageToTime(getSample(sampleId));
+    }
 
     public void bind(SignalSource source){
         this.source = source;

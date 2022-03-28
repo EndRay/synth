@@ -17,6 +17,14 @@ public interface SignalSource {
         return Math.pow(maxFrequency / minFrequency, voltage) * minFrequency;
     }
 
+    static double timeToVoltage(double time){
+        return frequencyToVoltage(1/time);
+    }
+
+    static double voltageToTime(double voltage){
+        return 1/voltageToFrequency(voltage);
+    }
+
     static double frequencyRatioToVoltage(double frequencyRatio){
         return Math.log(frequencyRatio) / Math.log(maxFrequency / minFrequency);
     }

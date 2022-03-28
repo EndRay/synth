@@ -14,8 +14,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static sources.SignalSource.frequencyRatioToVoltage;
-import static sources.SignalSource.frequencyToVoltage;
+import static sources.SignalSource.*;
 
 class IncorrectFormatException extends Exception {
 }
@@ -76,7 +75,8 @@ class IsNotAProcessorException extends Exception {
  * TODO: Effects
  * TODO: Stereo
  * TODO: Mono synth
- *
+ * TODO: Morph (simple and as Joranalogue's)
+ * TODO: gates as signals
  */
 
 public class SynthBuilder {
@@ -357,6 +357,10 @@ public class SynthBuilder {
         }
         if(arg.endsWith("hz"))
             return frequencyToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 2)));
+        if(arg.endsWith("ms"))
+            return timeToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 2)) / 1000);
+        if(arg.endsWith("s"))
+            return timeToVoltage(Double.parseDouble(arg.substring(0, arg.length()-1)));
         if(arg.endsWith("x"))
             return frequencyRatioToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 1)));
         return Double.parseDouble(arg);

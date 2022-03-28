@@ -2,7 +2,7 @@ realisations
     filters
         ResonantLowPass2PoleFilter as 2Pole, Filter
     modulators
-        SimpleADSREnvelope as ADSR
+        ADSR
     oscillators
         PMSineOscillator as PMSine
         SawOscillator as Saw

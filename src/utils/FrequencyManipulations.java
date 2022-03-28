@@ -8,10 +8,6 @@ import static java.lang.Math.pow;
 public class FrequencyManipulations {
     private FrequencyManipulations(){}
 
-    public static double getFrequency(double frequency) {
-        return SignalSource.frequencyToVoltage(frequency);
-    }
-
     public static double getSemitonesShift(double semitones){
         return pow(2, semitones/12);
     }
