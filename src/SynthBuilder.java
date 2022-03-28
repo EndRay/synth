@@ -6,6 +6,8 @@ import sources.utils.MultiGate;
 import sources.utils.Socket;
 import sources.utils.SourceValue;
 import sources.voices.Voice;
+import synths.MyPolySynth;
+import synths.Synth;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -465,6 +467,17 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             return;
         if (command.isBlank())
             return;
+        if(command.matches("load .+")){
+            try{
+                File file = new File("patches/" + command.substring(4).trim());
+                Scanner reader = new Scanner(file);
+                while (reader.hasNextLine())
+                    handleCommand(reader.nextLine());
+            } catch (FileNotFoundException e) {
+                System.out.println("loading file error");
+            }
+            return;
+        }
         if(command.equals("map")){
             synth.startMapping();
             return;

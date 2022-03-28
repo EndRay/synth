@@ -1,3 +1,5 @@
+package synths;
+
 import sources.Gated;
 import sources.SignalSource;
 import sources.utils.Mixer;
@@ -17,6 +19,15 @@ public class MyPolySynth implements Synth {
     boolean nowMapping = false;
 
     Gated paraphonicGated;
+
+    Set<Integer> forbiddenCCs = new HashSet<>();
+    {
+        for(int i = 32; i <= 63; ++i)
+            forbiddenCCs.add(i);
+        for(int i = 120; i <= 127; ++i)
+            forbiddenCCs.add(i);
+    }
+
 
     public MyPolySynth(Voice[] voices) {
         this(voices, new Mixer(voices));
@@ -92,7 +103,7 @@ public class MyPolySynth implements Synth {
     @Override
     public void midiCC(int CC, int value) {
         if (!valueByCC.containsKey(CC)) {
-            if (!nowMapping || valuesToMap.isEmpty())
+            if (!nowMapping || valuesToMap.isEmpty() || forbiddenCCs.contains(CC))
                 return;
             valueByCC.put(CC, valuesToMap.removeFirst());
             System.out.println("\"" + valueByCC.get(CC).getDescription() + "\" mapped to CC" + CC);

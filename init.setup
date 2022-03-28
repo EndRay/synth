@@ -1,0 +1,9 @@
+=1=
+create 6
+load supersaw.patch
+=2=
+create 6
+vMix.attenuate(0.5) => output
+v: osc = new Tri(pitch)
+v: env = new ADSR(0.005, 1, 0, 0.4)
+v: osc.attenuate(env) => output

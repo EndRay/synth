@@ -1,3 +1,6 @@
+import sources.SignalSource;
+import synths.Synth;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -6,41 +9,21 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Main {
     final static int sampleRate = 44100;
 
-    static void play(SynthBuilder builder) throws LineUnavailableException, IOException {
+
+    static void play(ConsoleHandler handler) throws LineUnavailableException, IOException {
 
 
-        Synth synth = builder.getSynth();
-
-        SynthMidiReceiver midiReceiver = new SynthMidiReceiver(synth);
-        MidiDevice device;
-        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
-        for (int i = 0; i < infos.length; i++) {
-            try {
-                device = MidiSystem.getMidiDevice(infos[i]);
-                List<Transmitter> transmitters = device.getTransmitters();
-                for (Transmitter transmitter : transmitters) {
-                    transmitter.setReceiver(midiReceiver);
-                }
-
-                Transmitter trans = device.getTransmitter();
-                trans.setReceiver(midiReceiver);
-                device.open();
-                //System.out.println(device.getDeviceInfo()+" Was Opened");
-
-
-            } catch (MidiUnavailableException e) {
-                //System.out.println("Device " + i + " error");
-            }
-        }
         byte[] buf = new byte[2];
         AudioFormat af = new AudioFormat((float) sampleRate, 16, 1, true, false);
         SourceDataLine sdl = AudioSystem.getSourceDataLine(af);
@@ -50,20 +33,15 @@ public class Main {
 
         Scanner console = new Scanner(System.in);
 
-        Synth output = builder.getSynth();//new Socket(synth);
+        SignalSource output = handler.getMix();//new Socket(synth);
 
         for (int i = 0; true; i++) {
             if (i % 100 == 0 && System.in.available() > 0) {
                 String line = console.nextLine();
+                line = line.trim();
                 if(line.equals("quit"))
                     break;
-//                if ("noteOn".equals(line)) {
-//                    synth.noteOn(60);
-//                }
-//                if ("noteOff".equals(line)) {
-//                    synth.noteOff(60);
-//                }
-                builder.handleCommand(line);
+                handler.handleCommand(line);
             }
             double sample = output.getSample(i);
             int sampleInt = (int) (sample * 0x7fffffff);
@@ -76,18 +54,18 @@ public class Main {
     }
 
     public static void main(String[] args) throws LineUnavailableException, IOException {
-        SynthBuilder builder = new SynthBuilder(6);
+        ConsoleHandler handler = new ConsoleHandler();
         if(args.length > 0){
             try{
                 File basic = new File(args[0]);
                 Scanner reader = new Scanner(basic);
                 while (reader.hasNextLine())
-                    builder.handleCommand(reader.nextLine());
+                    handler.handleCommand(reader.nextLine());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 System.exit(1);
             }
         }
-        play(builder);
+        play(handler);
     }
 }
