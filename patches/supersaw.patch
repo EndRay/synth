@@ -1,6 +1,6 @@
-volume = new Value(0.1)
+volume = new Value(0.05)
 
-vMix.attenuate(volume) => output
+vMix * volume => output
 
 cutoffCC = new CC("cutoff", 0.4)
 envAmountCC = new CC("envelope amount", 0.7)
@@ -14,14 +14,13 @@ resonance = resonanceCC
 
 v: env = new ADSR(0.005, 2, 0.2, 0.6)
 v: osc = new Saw(pitch)
-v: osc2 = new Saw(new Fadd(pitch, 0.25))
+v: osc2 = new Saw(pitch + 1.01x)
 v: mix = new Socket()
-v: osc -> mix
-v: osc2 -> mix
-v: mix.attenuate(env) => output
+v: mix <= osc + osc2
+v: mix * env => output
 v: filter = new Filter(cutoff)
-v: filter.frequency <- pitch.attenuate(keytrack)
+v: filter.frequency <- pitch * keytrack
 v: filter.resonance <= resonance
-v: env.attenuate(velocity.mapUni(0.3, 1)).attenuate(envAmount) -> filter.frequency
+v: env * velocity.mapUni(0.3, 1) * envAmount -> filter.frequency
 v: filter ->- output
 map

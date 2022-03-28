@@ -1,10 +1,7 @@
 import sources.Gated;
 import sources.SignalProcessor;
 import sources.SignalSource;
-import sources.utils.Mixer;
-import sources.utils.MultiGate;
-import sources.utils.Socket;
-import sources.utils.SourceValue;
+import sources.utils.*;
 import sources.voices.Voice;
 import synths.MyPolySynth;
 import synths.Synth;
@@ -65,19 +62,22 @@ class IsNotAProcessorException extends Exception {
  * output
  * vMix
  * aftertouchCh
+ * v: output
  * v: pitch
  * v: velocity
  * v: aftertouch
  * v: releaseVelocity
  *
- * TODO: MIDI channels
+ *
  * TODO: Aliases
+ * TODO: Cool Mixers
  * TODO: modulatable ADSR
  * TODO: exponential envelope stages
  * TODO: slope limiter
  * TODO: Effects
  * TODO: Stereo
  * TODO: Arithmetic-style operations
+ * TODO: Mono synth
  *
  */
 
@@ -208,7 +208,7 @@ public class SynthBuilder {
         }
     }
 
-    private int getStartOfLastFunc(String str) throws IncorrectFormatException {
+    private int getLast(String str, char ch) throws IncorrectFormatException {
         int braces = 0;
         for (int i = str.length() - 1; i >= 0; --i) {
             if (str.charAt(i) == '(') {
@@ -218,12 +218,12 @@ public class SynthBuilder {
             } else if (str.charAt(i) == ')') {
                 ++braces;
             }
-            if (braces == 0 && str.charAt(i) == '.')
-                return i + 1;
+            if (braces == 0 && str.charAt(i) == ch)
+                return i;
         }
         if (braces != 0)
             throw new IncorrectFormatException();
-        return 0;
+        return -1;
     }
 
     private int getEndOfArgument(String str, int i) throws IncorrectFormatException {
@@ -346,9 +346,22 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
 
     private SignalSource parseSignal(int voiceId, String str) throws NoSuchObjectException, IncorrectFormatException, NoSuchSignalException, NoSuchClassException, NoSuchConstructorException, NoSuchMethodException, VoiceAndGlobalInteractionException {
         str = str.trim();
-        if (!str.endsWith(")"))
+        int lstInfix = getLast(str, '+');
+        if(lstInfix != -1)
+            return parseSignal(voiceId, str.substring(0, lstInfix)).add(parseSignal(voiceId, str.substring(lstInfix+1)));
+        lstInfix = getLast(str, '-');
+        if(lstInfix != -1)
+            return parseSignal(voiceId, str.substring(0, lstInfix)).sub(parseSignal(voiceId, str.substring(lstInfix+1)));
+        lstInfix = getLast(str, '*');
+        if(lstInfix != -1)
+            return parseSignal(voiceId, str.substring(0, lstInfix)).attenuate(parseSignal(voiceId, str.substring(lstInfix+1)));
+        if (!str.endsWith(")")) {
+            try{
+                return new DC(parseDouble(str));
+            } catch (NumberFormatException ignore){}
             return parseObject(voiceId, str, false);
-        int start = getStartOfLastFunc(str);
+        }
+        int start = getLast(str, '.')+1;
         if (start == 0) {
             if (str.startsWith("new ")) {
                 str = str.substring(3).trim();
