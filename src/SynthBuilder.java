@@ -69,7 +69,6 @@ class IsNotAProcessorException extends Exception {
  *
  *
  * TODO: Aliases
- * TODO: modulatable ADSR
  * TODO: exponential envelope stages
  * TODO: slope limiter
  * TODO: Effects
@@ -77,6 +76,7 @@ class IsNotAProcessorException extends Exception {
  * TODO: Mono synth
  * TODO: Morph (simple and as Joranalogue's)
  * TODO: gates as signals
+ * TODO: better midi (not editing, history) and ConsoleHandler handling exceptions (not SynthBuilder)
  */
 
 public class SynthBuilder {
@@ -85,7 +85,6 @@ public class SynthBuilder {
     static final Method[] signalMethods = SignalSource.class.getMethods();
 
     static {
-        //String usableObjectsFilePath = "C:\\Users\\aikov\\Documents\\java_projects\\MySynth\\src\\UsableObjects";
         String usableObjectsFilePath = "src/UsableObjects";
         Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
         try {
@@ -156,6 +155,8 @@ public class SynthBuilder {
     private final Map<String, SignalSource> objects = new HashMap<>();
     private final Map<String, SignalSource[]> voiceObjects = new HashMap<>();
 
+    private final List<String> commandsHistory = new ArrayList<>();
+
     private final MultiGate gated;
     private final MultiGate[] voiceGated;
 
@@ -193,6 +194,10 @@ public class SynthBuilder {
 
     public Synth getSynth() {
         return synth;
+    }
+
+    public List<String> getHistory(){
+        return commandsHistory;
     }
 
     public void assignName(int voiceId, String name, SignalSource signal) {
@@ -477,7 +482,7 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         }
     }
 
-    private void handleCommand(int voiceId, String command) throws IncorrectFormatException, NoSuchConstructorException, NoSuchClassException, NoSuchObjectException, NoSuchSignalException, NoSuchMethodException, NoSuchSocketException, IsNotAProcessorException, VoiceAndGlobalInteractionException {
+    private void parseCommand(int voiceId, String command) throws IncorrectFormatException, NoSuchConstructorException, NoSuchClassException, NoSuchObjectException, NoSuchSignalException, NoSuchMethodException, NoSuchSocketException, IsNotAProcessorException, VoiceAndGlobalInteractionException {
         command = command.trim();
         if (command.contains("->") || command.contains("<-") ||
                 command.contains("=>") || command.contains("<=") ||
@@ -506,7 +511,7 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
                 if (command.contains("<-")) flippedArrow = "->";
                 else if (command.contains("<=")) flippedArrow = "=>";
                 else flippedArrow = "->-";
-                handleCommand(voiceId, split[1] + flippedArrow + split[0]);
+                parseCommand(voiceId, split[1] + flippedArrow + split[0]);
             }
             return;
         }
@@ -528,21 +533,17 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         throw new IncorrectFormatException();
     }
 
-    public void handleCommand(String command){
+    private void parseCommand(String command) throws NoSuchConstructorException, IsNotAProcessorException, NoSuchSocketException, NoSuchClassException, IncorrectFormatException, NoSuchObjectException, VoiceAndGlobalInteractionException, NoSuchSignalException, NoSuchMethodException, FileNotFoundException {
+        if (command.isBlank())
+            return;
         command = command.trim();
         if(command.startsWith("#"))
             return;
-        if (command.isBlank())
-            return;
         if(command.matches("load .+")){
-            try{
-                File file = new File("patches/" + command.substring(4).trim());
-                Scanner reader = new Scanner(file);
-                while (reader.hasNextLine())
-                    handleCommand(reader.nextLine());
-            } catch (FileNotFoundException e) {
-                System.out.println("loading file error");
-            }
+            File file = new File("patches/" + command.substring(4).trim());
+            Scanner reader = new Scanner(file);
+            while (reader.hasNextLine())
+                parseCommand(reader.nextLine());
             return;
         }
         if(command.equals("map")){
@@ -553,33 +554,18 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             synth.stopMapping();
             return;
         }
-        try {
-            if (command.startsWith("v: ")) {
-                for (int i = 0; i < voices.length; ++i)
-                    handleCommand(i, command.substring(3));
-                return;
-            }
-            handleCommand(-1, command);
-        } catch (IncorrectFormatException e) {
-            System.out.println("incorrect format");
-        } catch (NoSuchClassException e) {
-            System.out.println("no such class \"" + e.getMessage() + "\"");
-        } catch (NoSuchObjectException e) {
-            System.out.println("no such object \"" + e.getMessage() + "\"");
-        } catch (NoSuchSocketException e) {
-            System.out.println("no such socket \"" + e.getMessage() + "\"");
-        } catch (NoSuchSignalException e) {
-            System.out.println("no such signal \"" + e.getMessage() + "\"");
-        } catch (NoSuchMethodException e){
-            System.out.println("no such method \"" + e.getMessage() + "\"");
-        } catch (NoSuchConstructorException e) {
-            System.out.println("no such constructor");
-        } catch (IsNotAProcessorException e) {
-            System.out.println(e.getMessage() + " is not a processor");
-        } catch (VoiceAndGlobalInteractionException e) {
-            System.out.println("voice things doing things with global things");
-        } catch (NumberFormatException e){
-            System.out.println("value expected");
+        if (command.startsWith("v: ")) {
+            for (int i = 0; i < voices.length; ++i)
+                parseCommand(i, command.substring(3));
+            return;
         }
+        parseCommand(-1, command);
+    }
+
+    public void handleCommand(String command) throws NoSuchConstructorException, IsNotAProcessorException, NoSuchSocketException, NoSuchClassException, FileNotFoundException, IncorrectFormatException, NoSuchObjectException, VoiceAndGlobalInteractionException, NoSuchSignalException, NoSuchMethodException {
+        if (command.isBlank())
+            return;
+        parseCommand(command);
+        commandsHistory.add(command);
     }
 }

@@ -6,7 +6,9 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
+import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConsoleHandler {
 
@@ -48,6 +50,10 @@ public class ConsoleHandler {
         if (command.isBlank())
             return;
         command = command.trim();
+        if(command.equals("===")){
+            editedChannel = -1;
+            return;
+        }
         if (command.matches("=[0-9]+=")) {
             try {
                 int id = Integer.parseInt(command.substring(1, command.length() - 1).trim()) - 1;
@@ -62,6 +68,10 @@ public class ConsoleHandler {
                 return;
             }
         }
+        if(editedChannel == -1){
+            System.out.println("choose channel to edit first");
+            return;
+        }
         if (command.matches("create [0-9]+")) {
             try {
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
@@ -71,6 +81,7 @@ public class ConsoleHandler {
                 }
                 builders[editedChannel] = new SynthBuilder(voiceCount);
                 mix.get(editedChannel).bind(builders[editedChannel].getSynth());
+                synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};
                 return;
             } catch (NumberFormatException e) {
                 System.out.println("wrong voice count format");
@@ -81,8 +92,35 @@ public class ConsoleHandler {
             System.out.println("synth on channel " + (editedChannel + 1) + " is not created");
             return;
         }
-        builders[editedChannel].handleCommand(command);
-        synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};
+        try {
+            if(command.equals("history")){
+                System.out.println(String.join("\n", builders[editedChannel].getHistory()));
+                return;
+            }
+            builders[editedChannel].handleCommand(command);
+        }catch (IncorrectFormatException e) {
+            System.out.println("incorrect format");
+        } catch (NoSuchClassException e) {
+            System.out.println("no such class \"" + e.getMessage() + "\"");
+        } catch (NoSuchObjectException e) {
+            System.out.println("no such object \"" + e.getMessage() + "\"");
+        } catch (NoSuchSocketException e) {
+            System.out.println("no such socket \"" + e.getMessage() + "\"");
+        } catch (NoSuchSignalException e) {
+            System.out.println("no such signal \"" + e.getMessage() + "\"");
+        } catch (NoSuchMethodException e){
+            System.out.println("no such method \"" + e.getMessage() + "\"");
+        } catch (NoSuchConstructorException e) {
+            System.out.println("no such constructor");
+        } catch (IsNotAProcessorException e) {
+            System.out.println(e.getMessage() + " is not a processor");
+        } catch (VoiceAndGlobalInteractionException e) {
+            System.out.println("voice things doing things with global things");
+        } catch (NumberFormatException e){
+            System.out.println("value expected");
+        } catch (FileNotFoundException e) {
+            System.out.println("loading file error");
+        }
     }
 
     SignalSource getMix() {
