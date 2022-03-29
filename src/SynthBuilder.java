@@ -68,7 +68,6 @@ class IsNotAProcessorException extends Exception {
  * v: releaseVelocity
  *
  *
- * TODO: Aliases
  * TODO: exponential envelope stages
  * TODO: slope limiter
  * TODO: Effects
@@ -76,18 +75,19 @@ class IsNotAProcessorException extends Exception {
  * TODO: Mono synth
  * TODO: Morph (simple and as Joranalogue's)
  * TODO: gates as signals
- * TODO: better midi (not editing, history) and ConsoleHandler handling exceptions (not SynthBuilder)
  */
 
 public class SynthBuilder {
 
     static final HashMap<String, Class<? extends SignalSource>> permittedClasses = new HashMap<>();
-    static final Method[] signalMethods = SignalSource.class.getMethods();
+    static final HashMap<String, String> socketAliases = new HashMap<>();
+    //static final Method[] signalMethods = SignalSource.class.getMethods();
 
     static {
         String usableObjectsFilePath = "src/UsableObjects";
-        Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
+        String socketAliasesFilePath = "src/SocketAliases";
         try {
+            Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
             File usable = new File(usableObjectsFilePath);
             Scanner reader = new Scanner(usable);
             int lastShift = -1;
@@ -143,6 +143,28 @@ public class SynthBuilder {
             System.exit(1);
         } catch (IncorrectFormatException e) {
             System.out.println("Incorrect format in \"" + usableObjectsFilePath + "\" file");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        try{
+            File socketAliasesFile = new File(socketAliasesFilePath);
+            Scanner reader = new Scanner(socketAliasesFile);
+            while(reader.hasNextLine()){
+                String line = reader.nextLine();
+                String[] tmp = line.split(" as ");
+                String name = tmp[0].trim();
+                if(tmp[0].contains(" ") || tmp[0].contains("\t"))
+                    throw new IncorrectFormatException();
+                String[] aliases = tmp[1].split(",");
+                for(String alias : aliases)
+                    socketAliases.put(alias.trim(), name);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.exit(1);
+        } catch (IncorrectFormatException e) {
+            System.out.println("Incorrect format in \"" + socketAliases + "\" file");
             e.printStackTrace();
             System.exit(1);
         }
@@ -470,6 +492,8 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             }
             throw new IncorrectFormatException();
         }
+        if(socketAliases.containsKey(split[1]))
+            split[1] = socketAliases.get(split[1]);
         SignalSource obj = parseObject(voiceId, split[0], onlyVoice);
         Method[] methods = obj.getClass().getMethods();
         Optional<Method> method = Arrays.stream(methods).filter(x -> x.getName().equals(split[1])).findAny();

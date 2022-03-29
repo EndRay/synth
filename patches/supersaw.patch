@@ -13,7 +13,7 @@ keytrack = keytrackCC
 resonance = resonanceCC
 
 v: env = new ADSR(1ms, 2s, 0.3, 0.6s)
-v: env.attack <= velocity.mapUni(3s + 2x, 1ms + 2x)
+v: env.att <= velocity.mapUni(3s + 2x, 1ms + 2x)
 v: osc = new Saw(pitch)
 v: osc2 = new Saw(pitch + 1.01x)
 v: mix = new UMix()
@@ -21,8 +21,8 @@ v: mix <- osc
 v: mix <- osc2
 v: mix * env => output
 v: filter = new Filter(cutoff)
-v: filter.frequency <- pitch * keytrack
-v: filter.resonance <= resonance
-v: env * velocity.mapUni(0.3, 1) * envAmount -> filter.frequency
+v: filter.f <- pitch * keytrack
+v: filter.q <= resonance
+v: env * velocity.mapUni(0.3, 1) * envAmount -> filter.f
 v: filter ->- output
 map
