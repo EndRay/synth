@@ -1,8 +1,13 @@
 realisations
+    effects
+        CubicDrive as Drive
+        TanhDrive
     filters
         ResonantLowPass2PoleFilter as 2Pole, Filter
     modulators
         ADSR
+        AD
+        AR
     oscillators
         PMSineOscillator as PMSine
         SawOscillator as Saw

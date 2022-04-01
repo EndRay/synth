@@ -36,7 +36,7 @@ public class Main {
         SignalSource output = handler.getMix();//new Socket(synth);
 
         for (int i = 0; true; i++) {
-            if (i % 100 == 0 && System.in.available() > 0) {
+            if (i % 300 == 0 && System.in.available() > 0) {
                 String line = console.nextLine();
                 line = line.trim();
                 if(line.equals("quit"))

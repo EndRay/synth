@@ -1,12 +1,15 @@
 =1=
-create 6
+create 25
 load supersaw.patch
-===
 
-=2=
-create 6
-vMix * 0.25 => output
-v: osc = new Tri(pitch)
-v: env = new ADSR(5ms, 2s, 0, 1s)
-v: osc * env => output
+#drive = new TanhDrive()
+#drive.gain := 1
+#postFilter = new Filter()
+#postFilter.f := 1000hz
+#postFilter2 = new Filter()
+#postFilter2.f := 1000hz
+
+#drive ->- output
+#postFilter ->- output
+#postFilter2 ->- output
 ===

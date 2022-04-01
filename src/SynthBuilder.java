@@ -75,6 +75,8 @@ class IsNotAProcessorException extends Exception {
  * TODO: Mono synth
  * TODO: Morph (simple and as Joranalogue's)
  * TODO: gates as signals
+ *
+ * TODO: stereo
  */
 
 public class SynthBuilder {
