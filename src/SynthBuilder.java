@@ -1,4 +1,3 @@
-import realisations.oscillators.SawOscillator;
 import sources.SignalProcessor;
 import sources.SignalSource;
 import sources.utils.*;
@@ -61,13 +60,21 @@ class IsNotAProcessorException extends Exception {
  * output
  * vMix
  * aftertouchChannel
- * paraphonicGate
+ *
+ * lastNotePitch
+ * lastNoteVelocity
+ * lastNoteAftertouch
+ * lastNoteReleaseVelocity
+ * lastNoteGate
+ * lastNoteTrigger
+ *
  * v: output
  * v: pitch
  * v: velocity
  * v: aftertouch
  * v: releaseVelocity
  * v: gate
+ * v: trigger
  *
  *
  * TODO: Exponential envelope stages
@@ -75,9 +82,9 @@ class IsNotAProcessorException extends Exception {
  * TODO: Effects!!!
  * TODO: Morph (simple and as Joranalogue's)
  * TODO: TZFM oscillators
- * TODO: Edit modes
  * TODO: Comb filter
  *
+ * TODO: NORMAL PARSING
  * TODO: Stereo
  */
 
@@ -185,7 +192,7 @@ public class SynthBuilder {
 
     public enum EditMode {GLOBAL, VOICE}
 
-    EditMode editMode;
+    EditMode editMode = EditMode.GLOBAL;
 
     SynthBuilder(int voicesCount) {
         voices = new Voice[voicesCount];
@@ -578,13 +585,7 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
         command = command.trim();
         if(command.startsWith("#"))
             return;
-        if(command.matches("load .+")){
-            File file = new File("patches/" + command.substring(4).trim());
-            Scanner reader = new Scanner(file);
-            while (reader.hasNextLine())
-                parseCommand(reader.nextLine());
-            return;
-        }
+
         if(command.equals("map")){
             synth.startMapping();
             return;
@@ -593,17 +594,41 @@ tri = (new Tri(7).mapBi(7, 3.2)).attenuate(23).mapUni(21)
             synth.stopMapping();
             return;
         }
-        if (command.startsWith("v: ")) {
-            for (int i = 0; i < voices.length; ++i)
-                parseCommand(i, command.substring(3));
+        if(command.equals("-v-")) {
+            editMode = EditMode.VOICE;
             return;
         }
-        parseCommand(-1, command);
+        if(command.equals("---")){
+            editMode = EditMode.GLOBAL;
+            return;
+        }
+        EditMode mode = editMode;
+        if(command.startsWith("v: ")) {
+            command = command.substring(3);
+            mode = EditMode.VOICE;
+        }
+        else if(command.startsWith("g: ")) {
+            command = command.substring(3);
+            mode = EditMode.GLOBAL;
+        }
+        if (mode == EditMode.VOICE) {
+            for (int i = 0; i < voices.length; ++i)
+                parseCommand(i, command);
+        }
+        else parseCommand(-1, command);
     }
 
     public void handleCommand(String command) throws NoSuchConstructorException, IsNotAProcessorException, NoSuchSocketException, NoSuchClassException, FileNotFoundException, IncorrectFormatException, NoSuchObjectException, VoiceAndGlobalInteractionException, NoSuchSignalException, NoSuchMethodException {
         if (command.isBlank())
             return;
+        command = command.trim();
+        if(command.matches("load .+")){
+            File file = new File("patches/" + command.substring(4).trim());
+            Scanner reader = new Scanner(file);
+            while (reader.hasNextLine())
+                handleCommand(reader.nextLine());
+            return;
+        }
         parseCommand(command);
         commandsHistory.add(command);
     }

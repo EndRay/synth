@@ -6,6 +6,10 @@ import sources.voices.Voice;
 
 import java.util.*;
 
+/**
+ * TODO: Correct last note
+ */
+
 public class MyPolySynth implements Synth {
     Voice[] voices;
     Map<Integer, Voice> voiceByNote = new HashMap<>();
@@ -76,6 +80,11 @@ public class MyPolySynth implements Synth {
         voice.noteOn(note, velocity);
         gatedVoices.add(voice);
         voiceByNote.put(note, voice);
+    }
+
+    public void allNotesOff(){
+        while(!heldNotes.isEmpty())
+            noteOff(heldNotes.get(0));
     }
 
     @Override

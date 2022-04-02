@@ -1,0 +1,15 @@
+volume = new Value(0.1)
+
+pitch = new Value(150hz)
+
+osc = new Saw(lastNotePitch)
+mix = new UMix()
+mix <- osc
+
+env = new AR(1ms, 1s)
+env.gate <= lastNoteGate
+
+mix * env * volume => output
+
+filter = new Filter(0.6)
+filter ->- output

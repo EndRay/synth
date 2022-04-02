@@ -1,35 +1,28 @@
 =1=
 create 6
 load supersaw.patch
-
-#drive = new TanhDrive()
-#drive.gain := 1
-#postFilter = new Filter()
-#postFilter.f := 1000hz
-#postFilter2 = new Filter()
-#postFilter2.f := 1000hz
-
-#drive ->- output
-#postFilter ->- output
-#postFilter2 ->- output
-
 #map
 ===
 
 =2=
-create 6
-load sync.patch
+#create 6
+#load sync.patch
 #map
 ===
 
 =3=
-create 6
-load pulse.patch
+#create 6
+#load pulse.patch
 #map
 ===
 
 =4=
+#create 0
+#load mono.patch
+#map
+===
+
+=5=
 create 0
-load mono.patch
-map
+load modular.patch
 ===

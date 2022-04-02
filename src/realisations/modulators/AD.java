@@ -12,7 +12,7 @@ public class AD extends AbstractSignalSource implements Envelope {
     private final Socket attack, decay, gate = new Socket(), trigger = new Socket();
     private double currentSample;
     private boolean attackStage;
-    private boolean lastGate = false, lastTrigger = false;
+    private boolean lastGate = false, lastTrigger = false, triggered = false;
 
 
     public AD(double attack, double decay) {
@@ -42,8 +42,10 @@ public class AD extends AbstractSignalSource implements Envelope {
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
             boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
-            attackStage |= (!lastGate && g) | (!lastTrigger && t);
+            triggered |= (!lastTrigger && t);
+            attackStage |= (!lastGate && g);
             attackStage &= g;
+            attackStage |= triggered;
             lastGate = g;
             lastTrigger = t;
             if (attackStage) {
@@ -51,6 +53,7 @@ public class AD extends AbstractSignalSource implements Envelope {
                 if (currentSample >= 1) {
                     currentSample = 1;
                     attackStage = false;
+                    triggered = false;
                 }
             } else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, 0);
         }

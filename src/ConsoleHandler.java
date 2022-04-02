@@ -50,6 +50,8 @@ public class ConsoleHandler {
         if (command.isBlank())
             return;
         command = command.trim();
+        if(command.startsWith("#"))
+            return;
         if(command.equals("===")){
             editedChannel = -1;
             return;
@@ -72,7 +74,32 @@ public class ConsoleHandler {
             System.out.println("choose channel to edit first");
             return;
         }
-        if (command.matches("create [0-9]+")) {
+        if(command.matches("press +[0-9]+")){
+            int note = Integer.parseInt(command.substring(5).trim());
+            if(note < 0 || note > 127){
+                System.out.println("wrong note");
+                return;
+            }
+            for(Synth synth : synths[editedChannel])
+                synth.noteOn(note);
+            return;
+        }
+        if(command.matches("depress")){
+            for(Synth synth : synths[editedChannel])
+                synth.allNotesOff();
+            return;
+        }
+        if(command.matches("depress +[0-9]+")){
+            int note = Integer.parseInt(command.substring(7).trim());
+            if(note < 0 || note > 127){
+                System.out.println("wrong note");
+                return;
+            }
+            for(Synth synth : synths[editedChannel])
+                synth.noteOff(note);
+            return;
+        }
+        if (command.matches("create +[0-9]+")) {
             try {
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
                 if (voiceCount < 0) {
