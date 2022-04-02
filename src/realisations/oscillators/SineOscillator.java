@@ -18,12 +18,8 @@ public class SineOscillator extends AbstractOscillator {
         super(frequencySource);
     }
 
-    public SineOscillator(SignalSource frequencySource, boolean randomPhase) {
-        super(frequencySource, randomPhase);
-    }
-
     @Override
-    public double getSample(int sampleId) {
-        return sin((getPtr(sampleId)) * 2 * PI);
+    public double getAmplitude(int sampleId) {
+        return sin(getPtr(sampleId) * 2 * PI);
     }
 }

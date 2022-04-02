@@ -5,3 +5,5 @@ attack as att, a
 decay as dec, d
 sustain as sus, s
 release as rel, r
+hardSync as sync
+pulseWidth as pulse, pw

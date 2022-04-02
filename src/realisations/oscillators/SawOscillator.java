@@ -10,9 +10,6 @@ import sources.utils.SourceValue;
  */
 
 public class SawOscillator extends AbstractOscillator {
-    Socket hardSync = new Socket();
-    private boolean lastGate = false;
-    double lastSample = 0;
 
     public SawOscillator() {
     }
@@ -25,23 +22,8 @@ public class SawOscillator extends AbstractOscillator {
         super(frequencySource);
     }
 
-    public SawOscillator(SignalSource frequencySource, boolean randomPhase) {
-        super(frequencySource, randomPhase);
-    }
-
-    public Socket hardSync(){
-        return hardSync;
-    }
-
     @Override
-    public double getSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)) {
-            boolean g = hardSync().getGate(sampleId);
-            if(!lastGate && g)
-                setPtr(0);
-            lastGate = g;
-            lastSample = ((0.5 - getPtr(sampleId)) * 2);
-        }
-        return lastSample;
+    public double getAmplitude(int sampleId) {
+        return ((0.5 - getPtr(sampleId)) * 2);
     }
 }

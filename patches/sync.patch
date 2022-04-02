@@ -1,6 +1,4 @@
-volume = new Value(0.1)
-
-voiceMix * volume => output
+load init.patch
 
 osc1pitchCC = new CC("osc 1 pitch", 0.5)
 osc2pitchCC = new CC("osc 2 pitch", 0.5)

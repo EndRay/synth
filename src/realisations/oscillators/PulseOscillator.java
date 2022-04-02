@@ -3,47 +3,33 @@ package realisations.oscillators;
 import sources.SignalSource;
 import sources.oscillators.AbstractOscillator;
 import sources.utils.DC;
+import sources.utils.Socket;
 
 public class PulseOscillator extends AbstractOscillator {
 
-    SignalSource pulseWidthSource;
+    Socket pulseWidth = new Socket();
 
 
     public PulseOscillator(SignalSource frequencySource) {
-        this(frequencySource, 0.5, false);
-    }
-
-    public PulseOscillator(SignalSource frequencySource, boolean randomPhase) {
-        this(frequencySource, 0.5, randomPhase);
+        this(frequencySource, 0.5);
     }
 
     public PulseOscillator(SignalSource frequencySource, double pulseWidth) {
-        this(frequencySource, new DC(pulseWidth), false);
-    }
-
-    public PulseOscillator(SignalSource frequencySource, double pulseWidth, boolean randomPhase) {
-        this(frequencySource, new DC(pulseWidth), false);
+        super(frequencySource);
+        this.pulseWidth.set(pulseWidth);
     }
 
     public PulseOscillator(SignalSource frequencySource, SignalSource pulseWidthSource) {
-        this(frequencySource, pulseWidthSource, false);
+        super(frequencySource);
+        pulseWidth.bind(pulseWidthSource);
     }
 
-    public PulseOscillator(SignalSource frequencySource, SignalSource pulseWidthSource, boolean randomPhase) {
-        super(frequencySource, randomPhase);
-        this.pulseWidthSource = pulseWidthSource;
-    }
-
-    public void setPulseWidth(SignalSource pulseWidthSource) {
-        this.pulseWidthSource = pulseWidthSource;
-    }
-
-    public double getPulseWidth(int sampleId) {
-        return pulseWidthSource.getSample(sampleId);
+    public Socket pulseWidth(){
+        return pulseWidth;
     }
 
     @Override
-    public double getSample(int sampleId) {
-        return (getPtr(sampleId) < getPulseWidth(sampleId) ? 1 : -1);
+    public double getAmplitude(int sampleId) {
+        return (getPtr(sampleId) < pulseWidth.getSample(sampleId) ? 1 : -1);
     }
 }

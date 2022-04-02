@@ -23,7 +23,7 @@ public class PMSineOscillator extends AbstractPMOscillator {
     }
 
     @Override
-    public double getSample(int sampleId) {
+    public double getAmplitude(int sampleId) {
         return sin(getPtr(sampleId) * 2 * PI);
     }
 }

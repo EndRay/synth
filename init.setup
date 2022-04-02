@@ -18,5 +18,11 @@ load supersaw.patch
 =2=
 create 6
 load sync.patch
+#map
+===
+
+=3=
+create 6
+load pulse.patch
 map
 ===

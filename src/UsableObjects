@@ -13,6 +13,7 @@ realisations
         SawOscillator as Saw
         SineOscillator as Sine
         TriangleOscillator as Triangle, Tri
+        PulseOscillator as Pulse, PW
 sources
     utils
         Attenuator as VCA, Att

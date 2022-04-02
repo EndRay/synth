@@ -4,26 +4,24 @@ import sources.AbstractSignalSource;
 import sources.SignalSource;
 import sources.utils.Socket;
 
-import java.util.Random;
-
 abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
-    private final Socket frequency = new Socket();
-    protected Random rd = new Random();
+    private final Socket frequency = new Socket(), hardSync = new Socket();
     private double ptr;
+    private boolean lastGate = false;
+    double lastSample;
 
     public AbstractOscillator(){}
     public AbstractOscillator(double frequency){ frequency().set(frequency); }
     public AbstractOscillator(SignalSource frequencySource) {
-        this(frequencySource, false);
-    }
-    public AbstractOscillator(SignalSource frequencySource, boolean randomPhase) {
         frequency().bind(frequencySource);
-        ptr = randomPhase ? rd.nextDouble() : 0;
     }
 
     @Override
     public Socket frequency(){
         return frequency;
+    }
+    public Socket hardSync(){
+        return hardSync;
     }
 
     public void setPtr(double ptr) {
@@ -51,4 +49,19 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
         checkAndUpdateSampleId(sampleId);
         return ptr;
     }
+
+    abstract public double getAmplitude(int sampleId);
+
+    @Override
+    public double getSample(int sampleId) {
+        if(checkAndUpdateSampleId(sampleId)) {
+            boolean g = hardSync().getGate(sampleId);
+            if(!lastGate && g)
+                setPtr(0);
+            lastGate = g;
+            lastSample = getAmplitude(sampleId);
+        }
+        return lastSample;
+    }
+
 }
