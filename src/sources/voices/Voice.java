@@ -1,30 +1,22 @@
 package sources.voices;
 
-import sources.*;
-import sources.utils.Socket;
 import sources.utils.SourceValue;
+import sources.utils.Triggerable;
 
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 
-public class Voice extends AbstractSignalProcessor {
+public class Voice {
 
     SourceValue pitch, velocity, aftertouch, releaseVelocity, gate;
+    Triggerable trigger;
 
-    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, SourceValue gated){
-        this(new Socket(), pitch, velocity, aftertouch, releaseVelocity, gated);
-    }
-    public Voice(SignalSource source, SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, SourceValue gate) {
-        super(source);
+    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, SourceValue gate, Triggerable trigger) {
         this.pitch = pitch;
         this.velocity = velocity;
         this.aftertouch = aftertouch;
         this.releaseVelocity = releaseVelocity;
         this.gate = gate;
-    }
-
-    @Override
-    public double getSample(int sampleId) {
-        return source().getSample(sampleId);
+        this.trigger = trigger;
     }
 
     public void noteOn(int note){
@@ -32,9 +24,10 @@ public class Voice extends AbstractSignalProcessor {
     }
 
     public void noteOn(int note, int velocity) {
-        pitch.setValue(SignalSource.frequencyToVoltage(getFrequencyBySemitones(note)));
+        pitch.setFrequency(getFrequencyBySemitones(note));
         this.velocity.setValue(velocity / 128.0);
         gate.setValue(1);
+        trigger.trigger();
     }
 
     public void noteOff(){

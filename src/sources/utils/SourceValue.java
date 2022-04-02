@@ -1,11 +1,14 @@
 package sources.utils;
 
+import sources.AbstractSignalSource;
 import sources.SignalSource;
 
-public class SourceValue implements SignalSource {
+import static utils.FrequencyManipulations.*;
+
+public class SourceValue extends AbstractSignalSource implements SignalSource {
 
     double value;
-    String description;
+    private String description;
 
     public SourceValue(){
         this("", 0);
@@ -14,7 +17,7 @@ public class SourceValue implements SignalSource {
         this(description, 0);
     }
     public SourceValue(double initialValue){
-        this("", 0);
+        this("", initialValue);
     }
 
     public SourceValue(String description, double initialValue){
@@ -24,6 +27,12 @@ public class SourceValue implements SignalSource {
 
     public void setValue(double value){
         this.value = value;
+    }
+    public void setFrequency(double frequency){
+        setValue(SignalSource.frequencyToVoltage(frequency));
+    }
+    public void setNote(double note){
+        setFrequency(getFrequencyBySemitones(note));
     }
 
     public String getDescription(){

@@ -9,10 +9,10 @@ import sources.utils.Socket;
 import static java.lang.Math.max;
 
 public class ADSR extends AbstractSignalSource implements Envelope {
-    private final Socket attack, decay, sustain, release, gate = new Socket();
-    private double currentSample;
+    private final Socket attack, decay, sustain, release, gate = new Socket(), trigger = new Socket();
+    private double currentSample = 0;
     private boolean attackStage;
-    private boolean lastGate = false;
+    private boolean lastGate = false, lastTrigger = false;
 
     public ADSR(double attack, double decay, double sustain, double release) {
         this(new DC(attack), new DC(decay), new DC(sustain), new DC(release));
@@ -22,8 +22,6 @@ public class ADSR extends AbstractSignalSource implements Envelope {
         decay = new Socket(decaySource);
         sustain = new Socket(sustainSource);
         release = new Socket(releaseSource);
-        currentSample = 0;
-        attackStage = false;
     }
 
     public Socket attack(){
@@ -41,13 +39,15 @@ public class ADSR extends AbstractSignalSource implements Envelope {
     public Socket gate(){
         return gate;
     }
+    public Socket trigger(){ return trigger; }
 
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            boolean g = gate().getGate(sampleId);
-            attackStage |= (!lastGate && g);
+            boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
+            attackStage |= (!lastGate && g) | (!lastTrigger && t);
             attackStage &= g;
             lastGate = g;
+            lastTrigger = t;
             if (attackStage) {
                 currentSample += 1 / attack().getTime(sampleId) / sampleRate;
                 if (currentSample >= 1) {

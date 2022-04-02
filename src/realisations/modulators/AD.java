@@ -9,10 +9,10 @@ import sources.utils.Socket;
 import static java.lang.Math.max;
 
 public class AD extends AbstractSignalSource implements Envelope {
-    private final Socket attack, decay, gate = new Socket();
+    private final Socket attack, decay, gate = new Socket(), trigger = new Socket();
     private double currentSample;
-    private boolean attackStage = false;
-    private boolean lastGate = false;
+    private boolean attackStage;
+    private boolean lastGate = false, lastTrigger = false;
 
 
     public AD(double attack, double decay) {
@@ -37,13 +37,15 @@ public class AD extends AbstractSignalSource implements Envelope {
     public Socket gate() {
         return gate;
     }
+    public Socket trigger(){ return trigger; }
 
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
-            boolean g = getGate(sampleId);
-            attackStage |= (!lastGate && g);
+            boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
+            attackStage |= (!lastGate && g) | (!lastTrigger && t);
             attackStage &= g;
             lastGate = g;
+            lastTrigger = t;
             if (attackStage) {
                 currentSample += 1 / attack().getTime(sampleId) / sampleRate;
                 if (currentSample >= 1) {

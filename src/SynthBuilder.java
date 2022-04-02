@@ -73,11 +73,10 @@ class IsNotAProcessorException extends Exception {
  * TODO: Exponential envelope stages
  * TODO: Slope limiter
  * TODO: Effects!!!
- * TODO: Mono synth
  * TODO: Morph (simple and as Joranalogue's)
- * TODO: Envelope triggers
  * TODO: TZFM oscillators
  * TODO: Edit modes
+ * TODO: Comb filter
  *
  * TODO: Stereo
  */
@@ -192,30 +191,46 @@ public class SynthBuilder {
         voices = new Voice[voicesCount];
         this.output = new Socket();
         voiceOutputs = new Socket[voicesCount];
-        SourceValue aftertouchChannel = new SourceValue("channel aftertouch"),
-                paraphonicGate = new SourceValue("paraphonic gate");
+        SourceValue aftertouchChannel = new SourceValue("channel aftertouch");
         objects.put("aftertouchChannel", aftertouchChannel);
-        objects.put("paraphonicGate", paraphonicGate);
+
+        SourceValue lastNotePitch = new SourceValue("last note pitch", frequencyToVoltage(440)),
+                lastNoteVelocity = new SourceValue("last note velocity", 0.5),
+                lastNoteAftertouch = new SourceValue("last note aftertouch"),
+                lastNoteReleaseVelocity = new SourceValue("last note release velocity"),
+                lastNoteGate = new SourceValue("last note gate");
+        Triggerable lastNoteTrigger = new Triggerable("last note trigger");
+        objects.put("lastNotePitch", lastNotePitch);
+        objects.put("lastNoteVelocity", lastNoteVelocity);
+        objects.put("lastNoteAftertouch", lastNoteAftertouch);
+        objects.put("lastNoteReleaseVelocity", lastNoteVelocity);
+        objects.put("lastNoteGate", lastNoteGate);
+        objects.put("lastNoteTrigger", lastNoteTrigger);
+        Voice last = new Voice(lastNotePitch, lastNoteVelocity, lastNoteAftertouch, lastNoteReleaseVelocity, lastNoteGate, lastNoteTrigger);
+
         voiceObjects.put("pitch", new SignalSource[voicesCount]);
         voiceObjects.put("velocity", new SignalSource[voicesCount]);
         voiceObjects.put("aftertouch", new SignalSource[voicesCount]);
         voiceObjects.put("releaseVelocity", new SignalSource[voicesCount]);
         voiceObjects.put("gate", new SignalSource[voicesCount]);
+        voiceObjects.put("trigger", new SignalSource[voicesCount]);
         for (int i = 0; i < voicesCount; ++i) {
             voiceOutputs[i] = new Socket();
-            SourceValue pitch = new SourceValue("voice #" + i + " frequency", frequencyToVoltage(440)),
+            SourceValue pitch = new SourceValue("voice #" + i + " pitch", frequencyToVoltage(440)),
                     velocity = new SourceValue("voice #" + i + " velocity", 0.5),
-                    aftertouch = new SourceValue("voice #" + i + " aftertouch", 0),
-                    releaseVelocity = new SourceValue("voice #" + i + " release velocity", 0),
-                    gate = new SourceValue("voice #" + i + " gate", 0);
+                    aftertouch = new SourceValue("voice #" + i + " aftertouch"),
+                    releaseVelocity = new SourceValue("voice #" + i + " release velocity"),
+                    gate = new SourceValue("voice #" + i + " gate");
+            Triggerable trigger = new Triggerable("voice #" + i + " trigger");
             voiceObjects.get("pitch")[i] = pitch;
             voiceObjects.get("velocity")[i] = velocity;
             voiceObjects.get("aftertouch")[i] = aftertouch;
             voiceObjects.get("releaseVelocity")[i] = releaseVelocity;
             voiceObjects.get("gate")[i] = gate;
-            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate);
+            voiceObjects.get("trigger")[i] = trigger;
+            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
         }
-        synth = new MyPolySynth(voices, output, paraphonicGate);
+        synth = new MyPolySynth(voices, output, last);
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 

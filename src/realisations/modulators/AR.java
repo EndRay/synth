@@ -6,8 +6,7 @@ import sources.modulators.Envelope;
 import sources.utils.DC;
 import sources.utils.Socket;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 public class AR extends AbstractSignalSource implements Envelope {
     private final Socket attack, release, gate = new Socket();
@@ -35,7 +34,7 @@ public class AR extends AbstractSignalSource implements Envelope {
         if (checkAndUpdateSampleId(sampleId)) {
             boolean g = gate().getGate(sampleId);
             if (g)
-                currentSample += min(1 / attack().getTime(sampleId) / sampleRate, 1);
+                currentSample = min(currentSample + 1 / attack().getTime(sampleId) / sampleRate, 1);
             else currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
         }
         return currentSample;

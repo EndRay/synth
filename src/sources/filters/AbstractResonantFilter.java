@@ -13,16 +13,17 @@ abstract public class AbstractResonantFilter extends AbstractFilter implements R
         super(frequency);
     }
 
-    public AbstractResonantFilter(SignalSource source) {
-        super(source);
+    public AbstractResonantFilter(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
-    public AbstractResonantFilter(SignalSource source, SignalSource frequencySource) {
-        super(source, frequencySource);
+    public AbstractResonantFilter(SignalSource frequencySource, SignalSource resonanceSource) {
+        super(frequencySource);
+        resonance.bind(resonanceSource);
     }
 
-    public AbstractResonantFilter(SignalSource source, SignalSource frequencySource, SignalSource resonanceSource) {
-        super(source, frequencySource);
+    public AbstractResonantFilter(SignalSource frequencySource, SignalSource resonanceSource, SignalSource source) {
+        super(frequencySource, source);
         resonance.bind(resonanceSource);
     }
 

@@ -75,7 +75,7 @@ public class ConsoleHandler {
         if (command.matches("create [0-9]+")) {
             try {
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
-                if (voiceCount < 1) {
+                if (voiceCount < 0) {
                     System.out.println("wrong voice count");
                     return;
                 }

@@ -15,7 +15,8 @@ public class MyPolySynth implements Synth {
     Map<Integer, SourceValue> valueByCC = new HashMap<>();
     boolean nowMapping = false;
 
-    SourceValue paraphonicGate;
+    List<Integer> heldNotes = new ArrayList<>();
+    Voice last;
 
     Set<Integer> forbiddenCCs = new HashSet<>();
     {
@@ -25,10 +26,10 @@ public class MyPolySynth implements Synth {
             forbiddenCCs.add(i);
     }
 
-    public MyPolySynth(Voice[] voices, SignalSource soundSource, SourceValue paraphonicGate) {
+    public MyPolySynth(Voice[] voices, SignalSource soundSource, Voice last) {
         this.voices = voices;
         this.soundSource = soundSource;
-        this.paraphonicGate = paraphonicGate;
+        this.last = last;
         freeVoices.addAll(Arrays.asList(voices));
     }
 
@@ -53,7 +54,8 @@ public class MyPolySynth implements Synth {
 
     @Override
     public void noteOn(int note, int velocity) {
-        paraphonicGate.setValue(1);
+        last.noteOn(note, velocity);
+        heldNotes.add(note);
         Voice voice;
         if (!freeVoices.isEmpty()) {
             Iterator<Voice> it = freeVoices.iterator();
@@ -64,12 +66,12 @@ public class MyPolySynth implements Synth {
             voice = it.next();
             it.remove();
             voice.noteOff();
-        } else {
+        } else if (!gatedVoices.isEmpty()) {
             Iterator<Voice> it = gatedVoices.iterator();
             voice = it.next();
             it.remove();
             voice.noteOff();
-        }
+        } else return;
         voiceByNote.values().remove(voice);
         voice.noteOn(note, velocity);
         gatedVoices.add(voice);
@@ -78,14 +80,28 @@ public class MyPolySynth implements Synth {
 
     @Override
     public void noteOff(int note, int velocity) {
+        int lastNote = -1;
+        if(!heldNotes.isEmpty())
+            lastNote = heldNotes.get(heldNotes.size()-1);
+        heldNotes.removeAll(List.of(new Integer[]{note}));
+        List<Integer> newNotes = new ArrayList<>();
+        for(Integer el : heldNotes)
+            if(el != note)
+                newNotes.add(el);
+        heldNotes = newNotes;
+        if(heldNotes.isEmpty())
+            last.noteOff();
+        else{
+            int newNote = heldNotes.get(heldNotes.size()-1);
+            if(lastNote != newNote)
+                last.noteOn(newNote);
+        }
         if (voiceByNote.containsKey(note)) {
             Voice voice = voiceByNote.remove(note);
             gatedVoices.remove(voice);
             releasedVoices.add(voice);
             voice.noteOff(velocity);
         }
-        if (gatedVoices.isEmpty())
-            paraphonicGate.setValue(0);
     }
 
     @Override

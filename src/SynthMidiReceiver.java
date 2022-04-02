@@ -5,6 +5,10 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 
+/**
+ * TODO: Parse polyaftertouch
+ */
+
 public class SynthMidiReceiver implements Receiver {
 
     Synth[][] synths;
