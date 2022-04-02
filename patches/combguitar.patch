@@ -1,0 +1,16 @@
+load init.patch
+
+-v-
+env = new Hold(pitch)
+env.trig <= trigger
+
+noise = new Noise()
+noise * env * volume => output
+
+comb = new Comb(pitch)
+comb.alpha <= new DC(1) - (pitch.toFrequency().map(100, 200, 1, 2).inverse() * 0.025)
+comb ->- output
+
+filter = new Filter(0.9)
+filter ->- output
+---

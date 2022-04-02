@@ -71,6 +71,10 @@ public interface SignalSource {
         return this.attenuate((max-min)/2).add((min+max)/2);
     }
 
+    default SignalSource map(double minFrom, double maxFrom, double min, double max){
+        return this.sub(minFrom).attenuate((max-min)/(maxFrom-minFrom)).add(min);
+    }
+
     default SignalSource clipUni(){
         return new Clip(this, false);
     }
@@ -86,4 +90,10 @@ public interface SignalSource {
     default SignalSource addFrequency(double frequency){
         return new FrequencyAdder(this, frequency);
     }
+
+    default SignalSource toFrequency(){
+        return new FrequencyConverter(this);
+    }
+
+    default SignalSource inverse() {return new Inverser(this);}
 }

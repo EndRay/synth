@@ -1,0 +1,45 @@
+package realisations.modulators;
+
+import sources.AbstractSignalSource;
+import sources.SignalSource;
+import sources.modulators.Envelope;
+import sources.utils.Socket;
+
+public class Hold extends AbstractSignalSource {
+
+    final private Socket hold = new Socket(), trigger = new Socket();
+    private boolean lastTrigger = false;
+    private double samplesPassed = -1;
+    private double lastSample = 0;
+
+    public Hold(double hold){
+        hold().set(hold);
+    }
+    public Hold(SignalSource holdSource){
+        hold().bind(holdSource);
+    }
+
+    public Socket hold(){
+        return hold;
+    }
+
+    public Socket trigger(){
+        return trigger;
+    }
+
+    @Override
+    public double getSample(int sampleId) {
+        if(checkAndUpdateSampleId(sampleId)){
+            ++samplesPassed;
+            boolean t = trigger().getGate(sampleId);
+            if(!lastTrigger && t) {
+                samplesPassed = 0;
+                lastSample = 1;
+            }
+            lastTrigger = t;
+            if(samplesPassed > hold().getTime(sampleId) * sampleRate)
+                lastSample = 0;
+        }
+        return lastSample;
+    }
+}

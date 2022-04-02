@@ -4,10 +4,13 @@ realisations
         TanhDrive
     filters
         ResonantLowPass2PoleFilter as 2Pole, Filter
+        FeedforwardCombFilter as FeedforwardComb
+        FeedbackCombFilter as FeedbackComb, CombFilter, Comb
     modulators
         ADSR
         AD
         AR
+        Hold
     oscillators
         PMSineOscillator as PMSine
         SawOscillator as Saw
@@ -23,3 +26,4 @@ sources
         Socket as Value, Mixer, Mix
         SourceValue as CC
         UnityMixer as UMixer, UMix
+        Noise
