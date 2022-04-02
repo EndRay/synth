@@ -1,5 +1,5 @@
 =1=
-create 25
+create 6
 load supersaw.patch
 
 #drive = new TanhDrive()
@@ -12,4 +12,11 @@ load supersaw.patch
 #drive ->- output
 #postFilter ->- output
 #postFilter2 ->- output
+
+#map
+===
+=2=
+create 6
+load sync.patch
+map
 ===

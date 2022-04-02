@@ -1,4 +1,4 @@
-import sources.Gated;
+import realisations.oscillators.SawOscillator;
 import sources.SignalProcessor;
 import sources.SignalSource;
 import sources.utils.*;
@@ -60,23 +60,26 @@ class IsNotAProcessorException extends Exception {
 /**
  * output
  * vMix
- * aftertouchCh
+ * aftertouchChannel
+ * paraphonicGate
  * v: output
  * v: pitch
  * v: velocity
  * v: aftertouch
  * v: releaseVelocity
+ * v: gate
  *
  *
- * TODO: exponential envelope stages
- * TODO: slope limiter
- * TODO: Effects
- * TODO: Stereo
+ * TODO: Exponential envelope stages
+ * TODO: Slope limiter
+ * TODO: Effects!!!
  * TODO: Mono synth
  * TODO: Morph (simple and as Joranalogue's)
- * TODO: gates as signals
+ * TODO: Envelope triggers
+ * TODO: TZFM oscillators
+ * TODO: Edit modes
  *
- * TODO: stereo
+ * TODO: Stereo
  */
 
 public class SynthBuilder {
@@ -181,9 +184,6 @@ public class SynthBuilder {
 
     private final List<String> commandsHistory = new ArrayList<>();
 
-    private final MultiGate gated;
-    private final MultiGate[] voiceGated;
-
     public enum EditMode {GLOBAL, VOICE}
 
     EditMode editMode;
@@ -192,28 +192,31 @@ public class SynthBuilder {
         voices = new Voice[voicesCount];
         this.output = new Socket();
         voiceOutputs = new Socket[voicesCount];
-        objects.put("aftertouchCh", new SourceValue("channel aftertouch"));
+        SourceValue aftertouchChannel = new SourceValue("channel aftertouch"),
+                paraphonicGate = new SourceValue("paraphonic gate");
+        objects.put("aftertouchChannel", aftertouchChannel);
+        objects.put("paraphonicGate", paraphonicGate);
         voiceObjects.put("pitch", new SignalSource[voicesCount]);
         voiceObjects.put("velocity", new SignalSource[voicesCount]);
         voiceObjects.put("aftertouch", new SignalSource[voicesCount]);
         voiceObjects.put("releaseVelocity", new SignalSource[voicesCount]);
-        gated = new MultiGate();
-        voiceGated = new MultiGate[voicesCount];
+        voiceObjects.put("gate", new SignalSource[voicesCount]);
         for (int i = 0; i < voicesCount; ++i) {
             voiceOutputs[i] = new Socket();
             SourceValue pitch = new SourceValue("voice #" + i + " frequency", frequencyToVoltage(440)),
                     velocity = new SourceValue("voice #" + i + " velocity", 0.5),
                     aftertouch = new SourceValue("voice #" + i + " aftertouch", 0),
-                    releaseVelocity = new SourceValue("voice #" + i + " release velocity", 0);
+                    releaseVelocity = new SourceValue("voice #" + i + " release velocity", 0),
+                    gate = new SourceValue("voice #" + i + " gate", 0);
             voiceObjects.get("pitch")[i] = pitch;
             voiceObjects.get("velocity")[i] = velocity;
             voiceObjects.get("aftertouch")[i] = aftertouch;
             voiceObjects.get("releaseVelocity")[i] = releaseVelocity;
-            voiceGated[i] = new MultiGate();
-            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, voiceGated[i]);
+            voiceObjects.get("gate")[i] = gate;
+            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate);
         }
-        synth = new MyPolySynth(voices, output, gated);
-        objects.put("vMix", new Mixer(voiceOutputs));
+        synth = new MyPolySynth(voices, output, paraphonicGate);
+        objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 
     public Synth getSynth() {
@@ -322,11 +325,6 @@ public class SynthBuilder {
                 argTypes[i] = objClassArgs[i].getObjClass();
             }
             SignalSource createdObj = objClass.getConstructor(argTypes).newInstance(args);
-            if(createdObj instanceof Gated gatedObj){
-                if(voiceId == -1)
-                    gated.addDestination(gatedObj);
-                else voiceGated[voiceId].addDestination(gatedObj);
-            }
             if(createdObj instanceof SourceValue sourceValue){
                 if(voiceId == -1)
                     synth.addToMap(sourceValue);

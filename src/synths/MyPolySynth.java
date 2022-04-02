@@ -1,9 +1,6 @@
 package synths;
 
-import sources.Gated;
 import sources.SignalSource;
-import sources.utils.Mixer;
-import sources.utils.MultiGate;
 import sources.utils.SourceValue;
 import sources.voices.Voice;
 
@@ -18,7 +15,7 @@ public class MyPolySynth implements Synth {
     Map<Integer, SourceValue> valueByCC = new HashMap<>();
     boolean nowMapping = false;
 
-    Gated paraphonicGated;
+    SourceValue paraphonicGate;
 
     Set<Integer> forbiddenCCs = new HashSet<>();
     {
@@ -28,19 +25,10 @@ public class MyPolySynth implements Synth {
             forbiddenCCs.add(i);
     }
 
-
-    public MyPolySynth(Voice[] voices) {
-        this(voices, new Mixer(voices));
-    }
-
-    public MyPolySynth(Voice[] voices, SignalSource soundSource) {
-        this(voices, soundSource, new MultiGate());
-    }
-
-    public MyPolySynth(Voice[] voices, SignalSource soundSource, Gated paraphonicGated) {
+    public MyPolySynth(Voice[] voices, SignalSource soundSource, SourceValue paraphonicGate) {
         this.voices = voices;
         this.soundSource = soundSource;
-        this.paraphonicGated = paraphonicGated;
+        this.paraphonicGate = paraphonicGate;
         freeVoices.addAll(Arrays.asList(voices));
     }
 
@@ -65,7 +53,7 @@ public class MyPolySynth implements Synth {
 
     @Override
     public void noteOn(int note, int velocity) {
-        paraphonicGated.gateOn();
+        paraphonicGate.setValue(1);
         Voice voice;
         if (!freeVoices.isEmpty()) {
             Iterator<Voice> it = freeVoices.iterator();
@@ -97,7 +85,7 @@ public class MyPolySynth implements Synth {
             voice.noteOff(velocity);
         }
         if (gatedVoices.isEmpty())
-            paraphonicGated.gateOff();
+            paraphonicGate.setValue(0);
     }
 
     @Override

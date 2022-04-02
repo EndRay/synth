@@ -6,16 +6,13 @@ import sources.modulators.Envelope;
 import sources.utils.DC;
 import sources.utils.Socket;
 
-import javax.naming.ldap.SortKey;
-
 import static java.lang.Math.max;
 
 public class ADSR extends AbstractSignalSource implements Envelope {
-    private final Socket attack, decay, sustain, release;
+    private final Socket attack, decay, sustain, release, gate = new Socket();
     private double currentSample;
-    //private boolean legato, retrigger;
-    private boolean gate, attackStage;
-
+    private boolean attackStage;
+    private boolean lastGate = false;
 
     public ADSR(double attack, double decay, double sustain, double release) {
         this(new DC(attack), new DC(decay), new DC(sustain), new DC(release));
@@ -26,7 +23,6 @@ public class ADSR extends AbstractSignalSource implements Envelope {
         sustain = new Socket(sustainSource);
         release = new Socket(releaseSource);
         currentSample = 0;
-        gate = false;
         attackStage = false;
     }
 
@@ -42,9 +38,16 @@ public class ADSR extends AbstractSignalSource implements Envelope {
     public Socket release(){
         return release;
     }
+    public Socket gate(){
+        return gate;
+    }
 
     public double getSample(int sampleId) {
         if (checkAndUpdateSampleId(sampleId)) {
+            boolean g = gate().getGate(sampleId);
+            attackStage |= (!lastGate && g);
+            attackStage &= g;
+            lastGate = g;
             if (attackStage) {
                 currentSample += 1 / attack().getTime(sampleId) / sampleRate;
                 if (currentSample >= 1) {
@@ -52,21 +55,10 @@ public class ADSR extends AbstractSignalSource implements Envelope {
                     attackStage = false;
                 }
             }
-            else if (!gate)
+            else if (!g)
                 currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
             else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, sustain().getSample(sampleId));
         }
         return currentSample;
-    }
-
-    @Override
-    public void gateOn() {
-        attackStage = true;
-        gate = true;
-    }
-
-    public void gateOff() {
-        attackStage = false;
-        gate = false;
     }
 }

@@ -26,21 +26,29 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
         return frequency;
     }
 
-    public void hardSync() {
-         ptr = 0;
+    public void setPtr(double ptr) {
+        this.ptr = ptr;
     }
 
     /**
      * frequency < sampleRate
      */
-    public double getPtr(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
+
+    @Override
+    protected boolean checkAndUpdateSampleId(int sampleId) {
+        boolean res = super.checkAndUpdateSampleId(sampleId);
+        if(res) {
             ptr += frequency().getFrequency(sampleId) / sampleRate;
             if (ptr < 0)
                 ptr += 1;
             if (ptr >= 1)
                 ptr -= 1;
         }
+        return res;
+    }
+
+    public double getPtr(int sampleId) {
+        checkAndUpdateSampleId(sampleId);
         return ptr;
     }
 }

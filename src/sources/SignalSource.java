@@ -9,6 +9,17 @@ public interface SignalSource {
 
     double getSample(int sampleId);
 
+    default double getFrequency(int sampleId){
+        return SignalSource.voltageToFrequency(getSample(sampleId));
+    }
+    default double getTime(int sampleId){
+        return SignalSource.voltageToTime(getSample(sampleId));
+    }
+
+    default boolean getGate(int sampleId){
+        return getSample(sampleId) > 0.5;
+    }
+
     static double frequencyToVoltage(double frequency) {
         return Math.log(frequency / minFrequency) / Math.log(maxFrequency / minFrequency);
     }

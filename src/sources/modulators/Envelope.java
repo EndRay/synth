@@ -1,9 +1,8 @@
 package sources.modulators;
 
-import sources.Gated;
 import sources.SignalSource;
+import sources.utils.Socket;
 
-public interface Envelope extends SignalSource, Gated {
-    void gateOn();
-    void gateOff();
+public interface Envelope extends SignalSource {
+    Socket gate();
 }

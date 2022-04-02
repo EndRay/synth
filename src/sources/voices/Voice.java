@@ -6,21 +6,20 @@ import sources.utils.SourceValue;
 
 import static utils.FrequencyManipulations.getFrequencyBySemitones;
 
-public class Voice extends AbstractSignalProcessor implements Gated {
+public class Voice extends AbstractSignalProcessor {
 
-    SourceValue pitch, velocity, aftertouch, releaseVelocity;
-    Gated gated;
+    SourceValue pitch, velocity, aftertouch, releaseVelocity, gate;
 
-    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated){
+    public Voice(SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, SourceValue gated){
         this(new Socket(), pitch, velocity, aftertouch, releaseVelocity, gated);
     }
-    public Voice(SignalSource source, SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, Gated gated) {
+    public Voice(SignalSource source, SourceValue pitch, SourceValue velocity, SourceValue aftertouch, SourceValue releaseVelocity, SourceValue gate) {
         super(source);
         this.pitch = pitch;
         this.velocity = velocity;
         this.aftertouch = aftertouch;
         this.releaseVelocity = releaseVelocity;
-        this.gated = gated;
+        this.gate = gate;
     }
 
     @Override
@@ -35,7 +34,7 @@ public class Voice extends AbstractSignalProcessor implements Gated {
     public void noteOn(int note, int velocity) {
         pitch.setValue(SignalSource.frequencyToVoltage(getFrequencyBySemitones(note)));
         this.velocity.setValue(velocity / 128.0);
-        gated.gateOn();
+        gate.setValue(1);
     }
 
     public void noteOff(){
@@ -44,17 +43,6 @@ public class Voice extends AbstractSignalProcessor implements Gated {
 
     public void noteOff(int velocity) {
         releaseVelocity.setValue(velocity / 128.0);
-        gated.gateOff();
+        gate.setValue(0);
     }
-
-    @Override
-    public void gateOn() {
-        gated.gateOn();
-    }
-
-    @Override
-    public void gateOff() {
-        gated.gateOff();
-    }
-
 }
