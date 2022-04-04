@@ -10,7 +10,6 @@ import java.util.List;
 public class Mixer extends AbstractSignalSource implements PseudoSocket {
 
     private final List<Socket> sources;
-    double lastSample;
 
     public Mixer(int size){
         sources = new ArrayList<>(size);
@@ -35,13 +34,11 @@ public class Mixer extends AbstractSignalSource implements PseudoSocket {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            lastSample = 0;
-            for(int i = 0; i < size(); ++i)
-                lastSample += get(i).getSample(sampleId);
-        }
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        double res = 0;
+        for(int i = 0; i < size(); ++i)
+            res += get(i).getSample(sampleId);
+        return res;
     }
 
     @Override

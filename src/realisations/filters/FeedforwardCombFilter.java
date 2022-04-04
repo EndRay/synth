@@ -9,7 +9,6 @@ public class FeedforwardCombFilter extends AbstractFilter implements Filter {
     final private Socket alpha = new Socket();
     final public int maxDelaySamples = (int) (0.5 * sampleRate);
     private final double[] tape = new double[maxDelaySamples + 1];
-    private double lastSample = 0;
     private int ptr = 0;
 
     {
@@ -48,18 +47,15 @@ public class FeedforwardCombFilter extends AbstractFilter implements Filter {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            ++ptr;
-            if (ptr > maxDelaySamples)
-                ptr = 0;
-            int d = (int) (frequency().getTime(sampleId) * sampleRate);
-            int delayedPtr = ptr - d;
-            if (delayedPtr < 0)
-                delayedPtr += maxDelaySamples;
-            tape[ptr] = source().getSample(sampleId);
-            lastSample = tape[ptr] + alpha().getSample(sampleId) * tape[delayedPtr];
-        }
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        ++ptr;
+        if (ptr > maxDelaySamples)
+            ptr = 0;
+        int d = (int) (frequency().getTime(sampleId) * sampleRate);
+        int delayedPtr = ptr - d;
+        if (delayedPtr < 0)
+            delayedPtr += maxDelaySamples;
+        tape[ptr] = source().getSample(sampleId);
+        return tape[ptr] + alpha().getSample(sampleId) * tape[delayedPtr];
     }
 }

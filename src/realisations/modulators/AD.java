@@ -39,25 +39,23 @@ public class AD extends AbstractSignalSource implements Envelope {
     }
     public Socket trigger(){ return trigger; }
 
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
-            triggered |= (!lastTrigger && t);
-            attackStage |= (!lastGate && g);
-            attackStage &= g;
-            attackStage |= triggered;
-            lastGate = g;
-            lastTrigger = t;
-            if (attackStage) {
-                currentSample += 1 / attack().getTime(sampleId) / sampleRate;
-                if (currentSample >= 1) {
-                    currentSample = 1;
-                    attackStage = false;
-                    triggered = false;
-                }
-            } else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, 0);
-        }
+    @Override
+    protected double recalculate(int sampleId) {
+        boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
+        triggered |= (!lastTrigger && t);
+        attackStage |= (!lastGate && g);
+        attackStage &= g;
+        attackStage |= triggered;
+        lastGate = g;
+        lastTrigger = t;
+        if (attackStage) {
+            currentSample += 1 / attack().getTime(sampleId) / sampleRate;
+            if (currentSample >= 1) {
+                currentSample = 1;
+                attackStage = false;
+                triggered = false;
+            }
+        } else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, 0);
         return currentSample;
     }
-
 }

@@ -48,17 +48,15 @@ public class FeedbackCombFilter extends AbstractFilter implements Filter {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            ++ptr;
-            if (ptr > maxDelaySamples)
-                ptr = 0;
-            int d = (int) (frequency().getTime(sampleId) * sampleRate);
-            int delayedPtr = ptr - d;
-            if (delayedPtr < 0)
-                delayedPtr += maxDelaySamples;
-            tape[ptr] = source().getSample(sampleId) + alpha().getSample(sampleId) * tape[delayedPtr];
-        }
+    protected double recalculate(int sampleId) {
+        ++ptr;
+        if (ptr > maxDelaySamples)
+            ptr = 0;
+        int d = (int) (frequency().getTime(sampleId) * sampleRate);
+        int delayedPtr = ptr - d;
+        if (delayedPtr < 0)
+            delayedPtr += maxDelaySamples;
+        tape[ptr] = source().getSample(sampleId) + alpha().getSample(sampleId) * tape[delayedPtr];
         return tape[ptr];
     }
 }

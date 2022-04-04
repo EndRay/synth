@@ -2,7 +2,6 @@ package realisations.modulators;
 
 import sources.AbstractSignalSource;
 import sources.SignalSource;
-import sources.modulators.Envelope;
 import sources.utils.Socket;
 
 public class Hold extends AbstractSignalSource {
@@ -28,18 +27,16 @@ public class Hold extends AbstractSignalSource {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)){
-            ++samplesPassed;
-            boolean t = trigger().getGate(sampleId);
-            if(!lastTrigger && t) {
-                samplesPassed = 0;
-                lastSample = 1;
-            }
-            lastTrigger = t;
-            if(samplesPassed > hold().getTime(sampleId) * sampleRate)
-                lastSample = 0;
+    protected double recalculate(int sampleId) {
+        ++samplesPassed;
+        boolean t = trigger().getGate(sampleId);
+        if(!lastTrigger && t) {
+            samplesPassed = 0;
+            lastSample = 1;
         }
+        lastTrigger = t;
+        if(samplesPassed > hold().getTime(sampleId) * sampleRate)
+            lastSample = 0;
         return lastSample;
     }
 }

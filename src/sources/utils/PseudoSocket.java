@@ -4,7 +4,7 @@ import sources.SignalSource;
 
 import static sources.SignalSource.frequencyToVoltage;
 
-public interface PseudoSocket {
+public interface PseudoSocket extends SignalSource {
     default void set(double value){
         bind(new DC(value));
     }

@@ -26,6 +26,4 @@ abstract public class AbstractFilter extends AbstractSignalProcessor implements 
     public Socket frequency(){
         return frequency;
     }
-
-    abstract public double getSample(int sampleId);
 }

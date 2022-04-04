@@ -7,7 +7,6 @@ public class FrequencyAdder extends AbstractSignalSource {
 
     SignalSource source;
     double frequency;
-    double lastSample;
 
     public FrequencyAdder(SignalSource source, double frequency) {
         this.source = source;
@@ -15,9 +14,7 @@ public class FrequencyAdder extends AbstractSignalSource {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId))
-            lastSample = SignalSource.frequencyToVoltage(SignalSource.voltageToFrequency(source.getSample(sampleId)) + frequency);
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        return SignalSource.frequencyToVoltage(SignalSource.voltageToFrequency(source.getSample(sampleId)) + frequency);
     }
 }

@@ -76,14 +76,11 @@ class IsNotAProcessorException extends Exception {
  * v: gate
  * v: trigger
  *
- *
  * TODO: Exponential envelope stages
  * TODO: Slope limiter
- * TODO: Effects!!!
  * TODO: Morph (simple and as Joranalogue's)
  * TODO: TZFM oscillators
- * TODO: Comb filter
- *
+ * 
  * TODO: NORMAL PARSING
  * TODO: Stereo
  */

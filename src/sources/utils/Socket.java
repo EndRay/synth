@@ -1,16 +1,16 @@
 package sources.utils;
 
-import sources.AbstractSignalSource;
 import sources.SignalProcessor;
 import sources.SignalSource;
 
-public class Socket extends AbstractSignalSource implements PseudoSocket {
+public class Socket implements PseudoSocket {
 
     SignalSource source;
 
     public Socket(){
         source = new DC();
     }
+
     public Socket(double value){ source = new DC(value); }
     public Socket(SignalSource source) {
         this.source = source;

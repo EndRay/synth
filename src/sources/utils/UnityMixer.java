@@ -11,13 +11,11 @@ public class UnityMixer extends Mixer implements PseudoSocket{
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            lastSample = 0;
-            for(int i = 0; i < size(); ++i)
-                lastSample += get(i).getSample(sampleId);
-            lastSample /= size();
-        }
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        double res = 0;
+        for(int i = 0; i < size(); ++i)
+            res += get(i).getSample(sampleId);
+        res /= size();
+        return res;
     }
 }

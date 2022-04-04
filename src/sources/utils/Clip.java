@@ -8,7 +8,6 @@ import static java.lang.Math.min;
 
 public class Clip extends AbstractSignalProcessor {
 
-    double lastSample;
     boolean bipolar;
 
     public Clip(SignalSource source){
@@ -21,13 +20,11 @@ public class Clip extends AbstractSignalProcessor {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)){
-            lastSample = source().getSample(sampleId);
-            lastSample = min(lastSample, 1);
-            if(bipolar) lastSample = max(lastSample, -1);
-            else lastSample = max(lastSample, 0);
-        }
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        double res = source().getSample(sampleId);
+        res = min(res, 1);
+        if(bipolar) res = max(res, -1);
+        else res = max(res, 0);
+        return res;
     }
 }

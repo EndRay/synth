@@ -25,15 +25,11 @@ public class Triggerable extends SourceValue {
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)){
-            value = lastGate;
-            lastGate = 0;
-        }
+    protected double recalculate(int sampleId) {
+        value = lastGate;
+        lastGate = 0;
         return value;
     }
-
-
 
     public void trigger(){
         setValue(1);

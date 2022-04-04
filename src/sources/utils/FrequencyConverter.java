@@ -7,12 +7,14 @@ import sources.SignalSource;
 public class FrequencyConverter extends AbstractSignalProcessor implements SignalProcessor {
 
     public FrequencyConverter(){}
+
     public FrequencyConverter(SignalSource source){
         super(source);
     }
 
+
     @Override
-    public double getSample(int sampleId) {
+    protected double recalculate(int sampleId) {
         return source().getFrequency(sampleId);
     }
 }

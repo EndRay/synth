@@ -34,12 +34,10 @@ public class ResonantLowPass2PoleFilter extends AbstractSimpleLowPassFilter impl
     }
 
     @Override
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            double f = getAlpha(sampleId);
-            buf[0] = buf[0] + f * (source().getSample(sampleId) - buf[0] + getFeedback(sampleId) * (buf[0] - buf[1]));
-            buf[1] = buf[1] + f * (buf[0] - buf[1]);
-        }
+    protected double recalculate(int sampleId) {
+        double f = getAlpha(sampleId);
+        buf[0] = buf[0] + f * (source().getSample(sampleId) - buf[0] + getFeedback(sampleId) * (buf[0] - buf[1]));
+        buf[1] = buf[1] + f * (buf[0] - buf[1]);
         return buf[1];
     }
 

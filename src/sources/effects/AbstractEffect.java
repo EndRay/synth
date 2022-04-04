@@ -6,7 +6,6 @@ import sources.utils.Socket;
 
 abstract public class AbstractEffect extends AbstractSignalProcessor implements Effect{
     private final Socket wet = new Socket();
-    private double lastSample = 0;
 
     public AbstractEffect(){
         wet().set(1);
@@ -23,13 +22,12 @@ abstract public class AbstractEffect extends AbstractSignalProcessor implements 
         return wet;
     }
 
+    protected abstract double getWetSample(int sampleId);
+
     @Override
-    public double getSample(int sampleId) {
-        if(checkAndUpdateSampleId(sampleId)){
-            double wetness = wet().getSample(sampleId);
-            double wetSample = getWetSample(sampleId), drySample = source().getSample(sampleId);
-            lastSample = drySample + (wetSample - drySample) * wetness;
-        }
-        return lastSample;
+    protected double recalculate(int sampleId) {
+        double wetness = wet().getSample(sampleId);
+        double wetSample = getWetSample(sampleId), drySample = source().getSample(sampleId);
+        return drySample + (wetSample - drySample) * wetness;
     }
 }

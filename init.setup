@@ -1,14 +1,18 @@
 =1=
 create 6
 load combguitar.patch
-press 45
-press 52
-press 57
+#press 45
+#press 52
+#press 57
 ===
 
 =2=
 create 6
-load supersaw.patch
+load pulse.patch
+
+volume := 0.03
+reverb = new Reverb(1)
+reverb ->- output
 #map
 ===
 

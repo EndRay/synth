@@ -30,13 +30,12 @@ public class AR extends AbstractSignalSource implements Envelope {
     }
     public Socket gate(){ return gate; }
 
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            boolean g = gate().getGate(sampleId);
-            if (g)
-                currentSample = min(currentSample + 1 / attack().getTime(sampleId) / sampleRate, 1);
-            else currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
-        }
+    @Override
+    protected double recalculate(int sampleId) {
+        boolean g = gate().getGate(sampleId);
+        if (g)
+            currentSample = min(currentSample + 1 / attack().getTime(sampleId) / sampleRate, 1);
+        else currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
         return currentSample;
     }
 }

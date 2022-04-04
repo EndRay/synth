@@ -13,6 +13,8 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
     public SourceValue(){
         this("", 0);
     }
+
+
     public SourceValue(String description){
         this(description, 0);
     }
@@ -44,7 +46,7 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
     }
 
     @Override
-    public double getSample(int sampleId) {
+    protected double recalculate(int sampleId) {
         return value;
     }
 }

@@ -41,24 +41,23 @@ public class ADSR extends AbstractSignalSource implements Envelope {
     }
     public Socket trigger(){ return trigger; }
 
-    public double getSample(int sampleId) {
-        if (checkAndUpdateSampleId(sampleId)) {
-            boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
-            attackStage |= (!lastGate && g) | (!lastTrigger && t);
-            attackStage &= g;
-            lastGate = g;
-            lastTrigger = t;
-            if (attackStage) {
-                currentSample += 1 / attack().getTime(sampleId) / sampleRate;
-                if (currentSample >= 1) {
-                    currentSample = 1;
-                    attackStage = false;
-                }
+    @Override
+    protected double recalculate(int sampleId) {
+        boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
+        attackStage |= (!lastGate && g) | (!lastTrigger && t);
+        attackStage &= g;
+        lastGate = g;
+        lastTrigger = t;
+        if (attackStage) {
+            currentSample += 1 / attack().getTime(sampleId) / sampleRate;
+            if (currentSample >= 1) {
+                currentSample = 1;
+                attackStage = false;
             }
-            else if (!g)
-                currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
-            else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, sustain().getSample(sampleId));
         }
+        else if (!g)
+            currentSample = max(currentSample - 1 / release().getTime(sampleId) / sampleRate, 0);
+        else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, sustain().getSample(sampleId));
         return currentSample;
     }
 }

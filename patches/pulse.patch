@@ -8,7 +8,7 @@ pulse = pulseCC
 cutoff = cutoffCC
 envAmount = envAmountCC.mapUni(-1, 1)
 
-v: env = new ADSR(1ms, 2s, 0.3, 0.6s)
+v: env = new AD(1ms, 0.4s)
 v: env.gate <= gate
 
 v: osc = new Pulse(pitch)

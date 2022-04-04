@@ -2,6 +2,7 @@ realisations
     effects
         CubicDrive as Drive
         TanhDrive
+        Reverb
     filters
         ResonantLowPass2PoleFilter as 2Pole, Filter
         FeedforwardCombFilter as FeedforwardComb
