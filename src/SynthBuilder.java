@@ -77,12 +77,46 @@ class IsNotAProcessorException extends Exception {
  * v: trigger
  *
  * TODO: Exponential envelope stages
- * TODO: Slope limiter
+ * TODO: Linear Slope limiter
  * TODO: Morph (simple and as Joranalogue's)
- * TODO: TZFM oscillators
- * 
+ * TODO: TZFM Oscillators
+ * TODO: Variable Poles Filters
+ * TODO: Highpass/Notch/Bandpass[/Morphable] Filters
+ * TODO: (!!) Delayed SignalProcessors (???)
+ * TODO: (!!!) MIDI files parsing
+ * TODO: (!!!) To WAV
+ * TODO: (!) lastNoteIsLegato Gate
+ * TODO: (!!) Remove Dry/Wet on Effects
+ * TODO: MIDI note map (for drums)
+ *
  * TODO: NORMAL PARSING
  * TODO: Stereo
+ */
+
+/**
+ * FIX!!!!!
+ * load init.patch
+ *
+ * -v-
+ * env = new ADSR(0.2s, 2s, 0.7, 0.2s)
+ * env.gate <= gate
+ * env.trig <= trigger
+ *
+ * lfo = new Sine(10s)
+ * lfo.sync <= trigger
+ *
+ * osc = new Pulse(pitch)
+ * osc.pw <- lfo * 0.2
+ * osc * env => output
+ *
+ * filter = new Filter(0.3)
+ * filter.f <- pitch
+ * filter.f <- lfo * -0.3
+ * env * 0.3 -> filter.f
+ * filter ->- output
+ * ---
+ *
+ * volume := 0
  */
 
 public class SynthBuilder {

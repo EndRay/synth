@@ -1,10 +1,7 @@
 import sources.SignalSource;
 import synths.Synth;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Transmitter;
+import javax.sound.midi.*;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
@@ -13,9 +10,13 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+
+import static javax.sound.midi.MidiSystem.getSequence;
 
 public class Main {
     final static int sampleRate = 44100;
@@ -44,6 +45,7 @@ public class Main {
                 handler.handleCommand(line);
             }
             double sample = output.getSample(i);
+            handler.samplePassed();
             int sampleInt = (int) (sample * 0x7fffffff);
             buf[1] = (byte) ((sampleInt >> 24) & 0xff);
             buf[0] = (byte) ((sampleInt >> 16) & 0xff);

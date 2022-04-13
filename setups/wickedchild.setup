@@ -1,0 +1,59 @@
+=10=
+#drums
+create 0
+#[36]
+load drums/kick.patch
+===
+=11=
+#???
+===
+=3=
+#???
+===
+=7=
+#???
+===
+
+=1=
+#bass
+create 0
+load monosynths/supersawbass.patch
+===
+
+=2=
+#chord melody
+create 2
+load synths/synthything.patch
+===
+
+=4=
+#na-na-na
+create 2
+load synths/highthing.patch
+===
+
+=5=
+#rhytm chords
+create 3
+load synths/keys.patch
+===
+
+=6=
+#delayed chord melody
+create 2
+load synths/synthything.patch
+===
+
+=8=
+#sub
+create 0
+load monosynths/sub.patch
+===
+
+=9=
+#chords
+create 4
+load synths/pad.patch
+===
+
+play Wicked_Child.mid

@@ -2,20 +2,23 @@ import sources.SignalSource;
 import sources.utils.Mixer;
 import synths.Synth;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Transmitter;
+import javax.sound.midi.*;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Predicate;
+
+import static javax.sound.midi.MidiSystem.getSequence;
 
 public class ConsoleHandler {
 
     final int channels = 16;
 
     int editedChannel = -1;
+    SynthMidiReceiver midiReceiver;
     SynthBuilder[] builders = new SynthBuilder[channels];
+
     Synth[][] synths = new Synth[channels][];
 
     {
@@ -26,8 +29,13 @@ public class ConsoleHandler {
     Mixer mix = new Mixer(channels);
     SignalSource clippedMix = mix.clipBi();
 
+
+    public void samplePassed(){
+        midiReceiver.samplePassed();
+    }
+
     ConsoleHandler() {
-        SynthMidiReceiver midiReceiver = new SynthMidiReceiver(synths);
+        midiReceiver = new SynthMidiReceiver(synths);
         MidiDevice device;
         MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : infos) {
@@ -52,7 +60,7 @@ public class ConsoleHandler {
         command = command.trim();
         if(command.startsWith("#"))
             return;
-        if(command.equals("===")){
+        if(command.matches("==+=")){
             editedChannel = -1;
             return;
         }
@@ -69,6 +77,16 @@ public class ConsoleHandler {
                 System.out.println("wrong channel format");
                 return;
             }
+        }
+        if (command.matches("play .*")) {
+            File midiFile = new File(command.substring(5).trim());
+            try {
+                Sequence sequence = getSequence(midiFile);
+                midiReceiver.playSequence(sequence);
+            } catch (InvalidMidiDataException | IOException e) {
+                System.out.println("invalid midi data");
+            }
+            return;
         }
         if(editedChannel == -1){
             System.out.println("choose channel to edit first");
@@ -99,13 +117,33 @@ public class ConsoleHandler {
                 synth.noteOff(note);
             return;
         }
+        //if (command.matches("create +[0-9]+( *\\[ *(([0-9]+ *, *)* *[0-9]+|[0-9]+ *- *[0-9]+) *])?")) {
         if (command.matches("create +[0-9]+")) {
             try {
+                //String[] split = command.split("\\[");
+                //command = split[0];
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
                 if (voiceCount < 0) {
                     System.out.println("wrong voice count");
                     return;
                 }
+                /*Predicate<Integer> predicate = note -> true;
+                if(split.length > 1){
+                    String[] values = (split[1].substring(0, split[1].length() - 1)).split(" *- *");
+                    if(values.length == 2){
+                        predicate = note -> note >= Integer.parseInt(values[0]) && note <= Integer.parseInt(values[1]);
+                    }
+                    else{
+                        predicate = new Predicate<>() {
+                            final Set<Integer> goodNotes = new HashSet<>(Arrays.stream(values[0].split(" *, *")).map(Integer::parseInt).toList());
+
+                            @Override
+                            public boolean test(Integer note) {
+                                return goodNotes.contains(note);
+                            }
+                        };
+                    }
+                }*/
                 builders[editedChannel] = new SynthBuilder(voiceCount);
                 mix.get(editedChannel).bind(builders[editedChannel].getSynth());
                 synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};

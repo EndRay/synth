@@ -16,5 +16,5 @@ comb.alpha <= new DC(1) - (pitch.toFrequency().map(100, 200, 1, 2).inverse() * 0
 comb ->- output
 ---
 
-reverb = new Reverb(0.5)
-reverb ->- output
+#reverb = new Reverb(0.5)
+#reverb ->- output

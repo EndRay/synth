@@ -1,0 +1,13 @@
+load lastnotemonoinit.patch
+
+env = new AD(1ms, 70ms)
+env.trig <= trigger
+
+osc = new Saw(55hz)
+osc * env * volume => output
+
+filter = new Filter(0.2)
+env * 0.3 -> filter.f
+filter ->- output
+
+volume := 0.17
