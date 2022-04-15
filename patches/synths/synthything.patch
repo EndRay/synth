@@ -1,4 +1,4 @@
-load init.patch
+load "init.patch"
 
 -v-
 env = new AR(5ms, 5ms)

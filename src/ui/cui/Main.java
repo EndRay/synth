@@ -1,4 +1,4 @@
-package ui;
+package ui.cui;
 
 import synthesizer.sources.SignalSource;
 

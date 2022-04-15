@@ -1,8 +1,10 @@
-package ui;
+package ui.cui;
 
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
 import synthesizer.Synth;
+import ui.SynthMidiReceiver;
+import ui.structscript.Interpreter;
 
 import javax.sound.midi.*;
 import java.io.File;
@@ -18,7 +20,7 @@ public class ConsoleHandler {
 
     int editedChannel = -1;
     SynthMidiReceiver midiReceiver;
-    SynthBuilder[] builders = new SynthBuilder[channels];
+    Interpreter[] builders = new Interpreter[channels];
 
     Synth[][] synths = new Synth[channels][];
 
@@ -145,7 +147,7 @@ public class ConsoleHandler {
                         };
                     }
                 }*/
-                builders[editedChannel] = new SynthBuilder(voiceCount);
+                builders[editedChannel] = new Interpreter(voiceCount);
                 mix.get(editedChannel).bind(builders[editedChannel].getSynth());
                 synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};
                 return;
@@ -158,35 +160,35 @@ public class ConsoleHandler {
             System.out.println("synth on channel " + (editedChannel + 1) + " is not created");
             return;
         }
-        try {
-            if(command.equals("history")){
-                System.out.println(String.join("\n", builders[editedChannel].getHistory()));
-                return;
-            }
-            builders[editedChannel].handleCommand(command);
-        }catch (IncorrectFormatException e) {
-            System.out.println("incorrect format");
-        } catch (NoSuchClassException e) {
-            System.out.println("no such class \"" + e.getMessage() + "\"");
-        } catch (NoSuchObjectException e) {
-            System.out.println("no such object \"" + e.getMessage() + "\"");
-        } catch (NoSuchSocketException e) {
-            System.out.println("no such socket \"" + e.getMessage() + "\"");
-        } catch (NoSuchSignalException e) {
-            System.out.println("no such signal \"" + e.getMessage() + "\"");
-        } catch (NoSuchMethodException e){
-            System.out.println("no such method \"" + e.getMessage() + "\"");
-        } catch (NoSuchConstructorException e) {
-            System.out.println("no such constructor");
-        } catch (IsNotAProcessorException e) {
-            System.out.println(e.getMessage() + " is not a processor");
-        } catch (VoiceAndGlobalInteractionException e) {
-            System.out.println("voice things doing things with global things");
-        } catch (NumberFormatException e){
-            System.out.println("value expected");
-        } catch (FileNotFoundException e) {
-            System.out.println("loading file error");
-        }
+//        try {
+//            if(command.equals("history")){
+//                System.out.println(String.join("\n", builders[editedChannel].getHistory()));
+//                return;
+//            }
+            builders[editedChannel].run(command);
+//        }catch (IncorrectFormatException e) {
+//            System.out.println("incorrect format");
+//        } catch (NoSuchClassException e) {
+//            System.out.println("no such class \"" + e.getMessage() + "\"");
+//        } catch (NoSuchObjectException e) {
+//            System.out.println("no such object \"" + e.getMessage() + "\"");
+//        } catch (NoSuchSocketException e) {
+//            System.out.println("no such socket \"" + e.getMessage() + "\"");
+//        } catch (NoSuchSignalException e) {
+//            System.out.println("no such signal \"" + e.getMessage() + "\"");
+//        } catch (NoSuchMethodException e){
+//            System.out.println("no such method \"" + e.getMessage() + "\"");
+//        } catch (NoSuchConstructorException e) {
+//            System.out.println("no such constructor");
+//        } catch (IsNotAProcessorException e) {
+//            System.out.println(e.getMessage() + " is not a processor");
+//        } catch (VoiceAndGlobalInteractionException e) {
+//            System.out.println("voice things doing things with global things");
+//        } catch (NumberFormatException e){
+//            System.out.println("value expected");
+//        } catch (FileNotFoundException e) {
+//            System.out.println("loading file error");
+//        }
     }
 
     SignalSource getMix() {

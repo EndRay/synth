@@ -1,6 +1,7 @@
 package synthesizer.sources.utils;
 
 import synthesizer.sources.AbstractSignalSource;
+import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
 
 import java.util.ArrayList;
@@ -22,6 +23,14 @@ public class Mixer extends AbstractSignalSource implements PseudoSocket {
             this.sources.add(new Socket());
             this.sources.get(i).bind(sources[i]);
         }
+    }
+
+    protected Mixer(Mixer mixer){
+        this.sources = new ArrayList<>(mixer.sources);
+    }
+
+    protected Mixer copy(){
+        return new Mixer(this);
     }
 
     public Socket get(int index){
@@ -49,5 +58,13 @@ public class Mixer extends AbstractSignalSource implements PseudoSocket {
     @Override
     public void modulate(SignalSource modulator) {
         sources.add(new Socket(modulator));
+    }
+
+    @Override
+    public void process(SignalProcessor processor) {
+        SignalSource preprocessed = copy();
+        processor.source().bind(preprocessed);
+        sources.clear();
+        sources.add(new Socket(processor));
     }
 }

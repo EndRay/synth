@@ -19,7 +19,7 @@ public class SynthMidiReceiver implements Receiver {
 
     Synth[][] synths;
 
-    SynthMidiReceiver(Synth[][] synths) {
+    public SynthMidiReceiver(Synth[][] synths) {
         this.synths = synths;
     }
 

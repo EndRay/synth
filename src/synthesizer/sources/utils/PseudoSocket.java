@@ -1,5 +1,6 @@
 package synthesizer.sources.utils;
 
+import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
 
 import static synthesizer.sources.SignalSource.frequencyToVoltage;
@@ -15,4 +16,6 @@ public interface PseudoSocket extends SignalSource {
     void bind(SignalSource source);
 
     void modulate(SignalSource modulator);
+
+    void process(SignalProcessor processor);
 }

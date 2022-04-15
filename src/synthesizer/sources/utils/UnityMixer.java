@@ -1,6 +1,10 @@
 package synthesizer.sources.utils;
 
+import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UnityMixer extends Mixer implements PseudoSocket{
 
@@ -8,6 +12,15 @@ public class UnityMixer extends Mixer implements PseudoSocket{
     //public UnityMixer(int size){ super(size); }
     public UnityMixer(SignalSource... sources) {
         super(sources);
+    }
+
+    protected UnityMixer(UnityMixer mixer){
+        super(mixer);
+    }
+
+    @Override
+    protected UnityMixer copy(){
+        return new UnityMixer(this);
     }
 
     @Override

@@ -1,4 +1,4 @@
-load init.patch
+load "init.patch"
 
 -v-
 env = new ADSR(1ms, 0.5s, 0, 0.2s)

@@ -1,4 +1,4 @@
-load lastnotemonoinit.patch
+load "lastnotemonoinit.patch"
 
 env = new AR(1ms, 200ms)
 env.gate <= gate
