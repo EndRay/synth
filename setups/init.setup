@@ -1,45 +1,5 @@
 =1=
-create 1
-load supersaw.patch
-===
-=2=
-create 1
-load pulse.patch
-===
-=3=
-create 1
-load pulse.patch
-===
-=4=
-create 1
-load pulse.patch
-===
-=5=
-create 1
-load pulse.patch
-===
-=6=
-create 1
-load pulse.patch
-===
-=7=
-create 1
-load pulse.patch
-===
-=8=
-create 1
-load pulse.patch
-===
-=9=
-create 1
-load pulse.patch
-===
-#=11=
-#create 3
-#load pulse.patch
-#===
-
-=10=
-create 2
-load ping.patch
+create 6
+load "hmm_synth.patch"
+map
 ===

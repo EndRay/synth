@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
  */
 
 public class UtilityFilesReader {
-    private static final String permittedClassesPath = "src/PermittedClasses";
-    private static final String socketAliasesPath = "src/SocketAliases";
+    private static final String permittedClassesPath = "src/main/java/PermittedClasses";
+    private static final String socketAliasesPath = "src/main/java/SocketAliases";
 
     public static Map<String, String> getSocketAliases() throws UtilityFileException {
         try{

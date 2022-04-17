@@ -23,6 +23,7 @@ import static ui.structscript.Interpreter.EditMode.GLOBAL;
 import static ui.structscript.Interpreter.EditMode.VOICE;
 import static ui.structscript.Interpreter.ValueType.TEXT;
 import static ui.structscript.Interpreter.ValueType.*;
+import static ui.structscript.Parser.*;
 import static ui.structscript.Parser.Node;
 import static ui.structscript.Parser.NodeType.*;
 
@@ -246,6 +247,7 @@ public class Interpreter {
     }
 
     private Value eval(int voiceId, Node node) throws InterpretationException {
+        //System.out.println(node.line() + ": " + node.type());
         if (node.type() == UNARY_MINUS) {
             Value obj = eval(voiceId, node.arg(0));
             if (obj.type == SIGNAL)
@@ -266,7 +268,7 @@ public class Interpreter {
         if (node.type() == FUNCTION) {
             Value[] args = new Value[node.args().size() - 1];
             for (int i = 1; i < node.args().size(); ++i)
-                args[i] = eval(voiceId, node.arg(i));
+                args[i-1] = eval(voiceId, node.arg(i));
             Value obj = eval(voiceId, node.arg(0));
             if (obj.type != SIGNAL)
                 throw new InterpretationException("only signals have functions");
@@ -328,7 +330,9 @@ public class Interpreter {
             }
             throw new InterpretationException("cannot evaluate " + left.type.name().toLowerCase() + " " + node.text() + " " + right.type.name().toLowerCase());
         }
-        throw new InterpretationException("expression expected");
+        if (node.type() == NodeType.TEXT)
+            return new Value(node.text(), TEXT);
+        throw new InterpretationException("expression expected, got " + node.type());
     }
 
     private SignalSource getSignal(int voiceId, Node node) throws InterpretationException {

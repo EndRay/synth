@@ -3,6 +3,7 @@ package ui.structscript;
 import ui.structscript.Lexer.Token;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static ui.structscript.Lexer.TokenType;
@@ -117,10 +118,15 @@ public class Parser {
             return null;
         Token token = getToken();
         //System.out.println("parsing atom: " + token.type() + " " + token.info());
+        Node res;
         switch (token.type()) {
             case OPEN_BRACKET:
                 movePtr();
-                return parseExpression();
+                res = parseExpression();
+                if(getToken().type() != TokenType.CLOSE_BRACKET)
+                    throw new SyntaxException(getToken().line(), "close bracket expected");
+                movePtr();
+                break;
             case NEW:
                 movePtr();
                 Token signalClass = getToken();
@@ -129,25 +135,16 @@ public class Parser {
                 movePtr();
                 return createNode(CONSTRUCTOR, signalClass.info(), parseArguments());
             case NUMBER:
+                res = createNode(NUMBER, token.info());
                 movePtr();
-                return createNode(NUMBER, token.info());
+                break;
             case TEXT:
                 movePtr();
                 return createNode(TEXT, token.info());
             case FIELD:
-                Node res = createNode(OBJECT, token.info());
+                res = createNode(OBJECT, token.info());
                 movePtr();
-                while (getToken().type() == TokenType.DOT) {
-                    movePtr();
-                    Token func = getToken();
-                    if(func.type() != TokenType.FIELD)
-                        throw new SyntaxException(getToken().line(), "expected function or socket name");
-                    movePtr();
-                    if(getToken().type() != TokenType.OPEN_BRACKET)
-                        return createNode(SOCKET, func.info(), res);
-                    res = createNode(FUNCTION, func.info(), parseArguments());
-                }
-                return res;
+                break;
             case OPERATOR:
                 if (token.info().equals("-")) {
                     movePtr();
@@ -156,6 +153,20 @@ public class Parser {
             default:
                 throw new SyntaxException(getToken().line(), "atom expected");
         }
+        while (getToken().type() == TokenType.DOT) {
+            movePtr();
+            Token func = getToken();
+            if(func.type() != TokenType.FIELD)
+                throw new SyntaxException(getToken().line(), "expected function or socket name");
+            movePtr();
+            if(getToken().type() != TokenType.OPEN_BRACKET)
+                return createNode(SOCKET, func.info(), res);
+            List<Node> args = new ArrayList<>();
+            args.add(res);
+            args.addAll(parseArguments());
+            res = createNode(FUNCTION, func.info(), args);
+        }
+        return res;
     }
 
     private boolean isArithmetic(Token token){
@@ -218,7 +229,7 @@ public class Parser {
                 }
             }
             if (getToken().type() != TokenType.END_OF_LINE)
-                throw new SyntaxException(getToken().line(), "expected end of line");
+                throw new SyntaxException(getToken().line(), "expected end of line ");
             movePtr();
         }
         return res;

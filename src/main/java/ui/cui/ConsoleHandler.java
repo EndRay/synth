@@ -1,16 +1,15 @@
 package ui.cui;
 
+import synthesizer.Synth;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
-import synthesizer.Synth;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
 
 import javax.sound.midi.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import static javax.sound.midi.MidiSystem.getSequence;
 
@@ -156,6 +155,16 @@ public class ConsoleHandler {
                 return;
             }
         }
+//        if (command.matches("map")) {
+//            for(Synth synth : synths[editedChannel])
+//                synth.startMapping();
+//            return;
+//        }
+//        if (command.matches("stopmap")) {
+//            for(Synth synth : synths[editedChannel])
+//                synth.stopMapping();
+//            return;
+//        }
         if (builders[editedChannel] == null) {
             System.out.println("synth on channel " + (editedChannel + 1) + " is not created");
             return;
