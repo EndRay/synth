@@ -247,7 +247,6 @@ public class Interpreter {
     }
 
     private Value eval(int voiceId, Node node) throws InterpretationException {
-        //System.out.println(node.line() + ": " + node.type());
         if (node.type() == UNARY_MINUS) {
             Value obj = eval(voiceId, node.arg(0));
             if (obj.type == SIGNAL)
@@ -263,7 +262,13 @@ public class Interpreter {
             Value[] args = new Value[node.args().size()];
             for (int i = 0; i < node.args().size(); ++i)
                 args[i] = eval(voiceId, node.arg(i));
-            return new Value(instantiate(getClass(node.text()), args), SIGNAL);
+            Class<?> cl = getClass(node.text());
+            if(voiceId != -1 && SourceValue.class.isAssignableFrom(cl))
+                throw new InterpretationException("creating CC inside voices");
+            SignalSource obj = instantiate(cl, args);
+            if(obj instanceof SourceValue CC)
+                synth.addToMap(CC);
+            return new Value(obj, SIGNAL);
         }
         if (node.type() == FUNCTION) {
             Value[] args = new Value[node.args().size() - 1];
@@ -500,7 +505,7 @@ public class Interpreter {
                     StringBuilder code = new StringBuilder();
                     while (reader.hasNextLine())
                         code.append(reader.nextLine()).append("\n");
-                    List<Node> asts = null;
+                    List<Node> asts;
                     try {
                         asts = new Parser(new Lexer(code.toString()).lex()).parse();
                         interpret(asts);

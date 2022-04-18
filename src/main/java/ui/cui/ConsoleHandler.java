@@ -119,33 +119,13 @@ public class ConsoleHandler {
                 synth.noteOff(note);
             return;
         }
-        //if (command.matches("create +[0-9]+( *\\[ *(([0-9]+ *, *)* *[0-9]+|[0-9]+ *- *[0-9]+) *])?")) {
         if (command.matches("create +[0-9]+")) {
             try {
-                //String[] split = command.split("\\[");
-                //command = split[0];
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
                 if (voiceCount < 0) {
                     System.out.println("wrong voice count");
                     return;
                 }
-                /*Predicate<Integer> predicate = note -> true;
-                if(split.length > 1){
-                    String[] values = (split[1].substring(0, split[1].length() - 1)).split(" *- *");
-                    if(values.length == 2){
-                        predicate = note -> note >= Integer.parseInt(values[0]) && note <= Integer.parseInt(values[1]);
-                    }
-                    else{
-                        predicate = new Predicate<>() {
-                            final Set<Integer> goodNotes = new HashSet<>(Arrays.stream(values[0].split(" *, *")).map(Integer::parseInt).toList());
-
-                            @Override
-                            public boolean test(Integer note) {
-                                return goodNotes.contains(note);
-                            }
-                        };
-                    }
-                }*/
                 builders[editedChannel] = new Interpreter(voiceCount);
                 mix.get(editedChannel).bind(builders[editedChannel].getSynth());
                 synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};
@@ -155,49 +135,21 @@ public class ConsoleHandler {
                 return;
             }
         }
-//        if (command.matches("map")) {
-//            for(Synth synth : synths[editedChannel])
-//                synth.startMapping();
-//            return;
-//        }
-//        if (command.matches("stopmap")) {
-//            for(Synth synth : synths[editedChannel])
-//                synth.stopMapping();
-//            return;
-//        }
+        if (command.matches("map")) {
+            for(Synth synth : synths[editedChannel])
+                synth.startMapping();
+            return;
+        }
+        if (command.matches("stop +map")) {
+            for(Synth synth : synths[editedChannel])
+                synth.stopMapping();
+            return;
+        }
         if (builders[editedChannel] == null) {
             System.out.println("synth on channel " + (editedChannel + 1) + " is not created");
             return;
         }
-//        try {
-//            if(command.equals("history")){
-//                System.out.println(String.join("\n", builders[editedChannel].getHistory()));
-//                return;
-//            }
-            builders[editedChannel].run(command);
-//        }catch (IncorrectFormatException e) {
-//            System.out.println("incorrect format");
-//        } catch (NoSuchClassException e) {
-//            System.out.println("no such class \"" + e.getMessage() + "\"");
-//        } catch (NoSuchObjectException e) {
-//            System.out.println("no such object \"" + e.getMessage() + "\"");
-//        } catch (NoSuchSocketException e) {
-//            System.out.println("no such socket \"" + e.getMessage() + "\"");
-//        } catch (NoSuchSignalException e) {
-//            System.out.println("no such signal \"" + e.getMessage() + "\"");
-//        } catch (NoSuchMethodException e){
-//            System.out.println("no such method \"" + e.getMessage() + "\"");
-//        } catch (NoSuchConstructorException e) {
-//            System.out.println("no such constructor");
-//        } catch (IsNotAProcessorException e) {
-//            System.out.println(e.getMessage() + " is not a processor");
-//        } catch (VoiceAndGlobalInteractionException e) {
-//            System.out.println("voice things doing things with global things");
-//        } catch (NumberFormatException e){
-//            System.out.println("value expected");
-//        } catch (FileNotFoundException e) {
-//            System.out.println("loading file error");
-//        }
+        builders[editedChannel].run(command);
     }
 
     SignalSource getMix() {

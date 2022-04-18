@@ -1,9 +1,9 @@
 load "init.patch"
--v-
 
 cutoffCC = new CC("cutoff frequency", 0.4)
 envAmountCC = new CC("envelope amount", 0.8)
 
+-v-
 env = new ADSR(1ms, 0.5s, 0.6, 0.2s)
 env.gate <= gate
 
@@ -17,5 +17,4 @@ mix * env => output
 filter = new Filter()
 filter.f <= (cutoffCC + env * envAmountCC.mapUni(-1, 1)).mapUni(20hz, 20000hz)
 filter ->- output
-
 ---
