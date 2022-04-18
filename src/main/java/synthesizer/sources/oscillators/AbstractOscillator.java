@@ -2,14 +2,15 @@ package synthesizer.sources.oscillators;
 
 import synthesizer.sources.AbstractSignalSource;
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.oscillators.scanners.SyncableScanner;
 import synthesizer.sources.utils.Socket;
 
-abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
-    private final Socket frequency = new Socket(), hardSync = new Socket();
+abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator, Waveform {
+    final protected SyncableScanner wavescanner = new SyncableScanner();
     private double ptr;
     private boolean lastGate = false;
 
-    public AbstractOscillator(){}
+    public AbstractOscillator(){ frequency().set(SignalSource.tuningFrequency); }
     public AbstractOscillator(double frequency){ frequency().set(frequency); }
     public AbstractOscillator(SignalSource frequencySource) {
         frequency().bind(frequencySource);
@@ -17,18 +18,15 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
 
     @Override
     public Socket frequency(){
-        return frequency;
+        return wavescanner.frequency();
     }
     public Socket hardSync(){
-        return hardSync;
+        return wavescanner.hardSync();
     }
 
-    protected void setPtr(double ptr) {
-        this.ptr = ptr;
-    }
-
-    protected abstract double getAmplitude(int sampleId);
-
+    /**
+     * frequency < sampleRate
+     */
     @Override
     protected double recalculate(int sampleId) {
         ptr += frequency().getFrequency(sampleId) / sampleRate;
@@ -38,16 +36,8 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
             ptr -= 1;
         boolean g = hardSync().getGate(sampleId);
         if(!lastGate && g)
-            setPtr(0);
+            ptr = 0;
         lastGate = g;
-        return getAmplitude(sampleId);
-    }
-
-    /**
-     * frequency < sampleRate
-     */
-
-    protected double getPtr(int sampleId) {
-        return ptr;
+        return getAmplitude(sampleId, ptr);
     }
 }

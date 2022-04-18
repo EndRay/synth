@@ -1,13 +1,13 @@
 package synthesizer.sources.oscillators;
 
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.oscillators.scanners.PMScanner;
 import synthesizer.sources.utils.DC;
 import synthesizer.sources.utils.Socket;
 
 abstract public class AbstractPMOscillator extends AbstractOscillator implements PMOscillator {
 
-    private final Socket phase = new Socket();
-
+    final protected PMScanner wavescanner = new PMScanner();
 
     public AbstractPMOscillator() {
     }
@@ -22,21 +22,11 @@ abstract public class AbstractPMOscillator extends AbstractOscillator implements
 
     public AbstractPMOscillator(SignalSource frequencySource, SignalSource phaseSource) {
         super(frequencySource);
-        phase.bind(phaseSource);
+        phase().bind(phaseSource);
     }
 
     @Override
     public Socket phase() {
-        return phase;
-    }
-
-    public double getPtr(int sampleId) {
-        double ptr = super.getPtr(sampleId);
-        ptr += phase().getSample(sampleId);
-        while (ptr < 0)
-            ptr += 1;
-        while (ptr >= 1)
-            ptr -= 1;
-        return ptr;
+        return wavescanner.phase();
     }
 }
