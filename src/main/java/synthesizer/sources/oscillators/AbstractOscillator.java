@@ -6,7 +6,7 @@ import synthesizer.sources.oscillators.scanners.SyncableScanner;
 import synthesizer.sources.utils.Socket;
 
 abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator, Waveform {
-    final protected SyncableScanner wavescanner = new SyncableScanner();
+    final protected SyncableScanner waveScanner = new SyncableScanner();
     private double ptr;
     private boolean lastGate = false;
 
@@ -18,10 +18,10 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
 
     @Override
     public Socket frequency(){
-        return wavescanner.frequency();
+        return waveScanner.frequency();
     }
     public Socket hardSync(){
-        return wavescanner.hardSync();
+        return waveScanner.hardSync();
     }
 
     /**

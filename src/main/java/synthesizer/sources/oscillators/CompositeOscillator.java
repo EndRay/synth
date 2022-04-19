@@ -7,16 +7,16 @@ import synthesizer.sources.utils.SocketWithRequirement;
 
 public class CompositeOscillator extends AbstractSignalSource {
 
-    final private Socket wavescanner;
+    final private Socket waveScanner;
     final private SocketWithRequirement<Waveform> waveform;
 
-    public CompositeOscillator(SignalSource wavescanner, Waveform waveform){
-        this.wavescanner = new Socket(wavescanner);
+    public CompositeOscillator(SignalSource waveScanner, Waveform waveform){
+        this.waveScanner = new Socket(waveScanner);
         this.waveform = new SocketWithRequirement<>(waveform);
     }
 
-    public Socket wavescanner(){
-        return wavescanner;
+    public Socket waveScanner(){
+        return waveScanner;
     }
     public SocketWithRequirement<Waveform> waveform(){
         return waveform;
@@ -24,6 +24,6 @@ public class CompositeOscillator extends AbstractSignalSource {
 
     @Override
     protected double recalculate(int sampleId) {
-        return waveform().getSource().getAmplitude(sampleId, wavescanner().getSample(sampleId));
+        return waveform().getSource().getAmplitude(sampleId, waveScanner().getSample(sampleId));
     }
 }

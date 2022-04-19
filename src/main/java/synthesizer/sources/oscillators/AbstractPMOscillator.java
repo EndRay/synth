@@ -7,7 +7,7 @@ import synthesizer.sources.utils.Socket;
 
 abstract public class AbstractPMOscillator extends AbstractOscillator implements PMOscillator {
 
-    final protected PMScanner wavescanner = new PMScanner();
+    final protected PMScanner waveScanner = new PMScanner();
 
     public AbstractPMOscillator() {
     }
@@ -27,6 +27,6 @@ abstract public class AbstractPMOscillator extends AbstractOscillator implements
 
     @Override
     public Socket phase() {
-        return wavescanner.phase();
+        return waveScanner.phase();
     }
 }
