@@ -1,6 +1,6 @@
 frequency as freq, f
 resonance as res, q
-phase as p
+phase as ph, p
 attack as att, a
 decay as dec, d
 sustain as sus, s

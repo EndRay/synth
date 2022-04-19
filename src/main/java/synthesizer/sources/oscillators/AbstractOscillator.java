@@ -7,8 +7,6 @@ import synthesizer.sources.utils.Socket;
 
 abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator, Waveform {
     final protected SyncableScanner waveScanner = new SyncableScanner();
-    private double ptr;
-    private boolean lastGate = false;
 
     public AbstractOscillator(){ frequency().set(SignalSource.tuningFrequency); }
     public AbstractOscillator(double frequency){ frequency().set(frequency); }
@@ -29,15 +27,6 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
      */
     @Override
     protected double recalculate(int sampleId) {
-        ptr += frequency().getFrequency(sampleId) / sampleRate;
-        if (ptr < 0)
-            ptr += 1;
-        if (ptr >= 1)
-            ptr -= 1;
-        boolean g = hardSync().getGate(sampleId);
-        if(!lastGate && g)
-            ptr = 0;
-        lastGate = g;
-        return getAmplitude(sampleId, ptr);
+        return getAmplitude(sampleId, waveScanner.getSample(sampleId));
     }
 }
