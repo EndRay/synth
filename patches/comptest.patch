@@ -1,0 +1,4 @@
+comp = new CompositeOscillator(new PMScanner(), new SawWave())
+comp.waveform <= new PulseWave(0.3)
+
+comp * 0.01 => output

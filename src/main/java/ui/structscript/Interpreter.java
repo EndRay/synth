@@ -54,13 +54,11 @@ import static ui.structscript.Parser.NodeType.*;
  * TODO: Variable Poles Filters
  * TODO: Highpass/Notch/Bandpass[/Morphable] Filters
  * TODO: (!!) Delayed SignalProcessors (???)
- * TODO: (!!!) MIDI files parsing
  * TODO: (!!!) To WAV
  * TODO: (!) lastNoteIsLegato Gate
  * TODO: (!!) Remove Dry/Wet on Effects
  * TODO: MIDI note map (for drums)
  *
- * TODO: NORMAL PARSING
  * TODO: Stereo
  */
 
@@ -185,6 +183,8 @@ public class Interpreter {
             if (from.type() == SIGNAL)
                 return from.obj;
         }
+        if(SignalSource.class.isAssignableFrom(toType) && toType.isAssignableFrom(from.obj.getClass()))
+            return from.obj;
         throw new TypeConversionException();
     }
 
@@ -409,90 +409,99 @@ public class Interpreter {
     }
 
     private void bind(EditMode mode, Node left, Node right) throws InterpretationException {
-        if (mode == GLOBAL) {
-            try {
-                SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
-                getSocket(-1, left).bind(signal);
-            } catch (TypeConversionException e) {
-                throw new InterpretationException("signal expected");
-            }
-        }
-        else if (mode == VOICE) {
-            for (int i = 0; i < voices.length; ++i) {
+        try {
+            if (mode == GLOBAL) {
                 try {
-                    SignalSource signal = (SignalSource) convert(eval(i, right), SignalSource.class);
-                    globalInVoice = false;
-                    PseudoSocket socket = getSocket(i, left);
-                    if (globalInVoice)
-                        throw new InterpretationException("binding voice signal to global socket");
-                    socket.bind(signal);
+                    SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
+                    getSocket(-1, left).bind(signal);
                 } catch (TypeConversionException e) {
                     throw new InterpretationException("signal expected");
                 }
-            }
+            } else if (mode == VOICE) {
+                for (int i = 0; i < voices.length; ++i) {
+                    try {
+                        SignalSource signal = (SignalSource) convert(eval(i, right), SignalSource.class);
+                        globalInVoice = false;
+                        PseudoSocket socket = getSocket(i, left);
+                        if (globalInVoice)
+                            throw new InterpretationException("binding voice signal to global socket");
+                        socket.bind(signal);
+                    } catch (TypeConversionException e) {
+                        throw new InterpretationException("signal expected");
+                    }
+                }
+            } else
+                throw new InterpretationException("binding is not allowed in " + mode.name().toLowerCase() + " mode");
+        } catch (ClassCastException e){
+            throw new InterpretationException("only " + e.getMessage() + " can be bound to this socket");
         }
-        else throw new InterpretationException("binding is not allowed in " + mode.name().toLowerCase() + " mode");
     }
 
     private void modulate(EditMode mode, Node left, Node right) throws InterpretationException {
-        if (mode == GLOBAL) {
-            try {
-                SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
-                getSocket(-1, left).modulate(signal);
-            } catch (TypeConversionException e) {
-                throw new InterpretationException("signal expected");
-            }
-        }
-        else if (mode == VOICE) {
-            boolean globalSignal = false;
-            SignalSource signal = null;
-            for (int i = 0; i < voices.length; ++i) {
+        try {
+            if (mode == GLOBAL) {
                 try {
-                    if (!globalSignal) {
-                        globalInVoice = false;
-                        signal = (SignalSource) convert(eval(i, right), SignalSource.class);
-                        globalSignal = globalInVoice;
-                    }
-                    PseudoSocket socket = getSocket(i, left);
-                    socket.modulate(signal);
+                    SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
+                    getSocket(-1, left).modulate(signal);
                 } catch (TypeConversionException e) {
                     throw new InterpretationException("signal expected");
                 }
-            }
+            } else if (mode == VOICE) {
+                boolean globalSignal = false;
+                SignalSource signal = null;
+                for (int i = 0; i < voices.length; ++i) {
+                    try {
+                        if (!globalSignal) {
+                            globalInVoice = false;
+                            signal = (SignalSource) convert(eval(i, right), SignalSource.class);
+                            globalSignal = globalInVoice;
+                        }
+                        PseudoSocket socket = getSocket(i, left);
+                        socket.modulate(signal);
+                    } catch (TypeConversionException e) {
+                        throw new InterpretationException("signal expected");
+                    }
+                }
+            } else
+                throw new InterpretationException("modulating is not allowed in " + mode.name().toLowerCase() + " mode");
+        } catch (UnsupportedOperationException e){
+            throw new InterpretationException("this socket can't be modulated");
         }
-        else throw new InterpretationException("modulating is not allowed in " + mode.name().toLowerCase() + " mode");
     }
 
     private void process(EditMode mode, Node left, Node right) throws InterpretationException {
-        if (mode == GLOBAL) {
-            try {
-                SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
-                if (!(signal instanceof SignalProcessor processor))
-                    throw new InterpretationException("processor expected");
-                getSocket(-1, left).process(processor);
-            } catch (TypeConversionException e) {
-                throw new InterpretationException("signal expected");
-            }
-        }
-        else if (mode == VOICE) {
-            for (int i = 0; i < voices.length; ++i) {
+        try {
+            if (mode == GLOBAL) {
                 try {
-                    globalInVoice = false;
-                    SignalSource signal = (SignalSource) convert(eval(i, right), SignalSource.class);
+                    SignalSource signal = (SignalSource) convert(eval(-1, right), SignalSource.class);
                     if (!(signal instanceof SignalProcessor processor))
                         throw new InterpretationException("processor expected");
-                    if (globalInVoice)
-                        throw new InterpretationException("processing voice socket with global processor");
-                    PseudoSocket socket = getSocket(i, left);
-                    if (globalInVoice)
-                        throw new InterpretationException("processing global socket with voice processor");
-                    socket.process(processor);
+                    getSocket(-1, left).process(processor);
                 } catch (TypeConversionException e) {
                     throw new InterpretationException("signal expected");
                 }
-            }
+            } else if (mode == VOICE) {
+                for (int i = 0; i < voices.length; ++i) {
+                    try {
+                        globalInVoice = false;
+                        SignalSource signal = (SignalSource) convert(eval(i, right), SignalSource.class);
+                        if (!(signal instanceof SignalProcessor processor))
+                            throw new InterpretationException("processor expected");
+                        if (globalInVoice)
+                            throw new InterpretationException("processing voice socket with global processor");
+                        PseudoSocket socket = getSocket(i, left);
+                        if (globalInVoice)
+                            throw new InterpretationException("processing global socket with voice processor");
+                        socket.process(processor);
+                    } catch (TypeConversionException e) {
+                        throw new InterpretationException("signal expected");
+                    }
+                }
+            } else
+                throw new InterpretationException("processing is not allowed in " + mode.name().toLowerCase() + " mode");
+        } catch (UnsupportedOperationException e){
+            throw new InterpretationException("this socket can't be processed");
         }
-        else throw new InterpretationException("processing is not allowed in " + mode.name().toLowerCase() + " mode");
     }
 
     private void handleAST(Node ast, EditMode mode) throws InterpretationException {

@@ -13,12 +13,22 @@ realisations
         AR
         Hold
     oscillators
+        waveforms
+            PulseWave
+            SawWave
+            TriangleWave
+            SineWave
         PMSineOscillator as PMSine
         SawOscillator as Saw
         SineOscillator as Sine
         TriangleOscillator as Triangle, Tri
         PulseOscillator as Pulse, PW
 sources
+    oscillators
+        scanners
+            PMScanner
+            SyncableScanner
+        CompositeOscillator
     utils
         Attenuator as VCA, Att
         Clip

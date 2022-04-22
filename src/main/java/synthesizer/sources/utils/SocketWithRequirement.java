@@ -19,7 +19,7 @@ public class SocketWithRequirement<T extends SignalSource> extends Socket {
 
     public void bind(SignalSource source) throws ClassCastException {
         if(!requirement.isAssignableFrom(source.getClass()))
-            throw new ClassCastException();
+            throw new ClassCastException(requirement.getSimpleName());
         super.bind(source);
     }
 
