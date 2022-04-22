@@ -12,7 +12,7 @@ public class CompositeOscillator extends AbstractSignalSource {
 
     public CompositeOscillator(SignalSource waveScanner, Waveform waveform){
         this.waveScanner = new Socket(waveScanner);
-        this.waveform = new SocketWithRequirement<>(waveform);
+        this.waveform = new SocketWithRequirement<>(waveform, Waveform.class);
     }
 
     public Socket waveScanner(){

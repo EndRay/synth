@@ -16,12 +16,12 @@ public class Socket implements PseudoSocket {
         this.source = source;
     }
 
-    public void bind(SignalSource source){
-        this.source = source;
-    }
-
     public SignalSource getSource(){
         return source;
+    }
+
+    public void bind(SignalSource source){
+        this.source = source;
     }
 
     public void modulate(SignalSource modulator){
