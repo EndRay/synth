@@ -159,12 +159,13 @@ public class Parser {
             if(func.type() != TokenType.FIELD)
                 throw new SyntaxException(getToken().line(), "expected function or socket name");
             movePtr();
-            if(getToken().type() != TokenType.OPEN_BRACKET)
-                return createNode(SOCKET, func.info(), res);
-            List<Node> args = new ArrayList<>();
-            args.add(res);
-            args.addAll(parseArguments());
-            res = createNode(FUNCTION, func.info(), args);
+            if(getToken().type() == TokenType.OPEN_BRACKET) {
+                List<Node> args = new ArrayList<>();
+                args.add(res);
+                args.addAll(parseArguments());
+                res = createNode(FUNCTION, func.info(), args);
+            }
+            res = createNode(SOCKET, func.info(), res);
         }
         return res;
     }

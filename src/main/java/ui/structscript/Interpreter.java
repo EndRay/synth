@@ -246,6 +246,20 @@ public class Interpreter {
         return res;
     }
 
+    private PseudoSocket socketCall(SignalSource obj, String name) throws InterpretationException {
+        if (socketAliases.containsKey(name))
+            name = socketAliases.get(name);
+        try {
+            return (PseudoSocket) obj.getClass().getMethod(name).invoke(obj);
+        } catch (NoSuchMethodException e) {
+            throw new InterpretationException("no such socket");
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+            // ???
+            throw new RuntimeException("socket problems");
+        }
+    }
+
     private Value eval(int voiceId, Node node) throws InterpretationException {
         if (node.type() == UNARY_MINUS) {
             Value obj = eval(voiceId, node.arg(0));
@@ -282,12 +296,12 @@ public class Interpreter {
         if (node.type() == OBJECT) {
             return new Value(getObject(voiceId, node.text()), SIGNAL);
         }
-//        if (node.type() == SOCKET) {
-//            Value signal = eval(voiceId, node.arg(0));
-//            if(signal.type() != SIGNAL)
-//                throw new InterpretationException("only signals have sockets");
-//            return new Value(call((SignalSource) signal.obj, node.text()), SIGNAL);
-//        }
+        if (node.type() == SOCKET) {
+            Value signal = eval(voiceId, node.arg(0));
+            if(signal.type() != SIGNAL)
+                throw new InterpretationException("only signals have sockets");
+            return new Value(((Socket) socketCall((SignalSource) signal.obj, node.text())).getSource(), SIGNAL);
+        }
         if (node.type() == ARITHMETIC_OPERATOR) {
             Value left = eval(voiceId, node.arg(0)),
                     right = eval(voiceId, node.arg(1));
@@ -362,17 +376,7 @@ public class Interpreter {
             throw new InterpretationException("socket expected");
         SignalSource obj = getSignal(voiceId, node.arg(0));
         String name = node.text();
-        if (socketAliases.containsKey(name))
-            name = socketAliases.get(name);
-        try {
-            return (PseudoSocket) obj.getClass().getMethod(name).invoke(obj);
-        } catch (NoSuchMethodException e) {
-            throw new InterpretationException("no such socket");
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-            // ???
-            throw new RuntimeException("socket problems");
-        }
+        return socketCall(obj, name);
     }
 
     private void assign(EditMode mode, Node left, Node right) throws InterpretationException {
