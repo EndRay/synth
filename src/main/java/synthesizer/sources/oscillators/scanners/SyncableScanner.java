@@ -10,7 +10,7 @@ public class SyncableScanner extends AbstractSignalSource {
     protected double ptr;
     protected boolean lastGate = false;
 
-    public SyncableScanner(){ frequency.set(SignalSource.tuningFrequency); }
+    public SyncableScanner(){ frequency.setFrequency(SignalSource.tuningFrequency); }
     public SyncableScanner(double frequency){ frequency().set(frequency); }
     public SyncableScanner(SignalSource frequencySource) {
         frequency().bind(frequencySource);
