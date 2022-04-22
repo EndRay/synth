@@ -8,7 +8,7 @@ import synthesizer.sources.utils.Socket;
 abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator, Waveform {
     final protected SyncableScanner waveScanner = new SyncableScanner();
 
-    public AbstractOscillator(){ frequency().set(SignalSource.tuningFrequency); }
+    public AbstractOscillator(){}
     public AbstractOscillator(double frequency){ frequency().set(frequency); }
     public AbstractOscillator(SignalSource frequencySource) {
         frequency().bind(frequencySource);
