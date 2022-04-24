@@ -53,13 +53,16 @@ public class Sequencer implements Transmitter {
                     while (true) {
                         for (Integer note : notes) {
                             nowPlayingNote = note;
-                            receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, nowPlayingNote, 64), 0);
+                            if(nowPlayingNote != -1)
+                                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, nowPlayingNote, 64), 0);
                             TimeUnit.MILLISECONDS.sleep(1000 * 60 / BPM);
-                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, nowPlayingNote, 0), 0);
+                            if(nowPlayingNote != -1)
+                                receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, nowPlayingNote, 0), 0);
                         }
                     }
                 } catch (InterruptedException e) {
-                    receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, nowPlayingNote, 0), 0);
+                    if(nowPlayingNote != -1)
+                        receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, nowPlayingNote, 0), 0);
                 }
             } catch (InvalidMidiDataException e) {
                 // ???

@@ -100,7 +100,7 @@ public class ConsoleHandler {
             System.out.println("choose channel to edit first");
             return;
         }
-        if(command.matches("\\[ *([0-9]+ *, *)*[0-9]+ *]")){
+        if(command.matches("\\[ *(-?[0-9]+ *, *)*-?[0-9]+ *]")){
             List<Integer> notes = Arrays.stream(command.substring(1, command.length() - 1).trim().split(" *, *")).map(Integer::valueOf).toList();
             sequencers[editedChannel].play(notes);
             return;
