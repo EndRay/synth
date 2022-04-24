@@ -1,5 +1,6 @@
 package ui.cui;
 
+import sequencer.Sequencer;
 import synthesizer.Synth;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
@@ -9,6 +10,7 @@ import ui.structscript.Interpreter;
 import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static javax.sound.midi.MidiSystem.getSequence;
@@ -20,6 +22,7 @@ public class ConsoleHandler {
     int editedChannel = -1;
     SynthMidiReceiver midiReceiver;
     Interpreter[] builders = new Interpreter[channels];
+    Sequencer[] sequencers = new Sequencer[channels];
 
     Synth[][] synths = new Synth[channels][];
 
@@ -53,6 +56,9 @@ public class ConsoleHandler {
             } catch (MidiUnavailableException e) {
                 //System.out.println("Device " + i + " error");
             }
+        }
+        for(int i = 0; i < channels; ++i){
+            sequencers[i] = new Sequencer(midiReceiver, i);
         }
     }
 
@@ -92,6 +98,11 @@ public class ConsoleHandler {
         }
         if(editedChannel == -1){
             System.out.println("choose channel to edit first");
+            return;
+        }
+        if(command.matches("\\[ *(-?[0-9]+ *, *)*-?[0-9]+ *]")){
+            List<Integer> notes = Arrays.stream(command.substring(1, command.length() - 1).trim().split(" *, *")).map(Integer::valueOf).toList();
+            sequencers[editedChannel].play(notes);
             return;
         }
         if(command.matches("press +[0-9]+")){
