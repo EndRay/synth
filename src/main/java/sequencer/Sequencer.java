@@ -15,6 +15,7 @@ public class Sequencer implements Transmitter {
     List<Integer> notes = new ArrayList<>();
     Thread player;
     int BPM = 270, midiChannel;
+    double gateLength = 0.1;
 
     public Sequencer(Receiver receiver, int midiChannel) {
         setReceiver(receiver);
@@ -33,6 +34,10 @@ public class Sequencer implements Transmitter {
 
     private void setNotes(List<Integer> notes) {
         this.notes = notes;
+    }
+
+    public void setGateLength(double gateLength) {
+        this.gateLength = gateLength;
     }
 
     public void setBPM(int BPM) {
@@ -55,9 +60,10 @@ public class Sequencer implements Transmitter {
                             nowPlayingNote = note;
                             if(nowPlayingNote != -1)
                                 receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, nowPlayingNote, 64), 0);
-                            TimeUnit.MILLISECONDS.sleep(1000 * 60 / BPM);
+                            TimeUnit.MILLISECONDS.sleep((long) (1000 * 60 / BPM * gateLength));
                             if(nowPlayingNote != -1)
                                 receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, nowPlayingNote, 0), 0);
+                            TimeUnit.MILLISECONDS.sleep((long) (1000 * 60 / BPM * (1 - gateLength)));
                         }
                     }
                 } catch (InterruptedException e) {
