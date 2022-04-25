@@ -165,7 +165,7 @@ public class Parser {
                 args.addAll(parseArguments());
                 res = createNode(FUNCTION, func.info(), args);
             }
-            res = createNode(SOCKET, func.info(), res);
+            else res = createNode(SOCKET, func.info(), res);
         }
         return res;
     }
