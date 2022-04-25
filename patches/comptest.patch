@@ -1,0 +1,6 @@
+comp = new CompositeOscillator(new PM(), new TriWave())
+comp.waveform <= new PulseWave(0.3)
+lfo = new Sine(5s)
+comp.waveform.pw <- lfo * 0.2
+
+comp * 0.01 => output

@@ -2,12 +2,11 @@ package synthesizer.sources.oscillators;
 
 import synthesizer.sources.AbstractSignalSource;
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.oscillators.scanners.SyncableScanner;
 import synthesizer.sources.utils.Socket;
 
-abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator {
-    private final Socket frequency = new Socket(), hardSync = new Socket();
-    private double ptr;
-    private boolean lastGate = false;
+abstract public class AbstractOscillator extends AbstractSignalSource implements Oscillator, Waveform {
+    final protected SyncableScanner waveScanner = new SyncableScanner();
 
     public AbstractOscillator(){}
     public AbstractOscillator(double frequency){ frequency().set(frequency); }
@@ -17,37 +16,17 @@ abstract public class AbstractOscillator extends AbstractSignalSource implements
 
     @Override
     public Socket frequency(){
-        return frequency;
+        return waveScanner.frequency();
     }
     public Socket hardSync(){
-        return hardSync;
-    }
-
-    protected void setPtr(double ptr) {
-        this.ptr = ptr;
-    }
-
-    protected abstract double getAmplitude(int sampleId);
-
-    @Override
-    protected double recalculate(int sampleId) {
-        ptr += frequency().getFrequency(sampleId) / sampleRate;
-        if (ptr < 0)
-            ptr += 1;
-        if (ptr >= 1)
-            ptr -= 1;
-        boolean g = hardSync().getGate(sampleId);
-        if(!lastGate && g)
-            setPtr(0);
-        lastGate = g;
-        return getAmplitude(sampleId);
+        return waveScanner.hardSync();
     }
 
     /**
      * frequency < sampleRate
      */
-
-    protected double getPtr(int sampleId) {
-        return ptr;
+    @Override
+    protected double recalculate(int sampleId) {
+        return getAmplitude(sampleId, waveScanner.getSample(sampleId));
     }
 }

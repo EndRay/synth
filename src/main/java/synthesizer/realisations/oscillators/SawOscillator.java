@@ -1,13 +1,17 @@
 package synthesizer.realisations.oscillators;
 
+import synthesizer.realisations.oscillators.waveforms.SawWave;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.oscillators.AbstractOscillator;
+import synthesizer.sources.oscillators.Waveform;
 
 /**
  * ramp-down saw
  */
 
 public class SawOscillator extends AbstractOscillator {
+
+    final static SawWave waveform = new SawWave();
 
     public SawOscillator() {
     }
@@ -21,7 +25,7 @@ public class SawOscillator extends AbstractOscillator {
     }
 
     @Override
-    public double getAmplitude(int sampleId) {
-        return ((0.5 - getPtr(sampleId)) * 2);
+    public double getAmplitude(int sampleId, double ptr) {
+        return waveform.getAmplitude(sampleId, ptr);
     }
 }

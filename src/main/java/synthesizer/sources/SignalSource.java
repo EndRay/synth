@@ -4,6 +4,7 @@ import synthesizer.sources.utils.*;
 
 public interface SignalSource {
     int sampleRate = 44100;
+    double tuningFrequency = 440;
     double samplingPeriod = 1.0 / sampleRate;
     double minFrequency = 1, maxFrequency = 20000;
 

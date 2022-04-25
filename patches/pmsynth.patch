@@ -1,0 +1,18 @@
+load "init.patch"
+
+ratio = 3x
+amount = 2
+
+-v-
+env = new AD(5ms, 1s)
+env.trig <= trigger
+
+carrier = new PMSine(pitch)
+modulator = new Sine(pitch + ratio)
+carrier.phase <= modulator * amount * env
+
+
+carrier * env => output
+---
+
+volume := 0.06
