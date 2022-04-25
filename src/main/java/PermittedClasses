@@ -16,7 +16,7 @@ realisations
         waveforms
             PulseWave
             SawWave
-            TriangleWave
+            TriangleWave as TriWave
             SineWave
         PMSineOscillator as PMSine
         SawOscillator as Saw
@@ -26,9 +26,9 @@ realisations
 sources
     oscillators
         scanners
-            PMScanner
+            PMScanner as PM
             SyncableScanner
-        CompositeOscillator
+        CompositeOscillator as CompOsc
     utils
         Attenuator as VCA, Att
         Clip

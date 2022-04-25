@@ -8,3 +8,4 @@ release as rel, r
 hardSync as sync
 pulseWidth as pulse, pw
 trigger as trig
+waveScanner as scanner

@@ -1,4 +1,4 @@
-comp = new CompositeOscillator(new PMScanner(), new SawWave())
+comp = new CompositeOscillator(new PM(), new TriWave())
 comp.waveform <= new PulseWave(0.3)
 lfo = new Sine(5s)
 comp.waveform.pw <- lfo * 0.2
