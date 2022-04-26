@@ -1,7 +1,7 @@
 package ui;
 
 import synthesizer.sources.SignalSource;
-import synthesizer.Synth;
+import ui.synthcontrollers.SynthController;
 
 import javax.sound.midi.*;
 import java.nio.charset.StandardCharsets;
@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 public class SynthMidiReceiver implements Receiver {
 
-    Synth[][] synths;
+    SynthController[][] synths;
 
-    public SynthMidiReceiver(Synth[][] synths) {
+    public SynthMidiReceiver(SynthController[][] synths) {
         this.synths = synths;
     }
 
@@ -103,15 +103,15 @@ public class SynthMidiReceiver implements Receiver {
             action = -8;
         switch (action) {
             case -5:
-                for(Synth synth : synths[channel])
+                for(SynthController synth : synths[channel])
                     synth.midiCC(mArr[1], mArr[2]);
                 break;
             case -7:
-                for (Synth synth : synths[channel])
+                for (SynthController synth : synths[channel])
                     synth.noteOn(mArr[1], mArr[2]);
                 break;
             case -8:
-                for (Synth synth : synths[channel])
+                for (SynthController synth : synths[channel])
                     synth.noteOff(mArr[1], mArr[2]);
                 break;
         }

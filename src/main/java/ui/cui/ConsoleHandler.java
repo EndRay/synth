@@ -1,11 +1,12 @@
 package ui.cui;
 
 import sequencer.Sequencer;
-import synthesizer.Synth;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
+import ui.synthcontrollers.AutoMapSynthController;
+import ui.synthcontrollers.SynthController;
 
 import javax.sound.midi.*;
 import java.io.File;
@@ -24,11 +25,11 @@ public class ConsoleHandler {
     Interpreter[] builders = new Interpreter[channels];
     Sequencer[] sequencers = new Sequencer[channels];
 
-    Synth[][] synths = new Synth[channels][];
+    AutoMapSynthController[][] synths = new AutoMapSynthController[channels][];
 
     {
         for (int i = 0; i < channels; ++i)
-            synths[i] = new Synth[0];
+            synths[i] = new AutoMapSynthController[0];
     }
 
     Mixer mix = new Mixer(channels);
@@ -111,12 +112,12 @@ public class ConsoleHandler {
                 System.out.println("wrong note");
                 return;
             }
-            for(Synth synth : synths[editedChannel])
+            for(SynthController synth : synths[editedChannel])
                 synth.noteOn(note);
             return;
         }
         if(command.matches("depress")){
-            for(Synth synth : synths[editedChannel])
+            for(SynthController synth : synths[editedChannel])
                 synth.allNotesOff();
             return;
         }
@@ -126,7 +127,7 @@ public class ConsoleHandler {
                 System.out.println("wrong note");
                 return;
             }
-            for(Synth synth : synths[editedChannel])
+            for(SynthController synth : synths[editedChannel])
                 synth.noteOff(note);
             return;
         }
@@ -137,9 +138,10 @@ public class ConsoleHandler {
                     System.out.println("wrong voice count");
                     return;
                 }
-                builders[editedChannel] = new Interpreter(voiceCount);
+                CCSourceValuesHandler handler = new CCSourceValuesHandler();
+                builders[editedChannel] = new Interpreter(voiceCount, handler);
                 mix.get(editedChannel).bind(builders[editedChannel].getSynth());
-                synths[editedChannel] = new Synth[]{builders[editedChannel].getSynth()};
+                synths[editedChannel] = new AutoMapSynthController[]{new AutoMapSynthController(builders[editedChannel].getSynth(), handler)};
                 return;
             } catch (NumberFormatException e) {
                 System.out.println("wrong voice count format");
@@ -147,12 +149,12 @@ public class ConsoleHandler {
             }
         }
         if (command.matches("map")) {
-            for(Synth synth : synths[editedChannel])
+            for(AutoMapSynthController synth : synths[editedChannel])
                 synth.startMapping();
             return;
         }
         if (command.matches("stop +map")) {
-            for(Synth synth : synths[editedChannel])
+            for(AutoMapSynthController synth : synths[editedChannel])
                 synth.stopMapping();
             return;
         }
