@@ -451,15 +451,9 @@ public class Interpreter {
                     throw new InterpretationException("signal expected");
                 }
             } else if (mode == VOICE) {
-                boolean globalSignal = false;
-                SignalSource signal = null;
                 for (int i = 0; i < voices.length; ++i) {
                     try {
-                        if (!globalSignal) {
-                            globalInVoice = false;
-                            signal = (SignalSource) convert(eval(i, right), SignalSource.class);
-                            globalSignal = globalInVoice;
-                        }
+                        SignalSource signal = (SignalSource) convert(eval(i, right), SignalSource.class);
                         PseudoSocket socket = getSocket(i, left);
                         socket.modulate(signal);
                     } catch (TypeConversionException e) {
