@@ -1,6 +1,6 @@
 package ui.structscript;
 
-import synthesizer.Synth;
+import synthesizer.VoiceDistributor;
 import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.*;
@@ -13,10 +13,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static synthesizer.sources.SignalSource.frequencyToVoltage;
 import static ui.structscript.Interpreter.EditMode.GLOBAL;
@@ -79,12 +76,13 @@ public class Interpreter {
 
     public enum EditMode {GLOBAL, VOICE}
 
-    private final Synth synth;
+    private final VoiceDistributor synth;
     private final Voice[] voices;
     private final Socket output;
     private final Socket[] voiceOutputs;
     private final Map<String, SignalSource> objects = new HashMap<>();
     private final Map<String, SignalSource[]> voiceObjects = new HashMap<>();
+    private final SourceValuesHandler sourceValuesHandler;
 
     enum ValueType {
         DOUBLE,
@@ -101,6 +99,11 @@ public class Interpreter {
     EditMode editMode = GLOBAL;
 
     public Interpreter(int voicesCount) {
+        this(voicesCount, null);
+    }
+
+    public Interpreter(int voicesCount, SourceValuesHandler handler) {
+        sourceValuesHandler = handler;
         voices = new Voice[voicesCount];
         this.output = new Socket();
         voiceOutputs = new Socket[voicesCount];
@@ -143,11 +146,11 @@ public class Interpreter {
             voiceObjects.get("trigger")[i] = trigger;
             voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
         }
-        synth = new Synth(voices, output, last);
+        synth = new VoiceDistributor(voices, output, last);
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 
-    public Synth getSynth() {
+    public VoiceDistributor getSynth() {
         return synth;
     }
 
@@ -278,10 +281,11 @@ public class Interpreter {
                 args[i] = eval(voiceId, node.arg(i));
             Class<?> cl = getClass(node.text());
             if(voiceId != -1 && SourceValue.class.isAssignableFrom(cl))
-                throw new InterpretationException("creating CC inside voices");
+                throw new InterpretationException("creating SourceValue inside voices");
             SignalSource obj = instantiate(cl, args);
-            if(obj instanceof SourceValue CC)
-                synth.addToMap(CC);
+            if(obj instanceof SourceValue sourceValue)
+                if(sourceValuesHandler != null)
+                    sourceValuesHandler.addSourceValue(sourceValue);
             return new Value(obj, SIGNAL);
         }
         if (node.type() == FUNCTION) {
@@ -384,7 +388,8 @@ public class Interpreter {
             throw new InterpretationException("name of object on the left side of assignment required");
         String name = left.text();
         if (mode == GLOBAL) {
-            objects.put(name, getSignal(-1, right));
+            SignalSource signal = getSignal(-1, right);
+            objects.put(name, signal);
         } else if (mode == VOICE) {
             if (!voiceObjects.containsKey(name))
                 voiceObjects.put(name, new SignalSource[voices.length]);
