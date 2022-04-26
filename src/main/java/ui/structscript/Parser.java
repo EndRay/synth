@@ -133,7 +133,8 @@ public class Parser {
                 if (signalClass.type() != TokenType.FIELD)
                     throw new SyntaxException(getToken().line(), "class name expected");
                 movePtr();
-                return createNode(CONSTRUCTOR, signalClass.info(), parseArguments());
+                res = createNode(CONSTRUCTOR, signalClass.info(), parseArguments());
+                break;
             case NUMBER:
                 res = createNode(NUMBER, token.info());
                 movePtr();
