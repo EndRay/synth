@@ -24,6 +24,8 @@ realisations
         TriangleOscillator as Triangle, Tri
         PulseOscillator as Pulse, PW
 sources
+    effects
+        DryWet
     oscillators
         scanners
             PMScanner as PM
