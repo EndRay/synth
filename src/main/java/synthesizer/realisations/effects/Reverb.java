@@ -1,10 +1,10 @@
 package synthesizer.realisations.effects;
 
-import synthesizer.sources.effects.AbstractEffect;
+import synthesizer.sources.AbstractSignalProcessor;
 
 import static java.lang.Math.pow;
 
-public class Reverb extends AbstractEffect {
+public class Reverb extends AbstractSignalProcessor {
     final public int tapeLength = (int) (5 * sampleRate);
     private int ptr = 0;
     private final double coefPerSecond = 0.06443;
@@ -24,12 +24,8 @@ public class Reverb extends AbstractEffect {
     public Reverb() {
     }
 
-    public Reverb(double wetness) {
-        super(wetness);
-    }
-
     @Override
-    protected double getWetSample(int sampleId) {
+    protected double recalculate(int sampleId) {
         ++ptr;
         if (ptr >= tapeLength)
             ptr = 0;
@@ -45,6 +41,5 @@ public class Reverb extends AbstractEffect {
             res += c * tapes[i][delayedPtr];
         }
         return res / tapesCount;
-
     }
 }
