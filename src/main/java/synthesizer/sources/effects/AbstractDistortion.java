@@ -1,12 +1,12 @@
 package synthesizer.sources.effects;
 
+import synthesizer.sources.AbstractSignalProcessor;
+import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Socket;
 
-abstract public class AbstractDistortion extends AbstractEffect{
+abstract public class AbstractDistortion extends AbstractSignalProcessor {
     final private Socket gain = new Socket(1);
-
-    private double lastSample = 0;
 
     public AbstractDistortion(){}
     public AbstractDistortion(double gain){
@@ -27,7 +27,7 @@ abstract public class AbstractDistortion extends AbstractEffect{
     protected abstract double distortFunction(double x);
 
     @Override
-    public double getWetSample(int sampleId) {
+    public double recalculate(int sampleId) {
         return distortFunction(source().getSample(sampleId) * gain().getSample(sampleId));
     }
 }
