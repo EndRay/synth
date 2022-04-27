@@ -43,20 +43,6 @@ import static ui.structscript.Parser.NodeType.*;
  * v: releaseVelocity
  * v: gate
  * v: trigger
- *
- * TODO: Exponential envelope stages
- * TODO: Linear Slope limiter
- * TODO: Morph (simple and as Joranalogue's)
- * TODO: TZFM Oscillators
- * TODO: Variable Poles Filters
- * TODO: Highpass/Notch/Bandpass[/Morphable] Filters
- * TODO: (!!) Delayed SignalProcessors (???)
- * TODO: (!!!) To WAV
- * TODO: (!) lastNoteIsLegato Gate
- * TODO: (!!) Remove Dry/Wet on Effects
- * TODO: MIDI note map (for drums)
- *
- * TODO: Stereo
  */
 
 public class Interpreter {
