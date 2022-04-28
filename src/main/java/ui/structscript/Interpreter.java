@@ -10,6 +10,7 @@ import ui.UtilityFilesReader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -180,15 +181,24 @@ public class Interpreter {
     }
 
     private SignalSource instantiate(Class<?> cl, Value[] args) throws InterpretationException {
-        Object[] usableArgs = new Object[args.length];
         SignalSource res = null;
         for (Constructor<?> constructor : cl.getConstructors()) {
             Class<?>[] types = constructor.getParameterTypes();
-            if (types.length != args.length)
+            Object[] usableArgs = new Object[types.length];
+            if ((types.length == 0 && args.length != 0) || types.length > args.length || (!constructor.isVarArgs() && types.length < args.length))
                 continue;
             try {
-                for (int i = 0; i < args.length; ++i)
+                for (int i = 0; i < types.length-1; ++i)
                     usableArgs[i] = convert(args[i], types[i]);
+                final int i = types.length-1;
+                if(constructor.isVarArgs()){
+                    Class<?> varArgsType = types[i].getComponentType();
+                    int len = args.length - i;
+                    usableArgs[i] = Array.newInstance(varArgsType, len);
+                    for(int j = 0; j < len; ++j)
+                        ((Object[]) usableArgs[i])[j] = convert(args[i + j], varArgsType);
+                }
+                else if(i >= 0) usableArgs[i] = convert(args[i], types[i]);
             } catch (TypeConversionException e) {
                 continue;
             }
