@@ -243,7 +243,7 @@ public class Interpreter {
         try {
             return (PseudoSocket) obj.getClass().getMethod(name).invoke(obj);
         } catch (NoSuchMethodException e) {
-            throw new InterpretationException("no such socket");
+            throw new InterpretationException("no such socket \"" + name + "\"");
         } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             // ???
