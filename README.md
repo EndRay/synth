@@ -4,7 +4,6 @@
 ### sound things
 - [ ] Exponential envelope stages
 - [ ] Linear Slope limiter
-- [ ] Morph (simple and as Joranalogue's)
 - [ ] TZFM Oscillators
 - [ ] Variable Poles Filters
 - [ ] Highpass/Notch/Bandpass\[/Morphable] Filters
