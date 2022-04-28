@@ -140,7 +140,9 @@ public class Interpreter {
         return synth;
     }
 
-    private Class<?> getClass(String name) {
+    private Class<?> getClass(String name) throws InterpretationException {
+        if(!permittedClasses.containsKey(name))
+            throw new InterpretationException("no such class \"" + name + "\"");
         return permittedClasses.get(name);
     }
 
