@@ -15,8 +15,7 @@ class StructScriptException extends Exception {
         return line;
     }
 
-    @Override
-    public String toString() {
+    public String getStructScriptMessage(){
         return "StructScript Exception: " + getMessage();
     }
 }

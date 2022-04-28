@@ -9,8 +9,8 @@ public class InterpretationException extends StructScriptException{
     }
 
     @Override
-    public String toString() {
-        if(getLine() == -1)
+    public String getStructScriptMessage() {
+        if (getLine() == -1)
             return "interpretation error: " + getMessage();
         return "interpretation error in line " + getLine() + ": " + getMessage();
     }

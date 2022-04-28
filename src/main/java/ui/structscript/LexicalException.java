@@ -6,7 +6,7 @@ public class LexicalException extends StructScriptException{
     }
 
     @Override
-    public String toString() {
+    public String getStructScriptMessage(){
         return "lexical error in line " + getLine() + ": " + getMessage();
     }
 }

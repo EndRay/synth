@@ -510,7 +510,7 @@ public class Interpreter {
                         asts = new Parser(new Lexer(code.toString()).lex()).parse();
                         interpret(asts);
                     } catch (StructScriptException e) {
-                        throw new InterpretationException("error during loading \"" + path + "\":\n" + e);
+                        throw new InterpretationException("error during loading \"" + path + "\":\n" + e.getStructScriptMessage());
                     }
                 } catch (FileNotFoundException e) {
                     throw new InterpretationException("no such file found");
@@ -557,7 +557,7 @@ public class Interpreter {
             interpret(asts);
             return true;
         } catch (StructScriptException e) {
-            System.out.println(e);
+            System.out.println(e.getStructScriptMessage());
             return false;
         }
     }

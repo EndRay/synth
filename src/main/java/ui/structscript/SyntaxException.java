@@ -6,7 +6,7 @@ public class SyntaxException extends StructScriptException{
     }
 
     @Override
-    public String toString() {
+    public String getStructScriptMessage() {
         return "syntax error in line " + getLine() + ": " + getMessage();
     }
 }
