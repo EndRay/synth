@@ -36,7 +36,8 @@ sources
         Clip
         DC
         FrequencyAdder as Fadd
-        Socket as Value, Mixer, Mix
+        Socket as Value
         SourceValue as CC
+        Mixer as Mix
         UnityMixer as UMixer, UMix
         Noise

@@ -11,6 +11,10 @@ public class Mixer extends AbstractSignalSource implements PseudoSocket {
 
     private final List<Socket> sources;
 
+    public Mixer(){
+        this(0);
+    }
+
     public Mixer(int size){
         sources = new ArrayList<>(size);
         for(int i = 0; i < size; ++i)
