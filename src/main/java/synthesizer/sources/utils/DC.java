@@ -25,6 +25,9 @@ public class DC implements SignalSource {
     public static DC getFrequencyDC(double frequency) {
         return new DC(SignalSource.frequencyToVoltage(frequency));
     }
+    public static DC getSecondsDC(double seconds) {
+        return new DC(SignalSource.timeToVoltage(seconds));
+    }
 
     public static DC getFrequencyRatioDC(double frequencyRatio) {
         return new DC(SignalSource.frequencyRatioToVoltage(frequencyRatio));
