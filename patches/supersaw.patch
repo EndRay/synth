@@ -1,5 +1,3 @@
-load init.patch
-
 cutoffCC = new CC("cutoff", 0.4)
 envAmountCC = new CC("envelope amount", 0.7)
 keytrackCC = new CC("keytrack", 0.7)
@@ -28,3 +26,6 @@ filter.q <= resonance
 env * velocity.mapUni(0.3, 1) * envAmount -> filter.f
 filter ->- output
 ---
+
+voiceMix => output
+outputGain := 1

@@ -1,4 +1,4 @@
-load "init.patch"
+voiceMix => output
 
 -v-
 env = new ADSR(0.2s, 2s, 0.7, 0.2s)
@@ -18,4 +18,4 @@ env * 0.3 -> filter.f
 filter ->- output
 ---
 
-volume := 0.005
+outputGain := 0.05

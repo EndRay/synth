@@ -1,4 +1,4 @@
-load "init.patch"
+voiceMix => output
 
 -v-
 env = new ADSR(1ms, 0.5s, 0, 0.2s)
@@ -15,4 +15,4 @@ filter ->- output
 reverb = new Reverb(0.4)
 reverb ->- output
 
-volume := 0.1
+outputGain := 1

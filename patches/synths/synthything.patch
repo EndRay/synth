@@ -1,4 +1,4 @@
-load "init.patch"
+voiceMix => output
 
 -v-
 env = new AR(5ms, 5ms)
@@ -20,4 +20,4 @@ filter.q <= 0.3
 filter ->- output
 ---
 
-volume := 0.02
+outputGain := 0.2

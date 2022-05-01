@@ -133,7 +133,9 @@ public class Interpreter {
             voiceObjects.get("trigger")[i] = trigger;
             voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
         }
-        synth = new VoiceDistributor(voices, output, last);
+        Socket outputGain = new Socket(1);
+        objects.put("outputGain", outputGain);
+        synth = new VoiceDistributor(voices, output.attenuate(outputGain).clipBi(), last);
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 

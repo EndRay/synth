@@ -1,8 +1,0 @@
-volume = new Value(0.1)
-
-pitch = lastNotePitch
-velocity = lastNoteVelocity
-aftertouch = lastNoteAftertouch
-releaseVelocity = lastNoteReleaseVelocity
-gate = lastNoteGate
-trigger = lastNoteTrigger

@@ -34,9 +34,10 @@ public class ConsoleHandler {
             synths[i] = new AutoMapSynthController[0];
     }
 
-    SourceValue masterVolume = new SourceValue("master volume", 0.1);
+    SourceValue mixGain = new SourceValue("mix gain", 0.5);
+    SourceValue masterVolume = new SourceValue("master volume", 0.3);
     Mixer mix = new Mixer(channels);
-    SignalSource clippedMix = mix.clipBi().attenuate(masterVolume);
+    SignalSource clippedMix = mix.attenuate(mixGain).clipBi().attenuate(masterVolume);
 
 
     public void samplePassed(){

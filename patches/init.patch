@@ -1,3 +1,0 @@
-volume = new Value(0.05)
-
-voiceMix * volume => output
