@@ -44,12 +44,12 @@ public final class Database {
         executeScript(new File("src/main/java/database/init.sql"));
     }
 
-    public static String getSynthStructure(String name) {
+    public static String getSynthStructure(String name) throws NoSuchSynthException {
         try (Connection c = getConnection()) {
             Statement statement = c.createStatement();
             return statement.executeQuery("SELECT * FROM synths WHERE name == '" + name + "';").getString("structure");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NoSuchSynthException();
         }
     }
 
@@ -95,7 +95,11 @@ public final class Database {
         loadSynthsFromFolder(demoSynthsFolder);
         saveSynth("second test", "second test structure");
         saveSynth("test", "overwritten structure");
-        System.out.println(getSynthStructure("test"));
-        System.out.println(getSynthStructure("second test"));
+        try {
+            System.out.println(getSynthStructure("test"));
+            System.out.println(getSynthStructure("second test"));
+        } catch (NoSuchSynthException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
