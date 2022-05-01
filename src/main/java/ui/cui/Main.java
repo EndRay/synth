@@ -11,9 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Main {
-    final static int sampleRate = 44100;
+import static synthesizer.sources.SignalSource.sampleRate;
 
+public class Main {
 
     static void play(ConsoleHandler handler) throws LineUnavailableException, IOException {
 
