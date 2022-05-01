@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS synths
 (
-    name      text,
-    structure text,
+    synth_id integer PRIMARY KEY NOT NULL,
 
-    synth_id  serial PRIMARY KEY,
+    name     text NOT NULL,
+    structure   text NOT NULL,
 
     UNIQUE (name)
 );
