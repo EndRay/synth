@@ -7,6 +7,7 @@ import synthesizer.sources.utils.Mixer;
 import synthesizer.sources.utils.SourceValue;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
+import ui.structscript.StructScriptException;
 import ui.synthcontrollers.AutoMapSynthController;
 import ui.synthcontrollers.SynthController;
 
@@ -181,10 +182,17 @@ public class ConsoleHandler {
                 builders[editedChannel].run(getSynthStructure(name));
             } catch (NoSuchSynthException e) {
                 System.out.println("no such synth \"" + name + "\"");
+            } catch (StructScriptException e) {
+                System.out.println("error occurred in synth \"" + name + "\"");
+                System.out.println(e.getStructScriptMessage());
             }
             return;
         }
-        builders[editedChannel].run(command);
+        try {
+            builders[editedChannel].run(command);
+        } catch (StructScriptException e) {
+            System.out.println(e.getStructScriptMessage());
+        }
     }
 
     SignalSource getMix() {

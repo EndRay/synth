@@ -1,6 +1,6 @@
 package ui.structscript;
 
-class StructScriptException extends Exception {
+public class StructScriptException extends Exception {
     private final int line;
     public StructScriptException(int line) {
         this.line = line;

@@ -544,14 +544,8 @@ public class Interpreter {
         }
     }
 
-    public boolean run(String code) {
-        try {
-            List<Node> asts = new Parser(new Lexer(code).lex()).parse();
-            interpret(asts);
-            return true;
-        } catch (StructScriptException e) {
-            System.out.println(e.getStructScriptMessage());
-            return false;
-        }
+    public void run(String code) throws StructScriptException {
+        List<Node> asts = new Parser(new Lexer(code).lex()).parse();
+        interpret(asts);
     }
 }
