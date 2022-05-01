@@ -65,13 +65,13 @@ public final class Database {
 
     private final static File demoSynthsFolder = new File("demoSynths");
 
-    public static void loadSynths(File folder, String namePrefix){
+    public static void loadSynthsFromFolder(File folder, String namePrefix){
         File[] files = folder.listFiles();
         if(files == null)
             return;
         Stream.of(files).forEach(file -> {
             if(file.isDirectory())
-                loadSynths(file, namePrefix + file.getName() + "/");
+                loadSynthsFromFolder(file, namePrefix + file.getName() + "/");
             if(!file.getName().endsWith(".patch"))
                 return;
             try(Scanner scanner = new Scanner(file)) {
@@ -87,12 +87,12 @@ public final class Database {
         });
     }
 
-    public static void loadSynths(File folder){
-        loadSynths(folder, "");
+    public static void loadSynthsFromFolder(File folder){
+        loadSynthsFromFolder(folder, "");
     }
 
     public static void main(String... args) {
-        loadSynths(demoSynthsFolder);
+        loadSynthsFromFolder(demoSynthsFolder);
         saveSynth("second test", "second test structure");
         saveSynth("test", "overwritten structure");
         System.out.println(getSynthStructure("test"));
