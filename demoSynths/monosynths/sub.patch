@@ -1,0 +1,14 @@
+pitch = lastNotePitch
+velocity = lastNoteVelocity
+aftertouch = lastNoteAftertouch
+releaseVelocity = lastNoteReleaseVelocity
+gate = lastNoteGate
+trigger = lastNoteTrigger
+
+env = new AR(1ms, 5ms)
+env.gate <= gate
+
+osc = new Tri(pitch)
+osc * env => output
+
+outputGain := 1

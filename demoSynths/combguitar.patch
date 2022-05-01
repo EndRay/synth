@@ -1,0 +1,20 @@
+-v-
+env = new Hold(pitch)
+env.trig <= trigger
+
+noise = new Noise()
+noise * env * volume => output
+
+filter = new Filter(0.35)
+filter.f <- pitch * 0.7
+filter ->- output
+
+comb = new Comb(pitch)
+comb.alpha <= new DC(1) - (pitch.toFrequency().map(100, 200, 1, 2).inverse() * 0.02)
+comb ->- output
+---
+
+#reverb = new Reverb(0.5)
+#reverb ->- output
+
+voiceMix => output

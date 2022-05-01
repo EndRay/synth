@@ -1,0 +1,31 @@
+cutoffCC = new CC("cutoff", 0.4)
+envAmountCC = new CC("envelope amount", 0.7)
+keytrackCC = new CC("keytrack", 0.7)
+resonanceCC = new CC("resonance", 0.2)
+
+cutoff = cutoffCC.mapUni(-0.4, 1)
+envAmount = envAmountCC.mapUni(-1, 1)
+keytrack = keytrackCC
+resonance = resonanceCC
+
+-v-
+env = new ADSR(1ms, 2s, 0.3, 0.6s)
+env.att <= velocity.mapUni(3s + 2x, 1ms + 2x)
+env.gate <= gate
+
+osc = new Saw(pitch)
+osc2 = new Saw(pitch + 1.01x)
+mix = new UMix()
+mix <- osc
+mix <- osc2
+mix * env => output
+
+filter = new Filter(cutoff)
+filter.f <- pitch * keytrack
+filter.q <= resonance
+env * velocity.mapUni(0.3, 1) * envAmount -> filter.f
+filter ->- output
+---
+
+voiceMix => output
+outputGain := 1

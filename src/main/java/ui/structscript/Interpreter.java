@@ -511,7 +511,7 @@ public class Interpreter {
         switch (ast.type()) {
             case LOAD:
                 String path = ast.text();
-                File file = new File("patches/" + path);
+                File file = new File("demoSynths/" + path);
                 try {
                     Scanner reader = new Scanner(file);
                     StringBuilder code = new StringBuilder();

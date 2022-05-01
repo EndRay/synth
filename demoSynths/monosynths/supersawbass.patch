@@ -1,0 +1,25 @@
+pitch = lastNotePitch
+velocity = lastNoteVelocity
+aftertouch = lastNoteAftertouch
+releaseVelocity = lastNoteReleaseVelocity
+gate = lastNoteGate
+trigger = lastNoteTrigger
+
+env = new AR(1ms, 200ms)
+env.gate <= gate
+filterEnv = new AD(1ms, 0.6s)
+filterEnv.trig <= trigger
+
+osc = new Saw(pitch)
+osc2 = new Saw(pitch + 1.01x)
+mix = new UMix()
+mix <- osc
+mix <- osc2
+mix * env => output
+
+filter = new Filter(0.55)
+filter.q := 0.2
+filterEnv * 0.2 -> filter.f
+filter ->- output
+
+outputGain := 0.8
