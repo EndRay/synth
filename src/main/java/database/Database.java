@@ -44,19 +44,24 @@ public final class Database {
         executeScript(new File("src/main/java/database/init.sql"));
     }
 
+    private static final String SQL_SYNTH_GET = "SELECT * FROM synths WHERE name == ?";
     public static String getSynthStructure(String name) throws NoSuchSynthException {
-        try (Connection c = getConnection()) {
-            Statement statement = c.createStatement();
-            return statement.executeQuery("SELECT * FROM synths WHERE name == '" + name + "';").getString("structure");
+        try (Connection c = getConnection();
+             PreparedStatement statement = c.prepareStatement(SQL_SYNTH_GET)) {
+            statement.setString(1, name);
+            return statement.executeQuery().getString("structure");
         } catch (SQLException e) {
             throw new NoSuchSynthException();
         }
     }
 
+    private static final String SQL_SYNTH_SAVE = "INSERT OR REPLACE INTO synths(name, structure) VALUES (?, ?)";
     public static void saveSynth(String name, String structure){
-        try (Connection c = getConnection()) {
-            Statement statement = c.createStatement();
-            statement.executeUpdate("INSERT OR REPLACE INTO synths(name, structure) VALUES ('" + name + "', '" + structure + "')");
+        try (Connection c = getConnection();
+             PreparedStatement statement = c.prepareStatement(SQL_SYNTH_SAVE)) {
+            statement.setString(1, name);
+            statement.setString(2, structure);
+            statement.executeUpdate();
             c.commit();
         } catch (SQLException e) {
             throw new RuntimeException(e);
