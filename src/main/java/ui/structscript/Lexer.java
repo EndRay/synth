@@ -24,7 +24,6 @@ public class Lexer {
         COMMA,
 
         NEW,
-        LOAD,
 
         END_OF_LINE,
         END_OF_CODE,
@@ -131,10 +130,6 @@ public class Lexer {
         if (line.startsWith("new ")) {
             res.add(new Token(lineId, NEW));
             return line.substring(4);
-        }
-        if (line.startsWith("load ")) {
-            res.add(new Token(lineId, LOAD));
-            return line.substring(5);
         }
         if (line.startsWith("->-")) {
             res.add(new Token(lineId, OPERATOR, "->-"));

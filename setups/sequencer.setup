@@ -1,6 +1,6 @@
 =1=
 create 6
-load "hmm_synth.patch"
+load "hmm_synth"
 -v-
 env.r := 1ms
 ---

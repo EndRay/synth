@@ -29,7 +29,7 @@ import static ui.structscript.Parser.NodeType.*;
  * signal socket_operation socket |
  * socket back_socket_operation signal
  * <p>
- * line = load text | voice_mode_once command | global_mode_once command | voice_mode | global_mode
+ * line = voice_mode_once command | global_mode_once command | voice_mode | global_mode
  */
 
 public class Parser {
@@ -55,8 +55,6 @@ public class Parser {
 
         MODE_CHANGE,
         MODE_ONCE,
-
-        LOAD,
     }
 
     public record Node(int line, NodeType type, Object info, List<Node> args) {
@@ -216,12 +214,6 @@ public class Parser {
             if(token.type() != TokenType.END_OF_LINE){
                 if (token.type() == TokenType.MODE_CHANGE) {
                     res.add(createNode(MODE_CHANGE, token.info()));
-                    movePtr();
-                } else if (token.type() == TokenType.LOAD) {
-                    movePtr();
-                    if(getToken().type() != TokenType.TEXT)
-                        throw new SyntaxException(getToken().line(), "expected path");
-                    res.add(createNode(LOAD, getToken().info()));
                     movePtr();
                 } else {
                     if (token.type() == TokenType.MODE_ONCE) {

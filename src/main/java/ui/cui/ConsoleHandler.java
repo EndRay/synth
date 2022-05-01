@@ -1,5 +1,6 @@
 package ui.cui;
 
+import database.NoSuchSynthException;
 import sequencer.Sequencer;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
 
@@ -170,6 +172,16 @@ public class ConsoleHandler {
         }
         if (builders[editedChannel] == null) {
             System.out.println("synth on channel " + (editedChannel + 1) + " is not created");
+            return;
+        }
+        if(command.matches("load +\".*\"")){
+            String name = command.substring(5).trim().substring(1);
+            name = name.substring(0, name.length()-1);
+            try {
+                builders[editedChannel].run(getSynthStructure(name));
+            } catch (NoSuchSynthException e) {
+                System.out.println("no such synth \"" + name + "\"");
+            }
             return;
         }
         builders[editedChannel].run(command);
