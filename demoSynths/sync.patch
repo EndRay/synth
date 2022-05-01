@@ -1,0 +1,31 @@
+osc1pitchCC = new CC("osc 1 pitch", 0.5)
+osc2pitchCC = new CC("osc 2 pitch", 0.5)
+cutoffCC = new CC("cutoff", 0.5)
+envAmountCC = new CC("envelope amount", 0.7)
+
+osc1pitch = osc1pitchCC.mapUni(1x, 16x)
+osc2pitch = osc2pitchCC.mapUni(0.25x, 4x)
+cutoff = cutoffCC
+envAmount = envAmountCC.mapUni(-1, 1)
+
+v: env = new ADSR(1ms, 2s, 0.3, 0.6s)
+v: env.gate <= gate
+
+v: osc1 = new Saw(pitch + osc1pitch)
+v: osc2 = new Saw(pitch + osc2pitch)
+v: osc1.hardSync <= osc2
+
+v: mix = new UMix()
+v: mix <- osc1
+v: mix <- osc2
+
+v: ring = new Sine(pitch)
+
+v: mix * ring * env => output
+v: filter = new Filter(cutoff)
+v: filter.q := 0.2
+v: env * velocity.mapUni(0.3, 1) * envAmount -> filter.f
+v: filter ->- output
+
+voiceMix => output
+outputGain := 1

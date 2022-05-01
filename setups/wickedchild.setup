@@ -2,7 +2,7 @@
 #drums
 create 0
 #[36]
-load "drums/kick.patch"
+load "drums/kick"
 ===
 =11=
 #???
@@ -17,43 +17,43 @@ load "drums/kick.patch"
 =1=
 #bass
 create 0
-load "monosynths/supersawbass.patch"
+load "monosynths/supersawbass"
 ===
 
 =2=
 #chord melody
 create 2
-load "synths/synthything.patch"
+load "synths/synthything"
 ===
 
 =4=
 #na-na-na
 create 2
-load "synths/highthing.patch"
+load "synths/highthing"
 ===
 
 =5=
 #rhytm chords
 create 3
-load "synths/keys.patch"
+load "synths/keys"
 ===
 
 =6=
 #delayed chord melody
 create 2
-load "synths/synthything.patch"
+load "synths/synthything"
 ===
 
 =8=
 #sub
 create 0
-load "monosynths/sub.patch"
+load "monosynths/sub"
 ===
 
 =9=
 #chords
 create 4
-load "synths/pad.patch"
+load "synths/pad"
 ===
 
 play Wicked_Child.mid

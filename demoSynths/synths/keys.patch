@@ -1,0 +1,18 @@
+voiceMix => output
+
+-v-
+env = new ADSR(1ms, 0.5s, 0, 0.2s)
+env.gate <= gate
+env.trig <= trigger
+
+osc = new Tri(pitch)
+osc * env => output
+
+filter = new Filter(pitch - 0.05 + env * 0.2)
+filter ->- output
+---
+
+reverb = new Reverb(0.4)
+reverb ->- output
+
+outputGain := 1

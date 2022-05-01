@@ -1,0 +1,19 @@
+voiceMix => output
+
+-v-
+env = new AR(5ms, 5ms)
+env.gate <= gate
+
+osc = new Tri(pitch)
+osc2 = new Tri(pitch + 2x)
+mix = new UMix()
+mix <- osc
+mix <- osc2
+mix * env => output
+
+filter = new Filter(10000hz)
+filter.f <- pitch
+filter ->- output
+---
+
+outputGain := 0.7

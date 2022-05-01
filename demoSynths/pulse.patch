@@ -1,0 +1,25 @@
+pulseCC = new CC("pulse width", 0.5)
+cutoffCC = new CC("cutoff", 0.3)
+envAmountCC = new CC("envelope amount", 0.7)
+
+pulse = pulseCC
+cutoff = cutoffCC
+envAmount = envAmountCC.mapUni(-1, 1)
+
+v: env = new AD(1ms, 400ms)
+v: env.trig <= trigger
+
+v: osc = new Pulse(pitch + 2x)
+v: osc.pulse <= pulse
+
+v: mix = new UMix()
+v: mix <- osc
+
+v: mix * env => output
+v: filter = new Filter(cutoff)
+v: filter.q := 0
+v: env * velocity.mapUni(0.3, 1) * envAmount -> filter.f
+v: filter ->- output
+
+voiceMix => output
+outputGain := 1

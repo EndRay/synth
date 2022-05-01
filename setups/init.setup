@@ -1,6 +1,6 @@
 =1=
 create 6
-#load "pmsynth.patch"
-load "comptest.patch"
+#load "pmsynth"
+load "comptest"
 press 40
 depress

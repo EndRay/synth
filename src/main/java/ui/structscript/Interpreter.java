@@ -509,25 +509,6 @@ public class Interpreter {
 
     private void handleAST(Node ast, EditMode mode) throws InterpretationException {
         switch (ast.type()) {
-            case LOAD:
-                String path = ast.text();
-                File file = new File("patches/" + path);
-                try {
-                    Scanner reader = new Scanner(file);
-                    StringBuilder code = new StringBuilder();
-                    while (reader.hasNextLine())
-                        code.append(reader.nextLine()).append("\n");
-                    List<Node> asts;
-                    try {
-                        asts = new Parser(new Lexer(code.toString()).lex()).parse();
-                        interpret(asts);
-                    } catch (StructScriptException e) {
-                        throw new InterpretationException("error during loading \"" + path + "\":\n" + e.getStructScriptMessage());
-                    }
-                } catch (FileNotFoundException e) {
-                    throw new InterpretationException("no such file found");
-                }
-                break;
             case MODE_CHANGE:
                 if (ast.info() == "v")
                     editMode = VOICE;
