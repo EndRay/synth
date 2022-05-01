@@ -3,6 +3,7 @@ package ui.cui;
 import sequencer.Sequencer;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
+import synthesizer.sources.utils.SourceValue;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
 import ui.synthcontrollers.AutoMapSynthController;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
 
 public class ConsoleHandler {
@@ -32,8 +34,9 @@ public class ConsoleHandler {
             synths[i] = new AutoMapSynthController[0];
     }
 
+    SourceValue masterVolume = new SourceValue("master volume", 0.1);
     Mixer mix = new Mixer(channels);
-    SignalSource clippedMix = mix.clipBi();
+    SignalSource clippedMix = mix.clipBi().attenuate(masterVolume);
 
 
     public void samplePassed(){
@@ -95,6 +98,12 @@ public class ConsoleHandler {
             } catch (InvalidMidiDataException | IOException e) {
                 System.out.println("invalid midi data");
             }
+            return;
+        }
+        if (command.matches("master volume set +[0-9]+(.[0-9]+)?")){
+            double new_volume = Double.parseDouble(command.substring(17).trim());
+            new_volume = min(new_volume, 1);
+            masterVolume.setValue(new_volume);
             return;
         }
         if(editedChannel == -1){
