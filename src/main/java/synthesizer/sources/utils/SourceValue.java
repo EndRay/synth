@@ -10,38 +10,45 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
     double value;
     private String name;
 
-    public SourceValue(){
+    public SourceValue() {
         this("", 0);
     }
 
 
-    public SourceValue(String name){
+    public SourceValue(String name) {
         this(name, 0);
     }
-    public SourceValue(double initialValue){
+
+    public SourceValue(double initialValue) {
         this("", initialValue);
     }
 
-    public SourceValue(String name, double initialValue){
+    public SourceValue(String name, double initialValue) {
         this.name = name;
         value = initialValue;
     }
 
-    public void setValue(double value){
+    public void setValue(double value) {
         this.value = value;
     }
-    public void setFrequency(double frequency){
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setFrequency(double frequency) {
         setValue(SignalSource.frequencyToVoltage(frequency));
     }
-    public void setNote(double note){
+
+    public void setNote(double note) {
         setFrequency(getFrequencyBySemitones(note));
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
