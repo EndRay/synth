@@ -1,11 +1,12 @@
 package sequencer;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Step implements Iterable<Note> {
-    private final List<Note> notes;
+    private final CopyOnWriteArrayList<Note> notes;
     public Step(Note... notes){
-        this.notes = new ArrayList<>();
+        this.notes = new CopyOnWriteArrayList<>();
         Collections.addAll(this.notes, notes);
     }
     void addNote(Note note){
