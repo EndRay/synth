@@ -1,6 +1,8 @@
 package ui.cui;
 
 import database.NoSuchSynthException;
+import sequencer.*;
+import sequencer.Sequence;
 import sequencer.Sequencer;
 import synthesizer.TimeDependent;
 import synthesizer.sources.SignalSource;
@@ -88,7 +90,7 @@ public class ConsoleHandler implements TimeDependent {
         if (command.matches("play .*")) {
             File midiFile = new File(command.substring(5).trim());
             try {
-                Sequence sequence = getSequence(midiFile);
+                javax.sound.midi.Sequence sequence = getSequence(midiFile);
                 midiReceiver.playSequence(sequence);
             } catch (InvalidMidiDataException | IOException e) {
                 System.out.println("invalid midi data");
@@ -106,8 +108,18 @@ public class ConsoleHandler implements TimeDependent {
             return;
         }
         if(command.matches("\\[ *(-?[0-9]+ *, *)*-?[0-9]+ *]")){
-            List<Integer> notes = Arrays.stream(command.substring(1, command.length() - 1).trim().split(" *, *")).map(Integer::valueOf).toList();
-            sequencers[editedChannel].play(notes);
+            List<Integer> notePitches = Arrays.stream(command.substring(1, command.length() - 1).trim().split(" *, *")).map(Integer::valueOf).toList();
+            Sequence sequence = new Sequence(MeasureDivision.EIGHTH);
+            for(Integer notePitch : notePitches)
+                if(notePitch == -1)
+                    sequence.addStep(new Step());
+                else
+                    sequence.addStep(new Step(new Note(notePitch, 64, 0.8)));
+            sequencers[editedChannel].setSequence(sequence);
+            Clock clock = new Clock();
+            clock.add(sequencers[editedChannel]);
+            clock.start();
+            sequencers[editedChannel].play();
             return;
         }
 //        if(command.matches("press +[0-9]+")){
