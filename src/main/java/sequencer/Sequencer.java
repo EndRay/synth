@@ -116,9 +116,8 @@ public class Sequencer implements Transmitter, Clockable{
     void playStep(){
         Step nowStep;
         if(!stepIterator.hasNext())
-            nowStep = sequence.iterator().next();
-        else
-            nowStep = stepIterator.next();
+            stepIterator = sequence.iterator();
+        nowStep = stepIterator.next();
         List<Note> notes = nowStep.getNotes();
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for(Note note : notes){
