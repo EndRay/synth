@@ -13,5 +13,6 @@ module ui.gui {
     exports com.example.synthfx;
 
     opens ui.gui to javafx.fxml;
+    exports synthesizer.sources.utils;
     exports ui.gui;
 }

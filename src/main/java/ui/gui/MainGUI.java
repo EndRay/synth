@@ -2,17 +2,12 @@ package ui.gui;
 
 import database.NoSuchSynthException;
 import javafx.application.Application;
-import javafx.beans.Observable;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.SpotLight;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,6 +20,7 @@ import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
+import ui.structscript.SourceValuesHandler;
 import ui.structscript.StructScriptException;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
@@ -34,7 +30,6 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
 import java.util.List;
-import java.util.Properties;
 
 import static database.Database.getSynthStructure;
 import static database.Database.saveSynth;
@@ -53,7 +48,7 @@ public class MainGUI extends Application{
     private SoundPlayer player = null;
     private SynthMidiReceiver<SynthController> receiver = null;
 
-    Region createStructEnvironment(Socket sound){
+    Region createStructEnvironment(Socket sound, PropertiesSourceValuesHandler handler){
         TextArea codeField = new TextArea();
         codeField.setFont(Font.font("Monospaced", 16));
         VBox.setVgrow(codeField, Priority.ALWAYS);
@@ -98,7 +93,8 @@ public class MainGUI extends Application{
             try {
                 int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
                 String structure = codeField.getText();
-                Interpreter interpreter = new Interpreter(voiceCount);
+                handler.resetValues();
+                Interpreter interpreter = new Interpreter(voiceCount, handler);
                 interpreter.run(structure);
                 VoiceDistributor distributor = interpreter.getVoiceDistributor();
                 sound.bind(distributor);
@@ -116,8 +112,6 @@ public class MainGUI extends Application{
         return new VBox(codeField, codeControls);
     }
 
-    record Value(StringProperty name, DoubleProperty value){}
-
     Region createControlsEnvironment(ObservableList<Value> values){
         ListView<Region> listView = new ListView<>();
         ObservableList<Region> list = FXCollections.observableArrayList();
@@ -129,11 +123,10 @@ public class MainGUI extends Application{
                 slider.setMin(0);
                 slider.setMax(1);
                 slider.valueProperty().bindBidirectional(value.value());
-                Text text = new Text();
+                Text text = new Text(value.name());
                 text.setFont(Font.font(16));
-                text.textProperty().bind(value.name());
                 VBox textBox = new VBox(text);
-                textBox.setPrefWidth(100);
+                textBox.setPrefWidth(150);
                 textBox.setAlignment(Pos.CENTER);
                 HBox.setHgrow(slider, Priority.ALWAYS);
                 HBox row = new HBox(slider, textBox);
@@ -181,13 +174,11 @@ public class MainGUI extends Application{
 
         player.play();
 
+        PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
+
         Region bottomThing = createBottomThing();
-        Region structEnvironment = createStructEnvironment(sound);
-        ObservableList<Value> values = FXCollections.observableArrayList();
-        Region controlsEnvironment = createControlsEnvironment(values);
-        values.add(new Value(new SimpleStringProperty("lalalala"), new SimpleDoubleProperty(0.3)));
-        values.add(new Value(new SimpleStringProperty("lololo"), new SimpleDoubleProperty(0.4)));
-        values.add(new Value(new SimpleStringProperty("ilili"), new SimpleDoubleProperty(0.9)));
+        Region structEnvironment = createStructEnvironment(sound, sourceValuesHandler);
+        Region controlsEnvironment = createControlsEnvironment(sourceValuesHandler.getValues());
         structEnvironment.setPrefWidth(600);
         HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
         HBox topThing = new HBox(structEnvironment, controlsEnvironment);
