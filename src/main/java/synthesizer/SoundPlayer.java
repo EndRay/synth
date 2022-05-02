@@ -1,6 +1,7 @@
 package synthesizer;
 
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.utils.DC;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -13,11 +14,19 @@ import static java.lang.Thread.currentThread;
 import static synthesizer.sources.SignalSource.sampleRate;
 
 public class SoundPlayer {
-    private final SignalSource source;
+    private SignalSource source;
 
     private Thread player = null;
 
+    public SoundPlayer() {
+        this(new DC());
+    }
+
     public SoundPlayer(SignalSource source) {
+        this.source = source;
+    }
+
+    public void setSource(SignalSource source){
         this.source = source;
     }
 
