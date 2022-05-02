@@ -24,7 +24,7 @@ public class CCSourceValuesHandler implements SourceValuesHandler {
     private void tryToMap(){
         if(!nowMapping || valuesToMap.isEmpty())
             return;
-        System.out.println("Mapping \"" + valuesToMap.getFirst().getDescription() + "\"");
+        System.out.println("Mapping \"" + valuesToMap.getFirst().getName() + "\"");
     }
 
     public void startMapping(){
@@ -41,7 +41,7 @@ public class CCSourceValuesHandler implements SourceValuesHandler {
             if (!nowMapping || valuesToMap.isEmpty() || forbiddenCCs.contains(CC))
                 return;
             valueByCC.put(CC, valuesToMap.removeFirst());
-            System.out.println("\"" + valueByCC.get(CC).getDescription() + "\" mapped to CC" + CC);
+            System.out.println("\"" + valueByCC.get(CC).getName() + "\" mapped to CC" + CC);
             tryToMap();
         }
         valueByCC.get(CC).setValue(value / 128.0);

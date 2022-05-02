@@ -8,22 +8,22 @@ import static synthesizer.utils.FrequencyManipulations.*;
 public class SourceValue extends AbstractSignalSource implements SignalSource {
 
     double value;
-    private String description;
+    private String name;
 
     public SourceValue(){
         this("", 0);
     }
 
 
-    public SourceValue(String description){
-        this(description, 0);
+    public SourceValue(String name){
+        this(name, 0);
     }
     public SourceValue(double initialValue){
         this("", initialValue);
     }
 
-    public SourceValue(String description, double initialValue){
-        this.description = description;
+    public SourceValue(String name, double initialValue){
+        this.name = name;
         value = initialValue;
     }
 
@@ -37,12 +37,12 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
         setFrequency(getFrequencyBySemitones(note));
     }
 
-    public String getDescription(){
-        return description;
+    public String getName(){
+        return name;
     }
 
-    public void setDescription(String description){
-        this.description = description;
+    public void setName(String name){
+        this.name = name;
     }
 
     @Override
