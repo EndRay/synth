@@ -15,15 +15,18 @@ import java.util.stream.Collectors;
  * TODO: Parse polyaftertouch
  */
 
-public class SynthMidiReceiver implements Receiver {
+public class SynthMidiReceiver<T extends SynthController> implements Receiver {
 
     public static final int channels = 16;
 
-    SynthController[][] synths;
+    protected List<Collection<T>> synths = new ArrayList<>(channels);
 
-    public SynthMidiReceiver(SynthController[][] synths) {
-        this.synths = synths;
+    {
+        for (int i = 0; i < channels; ++i)
+            synths.add(new ArrayList<>());
     }
+
+    public SynthMidiReceiver() {}
 
     public record Event(int sampleId, MidiMessage message) implements Comparable<Event> {
 
@@ -31,6 +34,14 @@ public class SynthMidiReceiver implements Receiver {
         public int compareTo(Event o) {
             return Integer.compare(sampleId, o.sampleId);
         }
+    }
+
+    public void addSynthController(int channel, T controller){
+        synths.get(channel).add(controller);
+    }
+
+    public void clearSynthControllers(int channel){
+        synths.get(channel).clear();
     }
 
     double bpm;
@@ -105,15 +116,15 @@ public class SynthMidiReceiver implements Receiver {
             action = -8;
         switch (action) {
             case -5:
-                for(SynthController synth : synths[channel])
+                for(SynthController synth : synths.get(channel))
                     synth.midiCC(mArr[1], mArr[2]);
                 break;
             case -7:
-                for (SynthController synth : synths[channel])
+                for (SynthController synth : synths.get(channel))
                     synth.noteOn(mArr[1], mArr[2]);
                 break;
             case -8:
-                for (SynthController synth : synths[channel])
+                for (SynthController synth : synths.get(channel))
                     synth.noteOff(mArr[1], mArr[2]);
                 break;
         }

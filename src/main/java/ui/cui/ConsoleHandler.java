@@ -6,11 +6,9 @@ import synthesizer.TimeDependent;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
 import synthesizer.sources.utils.SourceValue;
-import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
 import ui.structscript.StructScriptException;
 import ui.synthcontrollers.AutoMapSynthController;
-import ui.synthcontrollers.SynthController;
 
 import javax.sound.midi.*;
 import java.io.File;
@@ -26,16 +24,9 @@ import static ui.SynthMidiReceiver.channels;
 public class ConsoleHandler implements TimeDependent {
 
     int editedChannel = -1;
-    SynthMidiReceiver midiReceiver;
+    AutoMapSynthMidiReceiver midiReceiver;
     Interpreter[] builders = new Interpreter[channels];
     Sequencer[] sequencers = new Sequencer[channels];
-
-    AutoMapSynthController[][] synths = new AutoMapSynthController[channels][];
-
-    {
-        for (int i = 0; i < channels; ++i)
-            synths[i] = new AutoMapSynthController[0];
-    }
 
     SourceValue mixGain = new SourceValue("mix gain", 0.5);
     SourceValue masterVolume = new SourceValue("master volume", 0.3);
@@ -48,7 +39,7 @@ public class ConsoleHandler implements TimeDependent {
     }
 
     ConsoleHandler() {
-        midiReceiver = new SynthMidiReceiver(synths);
+        midiReceiver = new AutoMapSynthMidiReceiver();
         MidiDevice device;
         MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : infos) {
@@ -119,31 +110,31 @@ public class ConsoleHandler implements TimeDependent {
             sequencers[editedChannel].play(notes);
             return;
         }
-        if(command.matches("press +[0-9]+")){
-            int note = Integer.parseInt(command.substring(5).trim());
-            if(note < 0 || note > 127){
-                System.out.println("wrong note");
-                return;
-            }
-            for(SynthController synth : synths[editedChannel])
-                synth.noteOn(note);
-            return;
-        }
-        if(command.matches("depress")){
-            for(SynthController synth : synths[editedChannel])
-                synth.allNotesOff();
-            return;
-        }
-        if(command.matches("depress +[0-9]+")){
-            int note = Integer.parseInt(command.substring(7).trim());
-            if(note < 0 || note > 127){
-                System.out.println("wrong note");
-                return;
-            }
-            for(SynthController synth : synths[editedChannel])
-                synth.noteOff(note);
-            return;
-        }
+//        if(command.matches("press +[0-9]+")){
+//            int note = Integer.parseInt(command.substring(5).trim());
+//            if(note < 0 || note > 127){
+//                System.out.println("wrong note");
+//                return;
+//            }
+//            for(SynthController synth : synths.get(editedChannel))
+//                synth.noteOn(note);
+//            return;
+//        }
+//        if(command.matches("depress")){
+//            for(SynthController synth : synths.get(editedChannel))
+//                synth.allNotesOff();
+//            return;
+//        }
+//        if(command.matches("depress +[0-9]+")){
+//            int note = Integer.parseInt(command.substring(7).trim());
+//            if(note < 0 || note > 127){
+//                System.out.println("wrong note");
+//                return;
+//            }
+//            for(SynthController synth : synths.get(editedChannel))
+//                synth.noteOff(note);
+//            return;
+//        }
         if (command.matches("create +[0-9]+")) {
             try {
                 int voiceCount = Integer.parseInt(command.substring(6).trim());
@@ -154,7 +145,8 @@ public class ConsoleHandler implements TimeDependent {
                 CCSourceValuesHandler handler = new CCSourceValuesHandler();
                 builders[editedChannel] = new Interpreter(voiceCount, handler);
                 mix.get(editedChannel).bind(builders[editedChannel].getVoiceDistributor());
-                synths[editedChannel] = new AutoMapSynthController[]{new AutoMapSynthController(builders[editedChannel].getVoiceDistributor(), handler)};
+                midiReceiver.clearSynthControllers(editedChannel);
+                midiReceiver.addSynthController(editedChannel, new AutoMapSynthController(builders[editedChannel].getVoiceDistributor(), handler));
                 return;
             } catch (NumberFormatException e) {
                 System.out.println("wrong voice count format");
@@ -162,13 +154,11 @@ public class ConsoleHandler implements TimeDependent {
             }
         }
         if (command.matches("map")) {
-            for(AutoMapSynthController synth : synths[editedChannel])
-                synth.startMapping();
+            midiReceiver.startMapping(editedChannel);
             return;
         }
         if (command.matches("stop +map")) {
-            for(AutoMapSynthController synth : synths[editedChannel])
-                synth.stopMapping();
+            midiReceiver.stopMapping(editedChannel);
             return;
         }
         if (builders[editedChannel] == null) {
