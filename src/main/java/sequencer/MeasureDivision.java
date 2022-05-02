@@ -33,6 +33,9 @@ public enum MeasureDivision {
         return pings;
     }
 
+    public double getDivision(){
+        return ((double) PPQ) / pings;
+    }
     public String getShortName() {
         return shortName;
     }
