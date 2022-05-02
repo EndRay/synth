@@ -21,10 +21,9 @@ import java.util.List;
 import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
+import static ui.SynthMidiReceiver.channels;
 
 public class ConsoleHandler implements TimeDependent {
-
-    final int channels = 16;
 
     int editedChannel = -1;
     SynthMidiReceiver midiReceiver;

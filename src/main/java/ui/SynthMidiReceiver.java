@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 public class SynthMidiReceiver implements Receiver {
 
+    public static final int channels = 16;
+
     SynthController[][] synths;
 
     public SynthMidiReceiver(SynthController[][] synths) {
