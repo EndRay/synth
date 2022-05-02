@@ -1,4 +1,4 @@
-module com.example.synthfx {
+module ui.gui {
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -11,4 +11,7 @@ module com.example.synthfx {
 
     opens com.example.synthfx to javafx.fxml;
     exports com.example.synthfx;
+
+    opens ui.gui to javafx.fxml;
+    exports ui.gui;
 }
