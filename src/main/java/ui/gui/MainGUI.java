@@ -2,12 +2,22 @@ package ui.gui;
 
 import database.NoSuchSynthException;
 import javafx.application.Application;
+import javafx.beans.Observable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.SpotLight;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
@@ -24,6 +34,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
 import java.util.List;
+import java.util.Properties;
 
 import static database.Database.getSynthStructure;
 import static database.Database.saveSynth;
@@ -42,9 +53,7 @@ public class MainGUI extends Application{
     private SoundPlayer player = null;
     private SynthMidiReceiver<SynthController> receiver = null;
 
-    @Override
-    public void start(Stage stage) {
-        stage.setTitle("Synth");
+    Region createStructEnvironment(Socket sound){
         TextArea codeField = new TextArea();
         codeField.setFont(Font.font("Monospaced", 16));
         VBox.setVgrow(codeField, Priority.ALWAYS);
@@ -65,31 +74,7 @@ public class MainGUI extends Application{
         Button buildButton = new Button("build");
         HBox codeControls = new HBox(loadButton, synthNameField, saveButton, messageText, voiceCountField, buildButton);
         codeControls.setAlignment(Pos.CENTER_LEFT);
-        VBox root = new VBox(codeField, codeControls);
 
-        SourceValue masterVolume = new SourceValue("masterVolume", 0.1);
-        Socket sound = new Socket();
-        player = new SoundPlayer(sound.attenuate(masterVolume));
-
-        receiver = new SynthMidiReceiver<>();
-        MidiDevice device;
-        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
-        for (MidiDevice.Info info : infos) {
-            try {
-                device = MidiSystem.getMidiDevice(info);
-                List<Transmitter> transmitters = device.getTransmitters();
-                for (Transmitter transmitter : transmitters)
-                    transmitter.setReceiver(receiver);
-
-                Transmitter trans = device.getTransmitter();
-                trans.setReceiver(receiver);
-                device.open();
-            } catch (MidiUnavailableException e) {
-                //System.out.println("Device " + i + " error");
-            }
-        }
-
-        player.play();
         loadButton.setOnAction(event->{
             String name = synthNameField.getCharacters().toString();
             try{
@@ -127,7 +112,90 @@ public class MainGUI extends Application{
             }
         });
 
-        stage.setScene(new Scene(root, 720, 540));
+
+        return new VBox(codeField, codeControls);
+    }
+
+    record Value(StringProperty name, DoubleProperty value){}
+
+    Region createControlsEnvironment(ObservableList<Value> values){
+        ListView<Region> listView = new ListView<>();
+        ObservableList<Region> list = FXCollections.observableArrayList();
+        listView.setItems(list);
+        values.addListener((ListChangeListener<Value>) change -> {
+            list.clear();
+            for (Value value : change.getList()) {
+                Slider slider = new Slider();
+                slider.setMin(0);
+                slider.setMax(1);
+                slider.valueProperty().bindBidirectional(value.value());
+                Text text = new Text();
+                text.setFont(Font.font(16));
+                text.textProperty().bind(value.name());
+                VBox textBox = new VBox(text);
+                textBox.setPrefWidth(100);
+                textBox.setAlignment(Pos.CENTER);
+                HBox.setHgrow(slider, Priority.ALWAYS);
+                HBox row = new HBox(slider, textBox);
+                row.setAlignment(Pos.CENTER_LEFT);
+                list.add(row);
+            }
+        });
+        return listView;
+    }
+
+    Region createBottomThing(){
+        Text text = new Text("HERE KEYBOARD/SEQUENCER");
+        text.setFont(Font.font(40));
+        HBox bottomThing = new HBox(text);
+        bottomThing.setAlignment(Pos.CENTER);
+        bottomThing.setPrefHeight(200);
+        return bottomThing;
+    }
+
+    @Override
+    public void start(Stage stage) {
+        stage.setTitle("Synth");
+
+        SourceValue masterVolume = new SourceValue("masterVolume", 0.1);
+        Socket sound = new Socket();
+        player = new SoundPlayer(sound.attenuate(masterVolume));
+
+        receiver = new SynthMidiReceiver<>();
+        MidiDevice device;
+        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+        for (MidiDevice.Info info : infos) {
+            try {
+                device = MidiSystem.getMidiDevice(info);
+                List<Transmitter> transmitters = device.getTransmitters();
+                for (Transmitter transmitter : transmitters)
+                    transmitter.setReceiver(receiver);
+
+                Transmitter trans = device.getTransmitter();
+                trans.setReceiver(receiver);
+                device.open();
+            } catch (MidiUnavailableException e) {
+                //System.out.println("Device " + i + " error");
+            }
+        }
+
+        player.play();
+
+        Region bottomThing = createBottomThing();
+        Region codeEnvironment = createStructEnvironment(sound);
+        ObservableList<Value> values = FXCollections.observableArrayList();
+        Region controlsEnvironment = createControlsEnvironment(values);
+        values.add(new Value(new SimpleStringProperty("lalalala"), new SimpleDoubleProperty(0.3)));
+        values.add(new Value(new SimpleStringProperty("lololo"), new SimpleDoubleProperty(0.4)));
+        values.add(new Value(new SimpleStringProperty("ilili"), new SimpleDoubleProperty(0.9)));
+        codeEnvironment.setPrefWidth(600);
+        HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
+        HBox topThing = new HBox(codeEnvironment, controlsEnvironment);
+        VBox.setVgrow(topThing, Priority.ALWAYS);
+        debugBorder(topThing);
+        VBox root = new VBox(topThing, bottomThing);
+
+        stage.setScene(new Scene(root, 1280, 720));
         stage.show();
     }
 
