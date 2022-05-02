@@ -3,30 +3,13 @@ package ui.synthcontrollers;
 import synthesizer.VoiceDistributor;
 import ui.cui.CCSourceValuesHandler;
 
-public class AutoMapSynthController implements SynthController{
+public class AutoMapSynthController extends SimpleSynthController implements SynthController{
 
-    private final VoiceDistributor distributor;
     private final CCSourceValuesHandler handler;
 
     public AutoMapSynthController(VoiceDistributor distributor, CCSourceValuesHandler handler){
-        this.distributor = distributor;
+        super(distributor);
         this.handler = handler;
-    }
-
-
-    @Override
-    public void noteOn(int note, int velocity) {
-        distributor.noteOn(note, velocity);
-    }
-
-    @Override
-    public void noteOff(int note, int velocity) {
-        distributor.noteOff(note, velocity);
-    }
-
-    @Override
-    public void allNotesOff() {
-        distributor.allNotesOff();
     }
 
     @Override
