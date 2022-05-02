@@ -182,15 +182,15 @@ public class MainGUI extends Application{
         player.play();
 
         Region bottomThing = createBottomThing();
-        Region codeEnvironment = createStructEnvironment(sound);
+        Region structEnvironment = createStructEnvironment(sound);
         ObservableList<Value> values = FXCollections.observableArrayList();
         Region controlsEnvironment = createControlsEnvironment(values);
         values.add(new Value(new SimpleStringProperty("lalalala"), new SimpleDoubleProperty(0.3)));
         values.add(new Value(new SimpleStringProperty("lololo"), new SimpleDoubleProperty(0.4)));
         values.add(new Value(new SimpleStringProperty("ilili"), new SimpleDoubleProperty(0.9)));
-        codeEnvironment.setPrefWidth(600);
+        structEnvironment.setPrefWidth(600);
         HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
-        HBox topThing = new HBox(codeEnvironment, controlsEnvironment);
+        HBox topThing = new HBox(structEnvironment, controlsEnvironment);
         VBox.setVgrow(topThing, Priority.ALWAYS);
         debugBorder(topThing);
         VBox root = new VBox(topThing, bottomThing);
