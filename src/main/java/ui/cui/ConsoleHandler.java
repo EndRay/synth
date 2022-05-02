@@ -153,8 +153,8 @@ public class ConsoleHandler implements TimeDependent {
                 }
                 CCSourceValuesHandler handler = new CCSourceValuesHandler();
                 builders[editedChannel] = new Interpreter(voiceCount, handler);
-                mix.get(editedChannel).bind(builders[editedChannel].getSynth());
-                synths[editedChannel] = new AutoMapSynthController[]{new AutoMapSynthController(builders[editedChannel].getSynth(), handler)};
+                mix.get(editedChannel).bind(builders[editedChannel].getVoiceDistributor());
+                synths[editedChannel] = new AutoMapSynthController[]{new AutoMapSynthController(builders[editedChannel].getVoiceDistributor(), handler)};
                 return;
             } catch (NumberFormatException e) {
                 System.out.println("wrong voice count format");

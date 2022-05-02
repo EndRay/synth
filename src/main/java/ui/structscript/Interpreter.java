@@ -8,8 +8,6 @@ import synthesizer.sources.voices.Voice;
 import ui.UtilityFileException;
 import ui.UtilityFilesReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -139,7 +137,7 @@ public class Interpreter {
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 
-    public VoiceDistributor getSynth() {
+    public VoiceDistributor getVoiceDistributor() {
         return synth;
     }
 
