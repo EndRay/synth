@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static sequencer.Clock.PPQ;
 
-public class Sequencer implements Transmitter, Clockable{
+public class Sequencer implements Transmitter, Clockable {
     private Sequence sequence = null;
     private Receiver receiver;
     private final ExecutorService playing = Executors.newCachedThreadPool();
@@ -48,10 +48,10 @@ public class Sequencer implements Transmitter, Clockable{
     }
 
     public synchronized void play() {
-        if(sequence == null)
+        if (sequence == null)
             throw new SequencerException("Play in sequencer called without sequence provided.");
         isPlaying = true;
-        if(stepIterator == null)
+        if (stepIterator == null)
             stepIterator = sequence.iterator();
         pingsRemain = 1;
     }
@@ -63,7 +63,7 @@ public class Sequencer implements Transmitter, Clockable{
         stepIterator = null;
     }
 
-    public synchronized void pause(){
+    public synchronized void pause() {
         lastTimeOfPing = null;
         isPlaying = false;
     }
@@ -74,25 +74,28 @@ public class Sequencer implements Transmitter, Clockable{
     }
 
 
-    private final static class AverageBPMCalculator{
+    private final static class AverageBPMCalculator {
         private final Deque<Long> intervals = new ArrayDeque<>();
         private final int amountOfPingsToCalcBPM;
         private final static double initBPM = 120;
         private double allIntervalsSum = 0;
-        AverageBPMCalculator(int amountOfPingsToCalcBPM){
-            if(amountOfPingsToCalcBPM <= 0)
+
+        AverageBPMCalculator(int amountOfPingsToCalcBPM) {
+            if (amountOfPingsToCalcBPM <= 0)
                 throw new SequencerException("Wrong amount of pings.");
             this.amountOfPingsToCalcBPM = amountOfPingsToCalcBPM;
         }
-        public double getDerivedBPM(){
-            if(intervals.isEmpty())
+
+        public double getDerivedBPM() {
+            if (intervals.isEmpty())
                 return initBPM;
             return (60 * 1e9) / (allIntervalsSum / intervals.size() * PPQ);
         }
-        public void addInterval(Long interval){
+
+        public void addInterval(Long interval) {
             allIntervalsSum += interval;
             intervals.addLast(interval);
-            if(intervals.size() > amountOfPingsToCalcBPM)
+            if (intervals.size() > amountOfPingsToCalcBPM)
                 //noinspection ConstantConditions
                 allIntervalsSum -= intervals.pollFirst();
         }
@@ -100,35 +103,38 @@ public class Sequencer implements Transmitter, Clockable{
 
     @Override
     public synchronized void ping() {
-        if(!isPlaying)
+        if (!isPlaying)
             return;
         --pingsRemain;
         Long nowTime = System.nanoTime();
-        if(lastTimeOfPing != null)
+        if (lastTimeOfPing != null)
             averageBPMCalculator.addInterval(nowTime - lastTimeOfPing);
         lastTimeOfPing = nowTime;
-        if(pingsRemain == 0){
+        if (pingsRemain == 0) {
             playStep();
             pingsRemain = sequence.getMeasureDivision().getPings();
         }
     }
 
-    void playStep(){
+    void playStep() {
         Step nowStep;
-        if(!stepIterator.hasNext())
+        if (!stepIterator.hasNext())
             stepIterator = sequence.iterator();
         nowStep = stepIterator.next();
         List<Note> notes = nowStep.getNotes();
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
-        for(Note note : notes){
+        for (Note note : notes) {
             try {
                 receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, note.pitch(), note.velocity()), 0);
                 playing.submit(() -> {
                     try {
-                        TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
-                        receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, note.pitch(), 0), 0);
-                    } catch (InterruptedException ignored) {}
-                    catch (InvalidMidiDataException e) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
+                        } catch (InterruptedException ignored) {
+                        } finally {
+                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, note.pitch(), 0), 0);
+                        }
+                    } catch (InvalidMidiDataException e) {
                         throw new SequencerException(e);
                     }
                 });
