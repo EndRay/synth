@@ -2,6 +2,7 @@ package ui.cui;
 
 import database.NoSuchSynthException;
 import sequencer.Sequencer;
+import synthesizer.TimeDependent;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
 import synthesizer.sources.utils.SourceValue;
@@ -21,7 +22,7 @@ import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
 
-public class ConsoleHandler {
+public class ConsoleHandler implements TimeDependent {
 
     final int channels = 16;
 
