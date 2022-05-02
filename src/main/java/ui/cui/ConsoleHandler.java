@@ -34,7 +34,7 @@ public class ConsoleHandler implements TimeDependent {
     SourceValue masterVolume = new SourceValue("master volume", 0.3);
     Mixer mix = new Mixer(channels);
     SignalSource clippedMix = mix.attenuate(mixGain).clipBi().attenuate(masterVolume);
-
+    Clock clock = new Clock();
 
     public void samplePassed(){
         midiReceiver.samplePassed();
@@ -60,7 +60,9 @@ public class ConsoleHandler implements TimeDependent {
         }
         for(int i = 0; i < channels; ++i){
             sequencers[i] = new Sequencer(midiReceiver, i);
+            clock.add(sequencers[i]);
         }
+        clock.start();
     }
 
     void handleCommand(String command) {
@@ -116,9 +118,6 @@ public class ConsoleHandler implements TimeDependent {
                 else
                     sequence.addStep(new Step(new Note(notePitch, 64, 0.8)));
             sequencers[editedChannel].setSequence(sequence);
-            Clock clock = new Clock();
-            clock.add(sequencers[editedChannel]);
-            clock.start();
             sequencers[editedChannel].play();
             return;
         }
