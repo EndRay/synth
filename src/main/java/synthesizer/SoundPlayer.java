@@ -60,6 +60,7 @@ public class SoundPlayer {
     }
 
     public void stop(){
-        player.interrupt();
+        if(player != null)
+            player.interrupt();
     }
 }
