@@ -48,6 +48,8 @@ public class Sequencer implements Transmitter, Clockable {
     }
 
     public synchronized void play() {
+        if(isPlaying)
+            return;
         if (sequence == null)
             throw new SequencerException("Play in sequencer called without sequence provided.");
         isPlaying = true;
@@ -111,28 +113,26 @@ public class Sequencer implements Transmitter, Clockable {
             averageBPMCalculator.addInterval(nowTime - lastTimeOfPing);
         lastTimeOfPing = nowTime;
         if (pingsRemain == 0) {
-            playStep();
+            playNextStep();
             pingsRemain = sequence.getMeasureDivision().getPings();
         }
     }
 
-    void playStep() {
-        Step nowStep;
-        if (!stepIterator.hasNext())
-            stepIterator = sequence.iterator();
-        nowStep = stepIterator.next();
-        List<Note> notes = nowStep.getNotes();
+    void playStep(Step step){
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
-        for (Note note : notes) {
+        for (Note note : step.getNotes()) {
             try {
                 receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, note.pitch(), note.velocity()), 0);
                 playing.submit(() -> {
                     try {
                         try {
+//                            System.out.println("start wait " + note.pitch());
                             TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
                         } catch (InterruptedException ignored) {
                         } finally {
+//                            System.out.println("try release " + note.pitch());
                             receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, note.pitch(), 0), 0);
+//                            System.out.println("released " + note.pitch());
                         }
                     } catch (InvalidMidiDataException e) {
                         throw new SequencerException(e);
@@ -142,6 +142,18 @@ public class Sequencer implements Transmitter, Clockable {
                 throw new SequencerException(e);
             }
         }
+    }
+
+    void playNextStep() {
+        Step nowStep;
+        final Sequence nowSequence = sequence;
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (nowSequence){
+            if (!stepIterator.hasNext())
+                stepIterator = nowSequence.iterator();
+        }
+        nowStep = stepIterator.next();
+        playStep(nowStep);
     }
 
 }
