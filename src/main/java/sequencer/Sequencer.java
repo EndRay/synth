@@ -30,24 +30,24 @@ public class Sequencer implements Transmitter, Clockable{
     }
 
     @Override
-    public void setReceiver(Receiver receiver) {
+    public synchronized void setReceiver(Receiver receiver) {
         this.receiver = receiver;
     }
 
-    public void setMidiChannel(int midiChannel) {
+    public synchronized void setMidiChannel(int midiChannel) {
         this.midiChannel = midiChannel;
     }
 
-    public void setSequence(Sequence sequence) {
+    public synchronized void setSequence(Sequence sequence) {
         this.sequence = sequence;
     }
 
     @Override
-    public Receiver getReceiver() {
+    public synchronized Receiver getReceiver() {
         return receiver;
     }
 
-    public void play() {
+    public synchronized void play() {
         if(sequence == null)
             throw new SequencerException("Play in sequencer called without sequence provided.");
         isPlaying = true;
@@ -56,14 +56,14 @@ public class Sequencer implements Transmitter, Clockable{
         pingsRemain = 1;
     }
 
-    public void stop() {
+    public synchronized void stop() {
         playing.shutdownNow();
         lastTimeOfPing = null;
         isPlaying = false;
         stepIterator = null;
     }
 
-    public void pause(){
+    public synchronized void pause(){
         lastTimeOfPing = null;
         isPlaying = false;
     }
@@ -99,7 +99,7 @@ public class Sequencer implements Transmitter, Clockable{
     }
 
     @Override
-    public void ping() {
+    public synchronized void ping() {
         if(!isPlaying)
             return;
         --pingsRemain;
