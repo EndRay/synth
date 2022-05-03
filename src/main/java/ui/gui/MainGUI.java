@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.SpotLight;
 import javafx.scene.control.*;
@@ -99,9 +100,9 @@ public class MainGUI extends Application {
             messageText.setText("synth \"" + name + "\" saved successfully");
         });
         buildButton.setOnAction(event -> {
+            String structure = codeField.getText();
             try {
                 int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
-                String structure = codeField.getText();
                 handler.resetValues();
                 Interpreter interpreter = new Interpreter(voiceCount, handler);
                 interpreter.run(structure);
@@ -114,6 +115,14 @@ public class MainGUI extends Application {
                 messageText.setText("voice count must be an integer");
             } catch (StructScriptException e) {
                 messageText.setText(e.getStructScriptMessage());
+                int linePos = 0;
+                for(int i = 0; i < e.getLine()-1; ++i)
+                    linePos = structure.indexOf('\n', linePos)+1;
+                int linePosTo = structure.indexOf('\n', linePos);
+                codeField.positionCaret(linePos);
+                if(linePosTo != -1)
+                    codeField.selectPositionCaret(linePosTo);
+                else codeField.selectEnd();
             }
         });
 
