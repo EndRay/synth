@@ -66,10 +66,17 @@ public interface SignalSource {
     }
 
     default SignalSource mapUni(double min, double max){
-        return this.attenuate(max-min).add(min);
+        return this.mapUni(new DC(min), new DC(max));
     }
     default SignalSource mapBi(double min, double max){
-        return this.attenuate((max-min)/2).add((min+max)/2);
+        return this.mapBi(new DC(min), new DC(max));
+    }
+
+    default SignalSource mapUni(SignalSource min, SignalSource max){
+        return this.attenuate(max.sub(min)).add(min);
+    }
+    default SignalSource mapBi(SignalSource min, SignalSource max){
+        return this.attenuate(max.sub(min).attenuate(0.5)).add(min.add(max).attenuate(0.5));
     }
 
     default SignalSource map(double minFrom, double maxFrom, double min, double max){
