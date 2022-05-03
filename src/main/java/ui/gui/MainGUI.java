@@ -2,7 +2,7 @@ package ui.gui;
 
 import database.NoSuchSynthException;
 import javafx.application.Application;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -20,7 +20,6 @@ import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
 import ui.SynthMidiReceiver;
 import ui.structscript.Interpreter;
-import ui.structscript.SourceValuesHandler;
 import ui.structscript.StructScriptException;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
@@ -29,6 +28,7 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static database.Database.getSynthStructure;
@@ -47,6 +47,8 @@ public class MainGUI extends Application{
 
     private SoundPlayer player = null;
     private SynthMidiReceiver<SynthController> receiver = null;
+
+    private List<MidiDevice> midiDevices = null;
 
     Region createStructEnvironment(Socket sound, PropertiesSourceValuesHandler handler){
         TextArea codeField = new TextArea();
@@ -157,6 +159,7 @@ public class MainGUI extends Application{
         receiver = new SynthMidiReceiver<>();
         MidiDevice device;
         MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+        midiDevices = new ArrayList<>();
         for (MidiDevice.Info info : infos) {
             try {
                 device = MidiSystem.getMidiDevice(info);
@@ -167,6 +170,7 @@ public class MainGUI extends Application{
                 Transmitter trans = device.getTransmitter();
                 trans.setReceiver(receiver);
                 device.open();
+                midiDevices.add(device);
             } catch (MidiUnavailableException e) {
                 //System.out.println("Device " + i + " error");
             }
@@ -196,5 +200,9 @@ public class MainGUI extends Application{
             player.stop();
         if(receiver != null)
             receiver.close();
+        if(midiDevices != null)
+            for(MidiDevice device : midiDevices)
+                device.close();
+        Platform.exit();
     }
 }
