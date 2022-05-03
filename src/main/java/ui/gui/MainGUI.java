@@ -149,6 +149,9 @@ public class MainGUI extends Application {
                     slider.setMin(0);
                     slider.setMax(1);
                     slider.valueProperty().bindBidirectional(value.value());
+                    slider.setMajorTickUnit(0.5);
+                    slider.setMinorTickCount(5);
+                    slider.setShowTickMarks(true);
                     Text text = new Text(value.name());
                     text.setFont(Font.font(16));
                     VBox textBox = new VBox(text);
