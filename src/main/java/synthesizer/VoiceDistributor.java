@@ -25,7 +25,7 @@ public class VoiceDistributor implements SignalSource {
         freeVoices.addAll(Arrays.asList(voices));
     }
 
-    public void noteOn(int note, int velocity) {
+    public synchronized void noteOn(int note, int velocity) {
         last.noteOn(note, velocity);
         heldNotes.add(note);
         Voice voice;
@@ -55,7 +55,7 @@ public class VoiceDistributor implements SignalSource {
             noteOff(heldNotes.get(0));
     }
 
-    public void noteOff(int note, int velocity) {
+    public synchronized void noteOff(int note, int velocity) {
         int lastNote = -1;
         if(!heldNotes.isEmpty())
             lastNote = heldNotes.get(heldNotes.size()-1);

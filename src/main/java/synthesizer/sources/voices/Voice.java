@@ -23,7 +23,7 @@ public class Voice {
         noteOn(note, 64);
     }
 
-    public void noteOn(int note, int velocity) {
+    public synchronized void noteOn(int note, int velocity) {
         pitch.setFrequency(getFrequencyBySemitones(note));
         this.velocity.setValue(velocity / 128.0);
         gate.setValue(1);
@@ -34,7 +34,7 @@ public class Voice {
         noteOff(0);
     }
 
-    public void noteOff(int velocity) {
+    public synchronized void noteOff(int velocity) {
         releaseVelocity.setValue(velocity / 128.0);
         gate.setValue(0);
     }

@@ -28,11 +28,11 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
         value = initialValue;
     }
 
-    public void setValue(double value) {
+    public synchronized void setValue(double value) {
         this.value = value;
     }
 
-    public double getValue() {
+    public synchronized double getValue() {
         return value;
     }
 
@@ -44,16 +44,16 @@ public class SourceValue extends AbstractSignalSource implements SignalSource {
         setFrequency(getFrequencyBySemitones(note));
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.name = name;
     }
 
     @Override
-    protected double recalculate(int sampleId) {
+    protected synchronized double recalculate(int sampleId) {
         return value;
     }
 }
