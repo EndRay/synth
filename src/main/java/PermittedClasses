@@ -35,7 +35,7 @@ sources
         DC
         FrequencyAdder as Fadd
         Socket as Value
-        SourceValue as CC
+        SourceValue as CC, Property, Knob
         Mixer as Mix
         UnityMixer as UMixer, UMix
         Morph
