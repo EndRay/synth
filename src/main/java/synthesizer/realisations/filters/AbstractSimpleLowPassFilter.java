@@ -11,8 +11,8 @@ abstract public class AbstractSimpleLowPassFilter extends AbstractFilter {
         super(frequency);
     }
 
-    public AbstractSimpleLowPassFilter(SignalSource source) {
-        super(source);
+    public AbstractSimpleLowPassFilter(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
     public AbstractSimpleLowPassFilter(SignalSource source, SignalSource frequencySource) {

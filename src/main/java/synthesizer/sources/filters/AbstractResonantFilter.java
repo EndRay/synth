@@ -22,8 +22,8 @@ abstract public class AbstractResonantFilter extends AbstractFilter implements R
         resonance.bind(resonanceSource);
     }
 
-    public AbstractResonantFilter(SignalSource frequencySource, SignalSource resonanceSource, SignalSource source) {
-        super(frequencySource, source);
+    public AbstractResonantFilter(SignalSource source, SignalSource frequencySource, SignalSource resonanceSource) {
+        super(source, frequencySource);
         resonance.bind(resonanceSource);
     }
 

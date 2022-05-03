@@ -20,12 +20,12 @@ public class ResonantLowPass2PoleFilter extends AbstractSimpleLowPassFilter impl
         super(frequency);
     }
 
-    public ResonantLowPass2PoleFilter(SignalSource source) {
-        super(source);
+    public ResonantLowPass2PoleFilter(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
-    public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource) {
-        super(source, frequencySource);
+    public ResonantLowPass2PoleFilter(SignalSource frequencySource, SignalSource resonanceSource) {
+        super(frequencySource, resonanceSource);
     }
 
     public ResonantLowPass2PoleFilter(SignalSource source, SignalSource frequencySource, SignalSource resonanceSource) {

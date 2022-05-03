@@ -9,7 +9,7 @@ public class FeedbackCombFilter extends AbstractFilter implements Filter {
     final private Socket alpha = new Socket();
     final public int maxDelaySamples = (int) (0.5 * sampleRate);
     private final double[] tape = new double[maxDelaySamples + 1];
-    private double lastSample = 0;
+
     private int ptr = 0;
 
     {
@@ -38,8 +38,8 @@ public class FeedbackCombFilter extends AbstractFilter implements Filter {
         alpha().bind(alphaSource);
     }
 
-    public FeedbackCombFilter(SignalSource frequencySource, SignalSource alphaSource, SignalSource source) {
-        super(frequencySource, source);
+    public FeedbackCombFilter(SignalSource source, SignalSource frequencySource, SignalSource alphaSource) {
+        super(source, frequencySource);
         alpha().bind(alphaSource);
     }
 

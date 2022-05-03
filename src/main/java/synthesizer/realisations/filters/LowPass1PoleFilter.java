@@ -13,8 +13,8 @@ public class LowPass1PoleFilter extends AbstractSimpleLowPassFilter implements F
         super(frequency);
     }
 
-    public LowPass1PoleFilter(SignalSource source) {
-        super(source);
+    public LowPass1PoleFilter(SignalSource frequencySource) {
+        super(frequencySource);
     }
 
     public LowPass1PoleFilter(SignalSource source, SignalSource frequencySource) {

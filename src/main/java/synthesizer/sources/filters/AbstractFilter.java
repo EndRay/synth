@@ -17,9 +17,9 @@ abstract public class AbstractFilter extends AbstractSignalProcessor implements 
         frequency().bind(frequencySource);
     }
 
-    public AbstractFilter(SignalSource frequencySource, SignalSource source) {
-        this(source);
-        frequency().bind(frequencySource);
+    public AbstractFilter(SignalSource source, SignalSource frequencySource) {
+        this(frequencySource);
+        source().bind(source);
     }
 
     @Override

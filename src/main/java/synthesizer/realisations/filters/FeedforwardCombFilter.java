@@ -37,8 +37,8 @@ public class FeedforwardCombFilter extends AbstractFilter implements Filter {
         alpha().bind(alphaSource);
     }
 
-    public FeedforwardCombFilter(SignalSource frequencySource, SignalSource alphaSource, SignalSource source) {
-        super(frequencySource, source);
+    public FeedforwardCombFilter(SignalSource source, SignalSource frequencySource, SignalSource alphaSource) {
+        super(source, frequencySource);
         alpha().bind(alphaSource);
     }
 
