@@ -3,16 +3,23 @@ package ui.gui;
 import database.NoSuchSynthException;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.SpotLight;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
@@ -34,14 +41,14 @@ import java.util.List;
 import static database.Database.getSynthStructure;
 import static database.Database.saveSynth;
 
-public class MainGUI extends Application{
+public class MainGUI extends Application {
 
-    public static void debugBorder(Region region){
+    public static void debugBorder(Region region) {
         region.setBorder(new Border(new BorderStroke(Color.GREY,
                 BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         launch(args);
     }
 
@@ -50,7 +57,7 @@ public class MainGUI extends Application{
 
     private List<MidiDevice> midiDevices = null;
 
-    Region createStructEnvironment(Socket sound, PropertiesSourceValuesHandler handler){
+    Region createStructEnvironment(Socket sound, PropertiesSourceValuesHandler handler) {
         TextArea codeField = new TextArea();
         codeField.setFont(Font.font("Monospaced", 16));
         VBox.setVgrow(codeField, Priority.ALWAYS);
@@ -72,9 +79,9 @@ public class MainGUI extends Application{
         HBox codeControls = new HBox(loadButton, synthNameField, saveButton, messageText, voiceCountField, buildButton);
         codeControls.setAlignment(Pos.CENTER_LEFT);
 
-        loadButton.setOnAction(event->{
+        loadButton.setOnAction(event -> {
             String name = synthNameField.getCharacters().toString();
-            try{
+            try {
                 codeField.setText(getSynthStructure(name));
                 messageText.setText("synth loaded successfully");
             } catch (NoSuchSynthException e) {
@@ -83,7 +90,7 @@ public class MainGUI extends Application{
         });
         saveButton.setOnAction(event -> {
             String name = synthNameField.getCharacters().toString();
-            if(name.isBlank()) {
+            if (name.isBlank()) {
                 messageText.setText("enter synths name to save it");
                 return;
             }
@@ -114,7 +121,7 @@ public class MainGUI extends Application{
         return new VBox(codeField, codeControls);
     }
 
-    Region createControlsEnvironment(ObservableList<Value> values){
+    Region createControlsEnvironment(ObservableList<Value> values) {
         ListView<Region> listView = new ListView<>();
         ObservableList<Region> list = FXCollections.observableArrayList();
         listView.setItems(list);
@@ -139,12 +146,28 @@ public class MainGUI extends Application{
         return listView;
     }
 
-    Region createBottomThing(){
+    Region createSettingsEnvironment(SourceValue masterVolume) {
+        Slider slider = new Slider();
+        slider.setMin(0);
+        slider.setMax(1);
+        slider.setValue(masterVolume.getValue());
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> masterVolume.setValue(newValue.doubleValue()));
+
+        slider.setOrientation(Orientation.VERTICAL);
+        slider.setPrefHeight(300);
+        VBox box = new VBox(slider);
+        box.setAlignment(Pos.TOP_CENTER);
+        return box;
+    }
+
+    Region createBottomThing() {
         Text text = new Text("HERE KEYBOARD/SEQUENCER");
         text.setFont(Font.font(40));
         HBox bottomThing = new HBox(text);
         bottomThing.setAlignment(Pos.CENTER);
         bottomThing.setPrefHeight(200);
+        bottomThing.setBorder(new Border(new BorderStroke(Color.BLACK,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
         return bottomThing;
     }
 
@@ -183,11 +206,12 @@ public class MainGUI extends Application{
         Region bottomThing = createBottomThing();
         Region structEnvironment = createStructEnvironment(sound, sourceValuesHandler);
         Region controlsEnvironment = createControlsEnvironment(sourceValuesHandler.getValues());
+        Region settingsEnvironment = createSettingsEnvironment(masterVolume);
         structEnvironment.setPrefWidth(600);
+        settingsEnvironment.setPrefWidth(30);
         HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
-        HBox topThing = new HBox(structEnvironment, controlsEnvironment);
+        HBox topThing = new HBox(structEnvironment, controlsEnvironment, settingsEnvironment);
         VBox.setVgrow(topThing, Priority.ALWAYS);
-        debugBorder(topThing);
         VBox root = new VBox(topThing, bottomThing);
 
         stage.setScene(new Scene(root, 1280, 720));
@@ -196,12 +220,12 @@ public class MainGUI extends Application{
 
     @Override
     public void stop() {
-        if(player != null)
+        if (player != null)
             player.stop();
-        if(receiver != null)
+        if (receiver != null)
             receiver.close();
-        if(midiDevices != null)
-            for(MidiDevice device : midiDevices)
+        if (midiDevices != null)
+            for (MidiDevice device : midiDevices)
                 device.close();
         Platform.exit();
     }
