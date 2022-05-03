@@ -523,6 +523,9 @@ public class Interpreter {
                 if ("=>".equals(ast.text())) bind(mode, ast.arg(1), ast.arg(0));
                 if ("->-".equals(ast.text())) process(mode, ast.arg(1), ast.arg(0));
                 break;
+            case TEXT:
+                sourceValuesHandler.addSection(ast.text());
+                break;
             default:
                 throw new InterpretationException("action expected");
         }

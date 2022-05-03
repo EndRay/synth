@@ -26,6 +26,11 @@ public class PropertiesSourceValuesHandler implements SourceValuesHandler {
         values.add(new Value(name, property));
     }
 
+    @Override
+    public void addSection(String name) {
+        values.add(new Value(name, null));
+    }
+
     public void clearSavedValues(){
         savedValues.clear();
     }

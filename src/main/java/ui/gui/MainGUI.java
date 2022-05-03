@@ -116,11 +116,11 @@ public class MainGUI extends Application {
             } catch (StructScriptException e) {
                 messageText.setText(e.getStructScriptMessage());
                 int linePos = 0;
-                for(int i = 0; i < e.getLine()-1; ++i)
-                    linePos = structure.indexOf('\n', linePos)+1;
+                for (int i = 0; i < e.getLine() - 1; ++i)
+                    linePos = structure.indexOf('\n', linePos) + 1;
                 int linePosTo = structure.indexOf('\n', linePos);
                 codeField.positionCaret(linePos);
-                if(linePosTo != -1)
+                if (linePosTo != -1)
                     codeField.selectPositionCaret(linePosTo);
                 else codeField.selectEnd();
             }
@@ -137,18 +137,26 @@ public class MainGUI extends Application {
         values.addListener((ListChangeListener<Value>) change -> {
             list.clear();
             for (Value value : change.getList()) {
-                Slider slider = new Slider();
-                slider.setMin(0);
-                slider.setMax(1);
-                slider.valueProperty().bindBidirectional(value.value());
-                Text text = new Text(value.name());
-                text.setFont(Font.font(16));
-                VBox textBox = new VBox(text);
-                textBox.setPrefWidth(150);
-                textBox.setAlignment(Pos.CENTER);
-                HBox.setHgrow(slider, Priority.ALWAYS);
-                HBox row = new HBox(slider, textBox);
-                row.setAlignment(Pos.CENTER_LEFT);
+                HBox row = new HBox();
+                row.setAlignment(Pos.CENTER);
+                if (value.value() == null) {
+                    Text text = new Text(value.name());
+                    text.setFont(Font.font("", FontWeight.BOLD, 20));
+
+                    row.getChildren().addAll(text);
+                } else {
+                    Slider slider = new Slider();
+                    slider.setMin(0);
+                    slider.setMax(1);
+                    slider.valueProperty().bindBidirectional(value.value());
+                    Text text = new Text(value.name());
+                    text.setFont(Font.font(16));
+                    VBox textBox = new VBox(text);
+                    textBox.setPrefWidth(150);
+                    textBox.setAlignment(Pos.CENTER);
+                    HBox.setHgrow(slider, Priority.ALWAYS);
+                    row.getChildren().addAll(slider, textBox);
+                }
                 list.add(row);
             }
         });
