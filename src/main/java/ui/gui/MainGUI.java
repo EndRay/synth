@@ -152,9 +152,9 @@ public class MainGUI extends Application{
     public void start(Stage stage) {
         stage.setTitle("Synth");
 
-        SourceValue masterVolume = new SourceValue("masterVolume", 0.1);
+        SourceValue masterVolume = new SourceValue("masterVolume", 0.2);
         Socket sound = new Socket();
-        player = new SoundPlayer(sound.attenuate(masterVolume));
+        player = new SoundPlayer(sound, masterVolume);
 
         receiver = new SynthMidiReceiver<>();
         MidiDevice device;
