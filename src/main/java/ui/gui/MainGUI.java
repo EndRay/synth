@@ -9,6 +9,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -65,19 +66,14 @@ public class MainGUI extends Application {
         Button loadButton = new Button("load");
         synthNameField = new TextField();
         synthNameField.setFont(Font.font("Monospaced", 14));
-        messageText = new TextField("synth not built yet");
-        messageText.setEditable(false);
-        messageText.setFont(Font.font("Monospaced", 14));
-        messageText.setStyle("-fx-text-fill: grey");
-        messageText.setAlignment(Pos.CENTER_LEFT);
-        messageText.setPrefWidth(0);
-        HBox.setHgrow(messageText, Priority.ALWAYS);
+        Region space = new Region();
+        HBox.setHgrow(space, Priority.ALWAYS);
         TextField voiceCountField = new TextField("6");
         voiceCountField.setFont(Font.font("Monospaced", 14));
         voiceCountField.setPrefWidth(50);
         Button saveButton = new Button("save");
         Button buildButton = new Button("build");
-        HBox structureManager = new HBox(loadButton, synthNameField, saveButton, messageText, voiceCountField, buildButton);
+        HBox structureManager = new HBox(loadButton, synthNameField, saveButton, space, voiceCountField, buildButton);
         structureManager.setAlignment(Pos.CENTER);
 
         loadButton.setOnAction(event -> {
@@ -254,6 +250,12 @@ public class MainGUI extends Application {
 
         PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
 
+        messageText = new TextField("synth not built yet");
+        messageText.setEditable(false);
+        messageText.setFont(Font.font("Monospaced", 14));
+        messageText.setStyle("-fx-text-fill: grey");
+        messageText.setAlignment(Pos.CENTER_LEFT);
+        messageText.setPrefWidth(0);
         Region bottomThing = createBottomThing();
         Region structEnvironment = createStructureEnvironment(sound, sourceValuesHandler);
         Region controlsEnvironment = createPatchEnvironment(sourceValuesHandler.getValues());
@@ -263,7 +265,7 @@ public class MainGUI extends Application {
         HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
         HBox topThing = new HBox(structEnvironment, controlsEnvironment, settingsEnvironment);
         VBox.setVgrow(topThing, Priority.ALWAYS);
-        VBox root = new VBox(topThing, bottomThing);
+        VBox root = new VBox(topThing, messageText, bottomThing);
 
         stage.setScene(new Scene(root, 1280, 720));
         stage.show();
