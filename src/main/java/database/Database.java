@@ -96,7 +96,7 @@ public final class Database {
     private static final String SQL_PATCH_ID_GET = "SELECT patch_id FROM patches WHERE synth_id = (SELECT synth_id FROM synths WHERE synth_name = ?) AND patch_name = ?";
     private static final String SQL_PARAMETER_SAVE =
             "INSERT OR REPLACE INTO parameters (patch_id, parameter_name, value) VALUES (?, ?, ?)";
-    public static void savePatch(String synth, String patch, Map<String, Double> parameters) {
+    public static void savePatch(String synth, String patch, Map<String, Double> parameters) throws NoSuchSynthException {
         try (Connection c = getConnection();
              PreparedStatement patchStatement = c.prepareStatement(SQL_PATCH_CREATE);
              PreparedStatement patchIdStatement = c.prepareStatement(SQL_PATCH_ID_GET)) {
@@ -116,7 +116,7 @@ public final class Database {
             }
             c.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NoSuchSynthException();
         }
     }
 

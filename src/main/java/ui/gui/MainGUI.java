@@ -183,12 +183,16 @@ public class MainGUI extends Application {
         saveButton.setOnAction(event -> {
             String synth = synthNameField.getText();
             String patch = patchNameField.getText();
-            Map<String, Double> parameters = new HashMap<>();
-            for(Value value : values)
-                if(value.value() != null)
-                    parameters.put(value.name(), value.value().getValue());
-            savePatch(synth, patch, parameters);
-            messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" saved successfully");
+            try {
+                Map<String, Double> parameters = new HashMap<>();
+                for(Value value : values)
+                    if(value.value() != null)
+                        parameters.put(value.name(), value.value().getValue());
+                savePatch(synth, patch, parameters);
+                messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" saved successfully");
+            } catch (NoSuchSynthException e) {
+                messageText.setText("no such synth \"" + synth + "\"");
+            }
         });
         return new VBox(listView, patchManager);
     }
