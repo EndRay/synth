@@ -72,15 +72,16 @@ public final class Database {
         }
     }
 
-    private static final String SQL_PATCH_GET =
-            "SELECT parameter_name, value " +
-                    "FROM parameters NATURAL JOIN patches NATURAL JOIN synths " +
-                    "WHERE synth_name = ? AND patch_name = ?";
+    private static final String SQL_PATCH_ID_GET = "SELECT patch_id FROM patches WHERE synth_id = (SELECT synth_id FROM synths WHERE synth_name = ?) AND patch_name = ?";
+    private static final String SQL_PATCH_GET = "SELECT parameter_name, value FROM parameters WHERE patch_id = ?";
     public static Map<String, Double> getPatch(String synth, String patch) throws NoSuchPatchException{
         try (Connection c = getConnection();
+             PreparedStatement patchIdStatement = c.prepareStatement(SQL_PATCH_ID_GET);
              PreparedStatement statement = c.prepareStatement(SQL_PATCH_GET)) {
-            statement.setString(1, synth);
-            statement.setString(2, patch);
+            patchIdStatement.setString(1, synth);
+            patchIdStatement.setString(2, patch);
+            int patchId = patchIdStatement.executeQuery().getInt(1);
+            statement.setInt(1, patchId);
             ResultSet res = statement.executeQuery();
             Map<String, Double> ans = new HashMap<>();
             while(res.next())
@@ -93,7 +94,6 @@ public final class Database {
 
     private static final String SQL_PATCH_CREATE =
             "INSERT OR IGNORE INTO patches (synth_id, patch_name) VALUES ((SELECT synth_id FROM synths WHERE synth_name = ?), ?)";
-    private static final String SQL_PATCH_ID_GET = "SELECT patch_id FROM patches WHERE synth_id = (SELECT synth_id FROM synths WHERE synth_name = ?) AND patch_name = ?";
     private static final String SQL_PARAMETER_SAVE =
             "INSERT OR REPLACE INTO parameters (patch_id, parameter_name, value) VALUES (?, ?, ?)";
     public static void savePatch(String synth, String patch, Map<String, Double> parameters) throws NoSuchSynthException {
