@@ -4,12 +4,11 @@ import database.NoSuchPatchException;
 import database.NoSuchSynthException;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -59,6 +58,30 @@ public class MainGUI extends Application {
 
     private TextField synthNameField;
     private TextField messageText;
+
+    private ObservableList<Value> values;
+    private final BooleanProperty leftPatchEditing = new SimpleBooleanProperty(true);
+    private final BooleanProperty rightPatchEditing = new SimpleBooleanProperty(false);
+    private Map<String, Double> leftPatch = new HashMap<>(), rightPatch = new HashMap<>();
+    private Map<String, Double> morphPatch(double morph){
+        Map<String, Double> res = new HashMap<>();
+        for(Map.Entry<String, Double> entry : leftPatch.entrySet()) {
+            if (!rightPatch.containsKey(entry.getKey()))
+                res.put(entry.getKey(), entry.getValue());
+            else res.put(entry.getKey(), entry.getValue() * (1 - morph) + rightPatch.get(entry.getKey()) * morph);
+        }
+        for(Map.Entry<String, Double> entry : rightPatch.entrySet())
+            if(!leftPatch.containsKey(entry.getKey()))
+                res.put(entry.getKey(), entry.getValue());
+        return res;
+    }
+    private void assignMorphValues(double morph){
+        Map<String, Double> patch = morphPatch(morph);
+        for(Value value : values)
+            if(value.value() != null && patch.containsKey(value.name()))
+                value.value().set(patch.get(value.name()));
+    }
+
     Region createStructureEnvironment(Socket sound, PropertiesSourceValuesHandler handler) {
         TextArea structureField = new TextArea();
         structureField.setFont(Font.font("Monospaced", 16));
@@ -122,7 +145,7 @@ public class MainGUI extends Application {
         return new VBox(structureField, structureManager);
     }
 
-    Region createPatchEnvironment(ObservableList<Value> values) {
+    Region createPatchEnvironment() {
         ListView<Region> listView = new ListView<>();
         ObservableList<Region> list = FXCollections.observableArrayList();
         listView.setItems(list);
@@ -137,6 +160,14 @@ public class MainGUI extends Application {
 
                     row.getChildren().addAll(text);
                 } else {
+                    value.value().addListener((observable, oldValue, newValue) -> {
+                        if(leftPatchEditing.get())
+                            leftPatch.put(value.name(), newValue.doubleValue());
+                        if(rightPatchEditing.get())
+                            rightPatch.put(value.name(), newValue.doubleValue());
+                    });
+
+
                     Slider slider = new Slider();
                     slider.setMin(0);
                     slider.setMax(1);
@@ -144,6 +175,7 @@ public class MainGUI extends Application {
                     slider.setMajorTickUnit(0.5);
                     slider.setMinorTickCount(5);
                     slider.setShowTickMarks(true);
+                    slider.disableProperty().bind(leftPatchEditing.or(rightPatchEditing).not());
                     Text text = new Text(value.name());
                     text.setFont(Font.font(16));
                     VBox textBox = new VBox(text);
@@ -156,29 +188,73 @@ public class MainGUI extends Application {
             }
         });
         VBox.setVgrow(listView, Priority.ALWAYS);
-        Button loadButton = new Button("load");
-        TextField patchNameField = new TextField();
-        patchNameField.setFont(Font.font("Monospaced", 14));
-        Button saveButton = new Button("save");
-        HBox patchManager = new HBox(loadButton, patchNameField, saveButton);
+
+        Button leftLoadButton = new Button("load");
+        TextField leftPatchNameField = new TextField();
+        leftPatchNameField.setFont(Font.font("Monospaced", 14));
+        Button leftSaveButton = new Button("save");
+
+        Slider morphSlider = new Slider();
+        morphSlider.setMin(0);
+        morphSlider.setMax(1);
+        morphSlider.setValue(0);
+        HBox.setHgrow(morphSlider, Priority.ALWAYS);
+
+        Button rightLoadButton = new Button("load");
+        TextField rightPatchNameField = new TextField();
+        rightPatchNameField.setFont(Font.font("Monospaced", 14));
+        Button rightSaveButton = new Button("save");
+
+
+        HBox patchManager = new HBox(leftLoadButton, leftPatchNameField, leftSaveButton, morphSlider, rightLoadButton, rightPatchNameField, rightSaveButton);
         patchManager.setAlignment(Pos.CENTER);
 
-        loadButton.setOnAction(event -> {
+        leftLoadButton.setOnAction(event -> {
             String synth = synthNameField.getText();
-            String patch = patchNameField.getText();
+            String patch = leftPatchNameField.getText();
             try {
-                Map<String, Double> parameters = getPatch(synth, patch);
-                for(Value value : values)
-                    if(value.value() != null && parameters.containsKey(value.name()))
-                        value.value().setValue(parameters.get(value.name()));
+                leftPatch = getPatch(synth, patch);
+                assignMorphValues(morphSlider.getValue());
                 messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" loaded successfully");
             } catch (NoSuchPatchException e) {
                 messageText.setText("synth \"" + synth + "\" has no such patch \"" + patch + "\"");
             }
         });
-        saveButton.setOnAction(event -> {
+        leftSaveButton.setOnAction(event -> {
             String synth = synthNameField.getText();
-            String patch = patchNameField.getText();
+            String patch = leftPatchNameField.getText();
+            try {
+                Map<String, Double> parameters = new HashMap<>();
+                for(Value value : values)
+                    if(value.value() != null)
+                        parameters.put(value.name(), value.value().getValue());
+                savePatch(synth, patch, parameters);
+                messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" saved successfully");
+            } catch (NoSuchSynthException e) {
+                messageText.setText("no such synth \"" + synth + "\"");
+            }
+        });
+
+        morphSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            leftPatchEditing.set(newValue.doubleValue() == 0);
+            rightPatchEditing.set(newValue.doubleValue() == 1);
+            assignMorphValues(newValue.doubleValue());
+        });
+
+        rightLoadButton.setOnAction(event -> {
+            String synth = synthNameField.getText();
+            String patch = rightPatchNameField.getText();
+            try {
+                rightPatch = getPatch(synth, patch);
+                assignMorphValues(morphSlider.getValue());
+                messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" loaded successfully");
+            } catch (NoSuchPatchException e) {
+                messageText.setText("synth \"" + synth + "\" has no such patch \"" + patch + "\"");
+            }
+        });
+        rightSaveButton.setOnAction(event -> {
+            String synth = synthNameField.getText();
+            String patch = rightPatchNameField.getText();
             try {
                 Map<String, Double> parameters = new HashMap<>();
                 for(Value value : values)
@@ -249,6 +325,7 @@ public class MainGUI extends Application {
         player.play();
 
         PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
+        values = sourceValuesHandler.getValues();
 
         messageText = new TextField("synth not built yet");
         messageText.setEditable(false);
@@ -258,7 +335,7 @@ public class MainGUI extends Application {
         messageText.setPrefWidth(0);
         Region bottomThing = createBottomThing();
         Region structEnvironment = createStructureEnvironment(sound, sourceValuesHandler);
-        Region controlsEnvironment = createPatchEnvironment(sourceValuesHandler.getValues());
+        Region controlsEnvironment = createPatchEnvironment();
         Region settingsEnvironment = createSettingsEnvironment(masterVolume);
         structEnvironment.setPrefWidth(600);
         settingsEnvironment.setPrefWidth(30);
