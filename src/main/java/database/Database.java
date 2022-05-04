@@ -1,9 +1,13 @@
 package database;
 
+import javafx.beans.property.StringProperty;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
+import javax.print.DocFlavor;
 import java.io.*;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
@@ -44,7 +48,7 @@ public final class Database {
         executeScript(new File("src/main/java/database/init.sql"));
     }
 
-    private static final String SQL_SYNTH_GET = "SELECT * FROM synths WHERE name == ?";
+    private static final String SQL_SYNTH_GET = "SELECT * FROM synths WHERE synth_name == ?";
     public static String getSynthStructure(String name) throws NoSuchSynthException {
         try (Connection c = getConnection();
              PreparedStatement statement = c.prepareStatement(SQL_SYNTH_GET)) {
@@ -55,13 +59,61 @@ public final class Database {
         }
     }
 
-    private static final String SQL_SYNTH_SAVE = "INSERT OR REPLACE INTO synths(name, structure) VALUES (?, ?)";
+    private static final String SQL_SYNTH_SAVE = "INSERT OR REPLACE INTO synths(synth_name, structure) VALUES (?, ?)";
     public static void saveSynth(String name, String structure){
         try (Connection c = getConnection();
              PreparedStatement statement = c.prepareStatement(SQL_SYNTH_SAVE)) {
             statement.setString(1, name);
             statement.setString(2, structure);
             statement.executeUpdate();
+            c.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final String SQL_PATCH_GET =
+            "SELECT parameter_name, value " +
+                    "FROM parameters NATURAL JOIN patches NATURAL JOIN synths " +
+                    "WHERE synth_name = ? AND patch_name = ?";
+    public static Map<String, Double> getPatch(String synth, String patch) throws NoSuchPatchException{
+        try (Connection c = getConnection();
+             PreparedStatement statement = c.prepareStatement(SQL_PATCH_GET)) {
+            statement.setString(1, synth);
+            statement.setString(2, patch);
+            ResultSet res = statement.executeQuery();
+            Map<String, Double> ans = new HashMap<>();
+            while(res.next())
+                ans.put(res.getString(1), res.getDouble(2));
+            return ans;
+        } catch (SQLException e) {
+            throw new NoSuchPatchException();
+        }
+    }
+
+    private static final String SQL_PATCH_CREATE =
+            "INSERT OR IGNORE INTO patches (synth_id, patch_name) VALUES ((SELECT synth_id FROM synths WHERE synth_name = ?), ?)";
+    private static final String SQL_PATCH_ID_GET = "SELECT patch_id FROM patches WHERE synth_id = (SELECT synth_id FROM synths WHERE synth_name = ?) AND patch_name = ?";
+    private static final String SQL_PARAMETER_SAVE =
+            "INSERT OR REPLACE INTO parameters (patch_id, parameter_name, value) VALUES (?, ?, ?)";
+    public static void savePatch(String synth, String patch, Map<String, Double> parameters) {
+        try (Connection c = getConnection();
+             PreparedStatement patchStatement = c.prepareStatement(SQL_PATCH_CREATE);
+             PreparedStatement patchIdStatement = c.prepareStatement(SQL_PATCH_ID_GET)) {
+            patchStatement.setString(1, synth);
+            patchStatement.setString(2, patch);
+            patchStatement.executeUpdate();
+            patchIdStatement.setString(1, synth);
+            patchIdStatement.setString(2, patch);
+            int patchId = patchIdStatement.executeQuery().getInt(1);
+            for(Map.Entry<String, Double> parameter : parameters.entrySet()){
+                try(PreparedStatement parameterStatement = c.prepareStatement(SQL_PARAMETER_SAVE)){
+                    parameterStatement.setInt(1, patchId);
+                    parameterStatement.setString(2, parameter.getKey());
+                    parameterStatement.setDouble(3, parameter.getValue());
+                    parameterStatement.executeUpdate();
+                }
+            }
             c.commit();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -98,13 +150,5 @@ public final class Database {
 
     public static void main(String... args) {
         loadSynthsFromFolder(demoSynthsFolder);
-        saveSynth("second test", "second test structure");
-        saveSynth("test", "overwritten structure");
-        try {
-            System.out.println(getSynthStructure("test"));
-            System.out.println(getSynthStructure("second test"));
-        } catch (NoSuchSynthException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -1,1 +1,3 @@
 DROP TABLE IF EXISTS synths;
+DROP TABLE IF EXISTS patches;
+DROP TABLE IF EXISTS parameters;

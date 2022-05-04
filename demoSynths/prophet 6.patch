@@ -1,0 +1,106 @@
+"Oscillator 1"
+Osc1Tune = new Property("osc 1 tune", 0.5).mapUni(0.5x, 2x)
+Osc1Morph = new Property("osc 1 morph", 0)
+Osc1PW = new Property("osc 1 pw", 0.5)
+Osc1PWM = new Property("osc 1 pwm", 0)
+
+"Oscillator 2"
+Osc2Tune = new Property("osc 2 tune", 0.5).mapUni(0.5x, 2x)
+Osc2Morph = new Property("osc 2 morph", 0)
+Osc2PW = new Property("osc 2 pw", 0.5)
+Osc2PWM = new Property("osc 2 pwm", 0)
+
+"Mixer"
+Osc1Mix = new Property("osc 1 volume", 1)
+Osc2Mix = new Property("osc 2 volume", 0)
+SubMix = new Property("sub volume", 0)
+NoiseMix = new Property("noise volume", 0)
+
+"Filter"
+Cutoff = new Property("cutoff", 0.5)
+Resonance = new Property("resonance", 0)
+EnvAmount = new Property("env amount", 0.5)
+LFOAmount = new Property("lfo amount", 0)
+
+"Amplitude Envelope"
+AttA = new Property("amp env attack", 0.5).mapUni(5ms, 5s)
+DecA = new Property("amp env decay", 0.5).mapUni(5ms, 5s)
+SusA = new Property("amp env sustain", 0.5)
+RelA = new Property("amp env release", 0.5).mapUni(5ms, 5s)
+VelA = new Property("amp env velocity", 0.5).mapUni(1, 0)
+
+"Filter Envelope"
+AttF = new Property("filter env attack", 0.5).mapUni(5ms, 5s)
+DecF = new Property("filter env decay", 0.5).mapUni(5ms, 5s)
+SusF = new Property("filter env sustain", 0.5)
+RelF = new Property("filter env release", 0.5).mapUni(5ms, 5s)
+VelF = new Property("filter env velocity", 0.5).mapUni(1, 0)
+
+"LFO"
+LFORate = new Property("lfo rate", 0.5).mapUni(10s, 100hz)
+
+
+lfo = new Sine(LFORate)
+-v-
+
+ampEnv = new ADSR(AttA, DecA, SusA, RelA)
+filterEnv = new ADSR(AttF, DecF, SusF, RelF)
+
+ampEnv.gate <= gate
+ampEnv.trig <= trigger
+filterEnv.gate <= gate
+filterEnv.trig <= trigger
+
+cutoff = (Cutoff + EnvAmount * filterEnv * velocity.mapUni(VelF, 1) + LFOAmount * lfo).mapUni(20hz, 20000hz)
+
+osc1Pitch = pitch + Osc1Tune
+osc2Pitch = pitch + Osc2Tune
+
+subScanner = new PM(osc1Pitch + 0.5x)
+osc1Scanner = new PM(osc1Pitch)
+osc2Scanner = new PM(osc2Pitch)
+
+osc1Tri = new CompOsc(osc1Scanner, new TriWave())
+osc1Saw = new CompOsc(osc1Scanner, new SawWave())
+osc1Pulse = new CompOsc(osc1Scanner, new PulseWave())
+osc1Pulse.waveform.pw <= Osc1PW + Osc1PWM * lfo
+osc1 = new Morph(osc1Tri, osc1Saw, osc1Pulse)
+osc1.morph <= Osc1Morph
+
+osc2Tri = new CompOsc(osc2Scanner, new TriWave())
+osc2Saw = new CompOsc(osc2Scanner, new SawWave())
+osc2Pulse = new CompOsc(osc2Scanner, new PulseWave())
+osc2Pulse.waveform.pw <= Osc2PW + Osc2PWM * lfo
+osc2 = new Morph(osc2Tri, osc2Saw, osc2Pulse)
+osc2.morph <= Osc2Morph
+
+sub = new CompOsc(subScanner, new TriWave())
+noise = new Noise()
+
+mix = new Mix()
+
+mix <- osc1 * Osc1Mix
+mix <- osc2 * Osc2Mix
+mix <- sub * SubMix
+mix <- noise * NoiseMix
+
+filter1 = new Filter()
+filter2 = new Filter()
+filter1.freq <= cutoff
+filter2.freq <= cutoff
+filter1.res <= Resonance
+filter2.res <= Resonance
+filter1.source <= mix
+filter2.source <= filter1
+
+filter2 * ampEnv * velocity.mapUni(VelA, 1) => output
+
+---
+
+drive = new Drive()
+
+voiceMix * 0.2 => drive.source
+
+drive => output
+
+outputGain := 1

@@ -1,26 +1,23 @@
 package ui.gui;
 
+import database.NoSuchPatchException;
 import database.NoSuchSynthException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.SpotLight;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
@@ -37,10 +34,11 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static database.Database.getSynthStructure;
-import static database.Database.saveSynth;
+import static database.Database.*;
 
 public class MainGUI extends Application {
 
@@ -58,14 +56,16 @@ public class MainGUI extends Application {
 
     private List<MidiDevice> midiDevices = null;
 
-    Region createStructEnvironment(Socket sound, PropertiesSourceValuesHandler handler) {
-        TextArea codeField = new TextArea();
-        codeField.setFont(Font.font("Monospaced", 16));
-        VBox.setVgrow(codeField, Priority.ALWAYS);
+    private TextField synthNameField;
+    private TextField messageText;
+    Region createStructureEnvironment(Socket sound, PropertiesSourceValuesHandler handler) {
+        TextArea structureField = new TextArea();
+        structureField.setFont(Font.font("Monospaced", 16));
+        VBox.setVgrow(structureField, Priority.ALWAYS);
         Button loadButton = new Button("load");
-        TextField synthNameField = new TextField();
+        synthNameField = new TextField();
         synthNameField.setFont(Font.font("Monospaced", 14));
-        TextField messageText = new TextField("synth not built yet");
+        messageText = new TextField("synth not built yet");
         messageText.setEditable(false);
         messageText.setFont(Font.font("Monospaced", 14));
         messageText.setStyle("-fx-text-fill: grey");
@@ -77,30 +77,26 @@ public class MainGUI extends Application {
         voiceCountField.setPrefWidth(50);
         Button saveButton = new Button("save");
         Button buildButton = new Button("build");
-        HBox codeControls = new HBox(loadButton, synthNameField, saveButton, messageText, voiceCountField, buildButton);
-        codeControls.setAlignment(Pos.CENTER_LEFT);
+        HBox structureManager = new HBox(loadButton, synthNameField, saveButton, messageText, voiceCountField, buildButton);
+        structureManager.setAlignment(Pos.CENTER);
 
         loadButton.setOnAction(event -> {
             String name = synthNameField.getCharacters().toString();
             try {
-                codeField.setText(getSynthStructure(name));
-                messageText.setText("synth loaded successfully");
+                structureField.setText(getSynthStructure(name));
+                messageText.setText("synth \"" + name + "\" loaded successfully");
             } catch (NoSuchSynthException e) {
                 messageText.setText("no such synth \"" + name + "\"");
             }
         });
         saveButton.setOnAction(event -> {
             String name = synthNameField.getCharacters().toString();
-            if (name.isBlank()) {
-                messageText.setText("enter synths name to save it");
-                return;
-            }
-            String code = codeField.getText();
+            String code = structureField.getText();
             saveSynth(name, code);
             messageText.setText("synth \"" + name + "\" saved successfully");
         });
         buildButton.setOnAction(event -> {
-            String structure = codeField.getText();
+            String structure = structureField.getText();
             try {
                 int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
                 handler.resetValues();
@@ -119,18 +115,18 @@ public class MainGUI extends Application {
                 for (int i = 0; i < e.getLine() - 1; ++i)
                     linePos = structure.indexOf('\n', linePos) + 1;
                 int linePosTo = structure.indexOf('\n', linePos);
-                codeField.positionCaret(linePos);
+                structureField.positionCaret(linePos);
                 if (linePosTo != -1)
-                    codeField.selectPositionCaret(linePosTo);
-                else codeField.selectEnd();
+                    structureField.selectPositionCaret(linePosTo);
+                else structureField.selectEnd();
             }
         });
 
 
-        return new VBox(codeField, codeControls);
+        return new VBox(structureField, structureManager);
     }
 
-    Region createControlsEnvironment(ObservableList<Value> values) {
+    Region createPatchEnvironment(ObservableList<Value> values) {
         ListView<Region> listView = new ListView<>();
         ObservableList<Region> list = FXCollections.observableArrayList();
         listView.setItems(list);
@@ -163,7 +159,38 @@ public class MainGUI extends Application {
                 list.add(row);
             }
         });
-        return listView;
+        VBox.setVgrow(listView, Priority.ALWAYS);
+        Button loadButton = new Button("load");
+        TextField patchNameField = new TextField();
+        patchNameField.setFont(Font.font("Monospaced", 14));
+        Button saveButton = new Button("save");
+        HBox patchManager = new HBox(loadButton, patchNameField, saveButton);
+        patchManager.setAlignment(Pos.CENTER);
+
+        loadButton.setOnAction(event -> {
+            String synth = synthNameField.getText();
+            String patch = patchNameField.getText();
+            try {
+                Map<String, Double> parameters = getPatch(synth, patch);
+                for(Value value : values)
+                    if(value.value() != null && parameters.containsKey(value.name()))
+                        value.value().setValue(parameters.get(value.name()));
+                messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" loaded successfully");
+            } catch (NoSuchPatchException e) {
+                messageText.setText("synth \"" + synth + "\" has no such patch \"" + patch + "\"");
+            }
+        });
+        saveButton.setOnAction(event -> {
+            String synth = synthNameField.getText();
+            String patch = patchNameField.getText();
+            Map<String, Double> parameters = new HashMap<>();
+            for(Value value : values)
+                if(value.value() != null)
+                    parameters.put(value.name(), value.value().getValue());
+            savePatch(synth, patch, parameters);
+            messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" saved successfully");
+        });
+        return new VBox(listView, patchManager);
     }
 
     Region createSettingsEnvironment(SourceValue masterVolume) {
@@ -224,8 +251,8 @@ public class MainGUI extends Application {
         PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
 
         Region bottomThing = createBottomThing();
-        Region structEnvironment = createStructEnvironment(sound, sourceValuesHandler);
-        Region controlsEnvironment = createControlsEnvironment(sourceValuesHandler.getValues());
+        Region structEnvironment = createStructureEnvironment(sound, sourceValuesHandler);
+        Region controlsEnvironment = createPatchEnvironment(sourceValuesHandler.getValues());
         Region settingsEnvironment = createSettingsEnvironment(masterVolume);
         structEnvironment.setPrefWidth(600);
         settingsEnvironment.setPrefWidth(30);
