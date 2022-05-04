@@ -62,17 +62,12 @@ public class MainGUI extends Application {
     private ObservableList<Value> values;
     private final BooleanProperty leftPatchEditing = new SimpleBooleanProperty(true);
     private final BooleanProperty rightPatchEditing = new SimpleBooleanProperty(false);
-    private Map<String, Double> leftPatch = new HashMap<>(), rightPatch = new HashMap<>();
+    private final Map<String, Double> leftPatch = new HashMap<>(), rightPatch = new HashMap<>();
     private Map<String, Double> morphPatch(double morph){
         Map<String, Double> res = new HashMap<>();
-        for(Map.Entry<String, Double> entry : leftPatch.entrySet()) {
-            if (!rightPatch.containsKey(entry.getKey()))
-                res.put(entry.getKey(), entry.getValue());
-            else res.put(entry.getKey(), entry.getValue() * (1 - morph) + rightPatch.get(entry.getKey()) * morph);
-        }
-        for(Map.Entry<String, Double> entry : rightPatch.entrySet())
-            if(!leftPatch.containsKey(entry.getKey()))
-                res.put(entry.getKey(), entry.getValue());
+        for(Value value : values)
+            if(value.value() != null)
+                res.put(value.name(), leftPatch.get(value.name()) * (1 - morph) + rightPatch.get(value.name()) * morph);
         return res;
     }
     private void assignMorphValues(double morph){
@@ -146,6 +141,23 @@ public class MainGUI extends Application {
     }
 
     Region createPatchEnvironment() {
+        Button leftLoadButton = new Button("load");
+        TextField leftPatchNameField = new TextField();
+        leftPatchNameField.setFont(Font.font("Monospaced", 14));
+        Button leftSaveButton = new Button("save");
+
+        Slider morphSlider = new Slider();
+        morphSlider.setMin(0);
+        morphSlider.setMax(1);
+        morphSlider.setValue(0);
+        HBox.setHgrow(morphSlider, Priority.ALWAYS);
+
+        Button rightLoadButton = new Button("load");
+        TextField rightPatchNameField = new TextField();
+        rightPatchNameField.setFont(Font.font("Monospaced", 14));
+        Button rightSaveButton = new Button("save");
+
+
         ListView<Region> listView = new ListView<>();
         ObservableList<Region> list = FXCollections.observableArrayList();
         listView.setItems(list);
@@ -166,7 +178,10 @@ public class MainGUI extends Application {
                         if(rightPatchEditing.get())
                             rightPatch.put(value.name(), newValue.doubleValue());
                     });
-
+                    if(!leftPatch.containsKey(value.name()))
+                        leftPatch.put(value.name(), value.value().doubleValue());
+                    if(!rightPatch.containsKey(value.name()))
+                        rightPatch.put(value.name(), value.value().doubleValue());
 
                     Slider slider = new Slider();
                     slider.setMin(0);
@@ -186,25 +201,9 @@ public class MainGUI extends Application {
                 }
                 list.add(row);
             }
+            assignMorphValues(morphSlider.getValue());
         });
         VBox.setVgrow(listView, Priority.ALWAYS);
-
-        Button leftLoadButton = new Button("load");
-        TextField leftPatchNameField = new TextField();
-        leftPatchNameField.setFont(Font.font("Monospaced", 14));
-        Button leftSaveButton = new Button("save");
-
-        Slider morphSlider = new Slider();
-        morphSlider.setMin(0);
-        morphSlider.setMax(1);
-        morphSlider.setValue(0);
-        HBox.setHgrow(morphSlider, Priority.ALWAYS);
-
-        Button rightLoadButton = new Button("load");
-        TextField rightPatchNameField = new TextField();
-        rightPatchNameField.setFont(Font.font("Monospaced", 14));
-        Button rightSaveButton = new Button("save");
-
 
         HBox patchManager = new HBox(leftLoadButton, leftPatchNameField, leftSaveButton, morphSlider, rightLoadButton, rightPatchNameField, rightSaveButton);
         patchManager.setAlignment(Pos.CENTER);
@@ -213,7 +212,8 @@ public class MainGUI extends Application {
             String synth = synthNameField.getText();
             String patch = leftPatchNameField.getText();
             try {
-                leftPatch = getPatch(synth, patch);
+                Map<String, Double> newPatch = getPatch(synth, patch);
+                leftPatch.putAll(newPatch);
                 assignMorphValues(morphSlider.getValue());
                 messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" loaded successfully");
             } catch (NoSuchPatchException e) {
@@ -245,7 +245,8 @@ public class MainGUI extends Application {
             String synth = synthNameField.getText();
             String patch = rightPatchNameField.getText();
             try {
-                rightPatch = getPatch(synth, patch);
+                Map<String, Double> newPatch = getPatch(synth, patch);
+                rightPatch.putAll(newPatch);
                 assignMorphValues(morphSlider.getValue());
                 messageText.setText("synth \"" + synth + "\" patch \"" + patch + "\" loaded successfully");
             } catch (NoSuchPatchException e) {
