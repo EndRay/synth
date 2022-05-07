@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="600.0" prefWidth="722.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.gui.GUIController">
+   <children>
+      <VBox prefHeight="500.0" prefWidth="502.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <SplitPane dividerPositions="0.4025522041763341" prefHeight="400.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <items>
+                      <AnchorPane minHeight="0.0" prefHeight="572.0" prefWidth="338.0">
+                           <children>
+                              <VBox prefHeight="368.0" prefWidth="138.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <TextArea fx:id="structureField" prefHeight="200.0" prefWidth="200.0" promptText="write structure here" VBox.vgrow="ALWAYS">
+                                       <font>
+                                          <Font name="Monospaced Regular" size="14.0" />
+                                       </font>
+                                    </TextArea>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="352.0">
+                                       <children>
+                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <TextField fx:id="synthNameField" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="synth name" />
+                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                          <Region prefHeight="64.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="voiceCountField" minWidth="48.0" prefHeight="25.0" prefWidth="48.0" promptText="voices" text="6" />
+                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthBuildButtonClick" prefHeight="25.0" prefWidth="45.0" text="build" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane minHeight="0.0" prefHeight="358.0" prefWidth="362.0">
+                           <children>
+                              <VBox layoutX="167.0" layoutY="221.0" prefHeight="572.0" prefWidth="518.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <ListView fx:id="propertiesList" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="352.0">
+                                       <children>
+                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <TextField fx:id="leftPatchNameField" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="patch name" />
+                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                          <Slider fx:id="morphSlider" max="1.0" minWidth="60.0" HBox.hgrow="ALWAYS" />
+                                          <Button layoutX="10.0" layoutY="10.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <TextField fx:id="rightPatchNameField" layoutX="54.0" layoutY="10.0" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="patch name" />
+                                          <Button layoutX="151.0" layoutY="10.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
+                  <VBox prefHeight="773.0" prefWidth="14.0">
+                     <children>
+                        <Slider fx:id="masterVolumeSlider" max="1.0" orientation="VERTICAL" prefHeight="260.0" prefWidth="14.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;" text="Lol">
+               <font>
+                  <Font name="Monospaced Regular" size="14.0" />
+               </font>
+            </TextField>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

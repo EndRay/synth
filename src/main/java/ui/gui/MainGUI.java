@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,13 +20,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import midi.SynthMidiReceiver;
+import structscript.Interpreter;
+import structscript.StructScriptException;
 import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
 import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
-import midi.SynthMidiReceiver;
-import structscript.Interpreter;
-import structscript.StructScriptException;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
 
@@ -33,6 +34,7 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,19 +44,48 @@ import static database.Database.*;
 
 public class MainGUI extends Application {
 
-    public static void debugBorder(Region region) {
-        region.setBorder(new Border(new BorderStroke(Color.GREY,
-                BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-    }
+    static SourceValue masterVolume;
+    static Socket sound;
+    static SoundPlayer player;
+    static SynthMidiReceiver<SynthController> receiver;
+    static List<MidiDevice> midiDevices;
 
     public static void main(String[] args) {
+        masterVolume = new SourceValue("masterVolume", 0.2);
+        sound = new Socket();
+        player = new SoundPlayer(sound, masterVolume);
+        receiver = new SynthMidiReceiver<>();
+        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+        midiDevices = new ArrayList<>();
+        for (MidiDevice.Info info : infos) {
+            MidiDevice device;
+            try {
+                device = MidiSystem.getMidiDevice(info);
+                List<Transmitter> transmitters = device.getTransmitters();
+                for (Transmitter transmitter : transmitters)
+                    transmitter.setReceiver(receiver);
+
+                Transmitter trans = device.getTransmitter();
+                trans.setReceiver(receiver);
+                device.open();
+                midiDevices.add(device);
+            } catch (MidiUnavailableException e) {
+                //System.out.println("Device " + i + " error");
+            }
+        }
+        player.play();
         launch(args);
+        if (player != null)
+            player.stop();
+        if (receiver != null)
+            receiver.close();
+        if (midiDevices != null)
+            for (MidiDevice device : midiDevices)
+                device.close();
+        Platform.exit();
     }
 
-    private SoundPlayer player = null;
-    private SynthMidiReceiver<SynthController> receiver = null;
 
-    private List<MidiDevice> midiDevices = null;
 
     private TextField synthNameField;
     private TextField messageText;
@@ -296,68 +327,64 @@ public class MainGUI extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
         stage.setTitle("Synth");
 
-        SourceValue masterVolume = new SourceValue("masterVolume", 0.2);
-        Socket sound = new Socket();
-        player = new SoundPlayer(sound, masterVolume);
+//        SourceValue masterVolume = new SourceValue("masterVolume", 0.2);
+//        Socket sound = new Socket();
+//        player = new SoundPlayer(sound, masterVolume);
+//
+//        receiver = new SynthMidiReceiver<>();
+//        MidiDevice device;
+//        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+//        midiDevices = new ArrayList<>();
+//        for (MidiDevice.Info info : infos) {
+//            try {
+//                device = MidiSystem.getMidiDevice(info);
+//                List<Transmitter> transmitters = device.getTransmitters();
+//                for (Transmitter transmitter : transmitters)
+//                    transmitter.setReceiver(receiver);
+//
+//                Transmitter trans = device.getTransmitter();
+//                trans.setReceiver(receiver);
+//                device.open();
+//                midiDevices.add(device);
+//            } catch (MidiUnavailableException e) {
+//                //System.out.println("Device " + i + " error");
+//            }
+//        }
+//
+//        player.play();
+//
+//        PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
+//        values = sourceValuesHandler.getValues();
+//
+//        messageText = new TextField("synth not built yet");
+//        messageText.setEditable(false);
+//        messageText.setFont(Font.font("Monospaced", 14));
+//        messageText.setStyle("-fx-text-fill: grey");
+//        messageText.setAlignment(Pos.CENTER_LEFT);
+//        messageText.setPrefWidth(0);
+//        Region bottomThing = createBottomThing();
+//        Region structEnvironment = createStructureEnvironment(sound, sourceValuesHandler);
+//        Region controlsEnvironment = createPatchEnvironment();
+//        Region settingsEnvironment = createSettingsEnvironment(masterVolume);
+//        structEnvironment.setPrefWidth(600);
+//        settingsEnvironment.setPrefWidth(30);
+//        HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
+//        HBox topThing = new HBox(structEnvironment, controlsEnvironment, settingsEnvironment);
+//        VBox.setVgrow(topThing, Priority.ALWAYS);
+//        VBox root = new VBox(topThing, messageText, bottomThing);
 
-        receiver = new SynthMidiReceiver<>();
-        MidiDevice device;
-        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
-        midiDevices = new ArrayList<>();
-        for (MidiDevice.Info info : infos) {
-            try {
-                device = MidiSystem.getMidiDevice(info);
-                List<Transmitter> transmitters = device.getTransmitters();
-                for (Transmitter transmitter : transmitters)
-                    transmitter.setReceiver(receiver);
-
-                Transmitter trans = device.getTransmitter();
-                trans.setReceiver(receiver);
-                device.open();
-                midiDevices.add(device);
-            } catch (MidiUnavailableException e) {
-                //System.out.println("Device " + i + " error");
-            }
-        }
-
-        player.play();
-
-        PropertiesSourceValuesHandler sourceValuesHandler = new PropertiesSourceValuesHandler();
-        values = sourceValuesHandler.getValues();
-
-        messageText = new TextField("synth not built yet");
-        messageText.setEditable(false);
-        messageText.setFont(Font.font("Monospaced", 14));
-        messageText.setStyle("-fx-text-fill: grey");
-        messageText.setAlignment(Pos.CENTER_LEFT);
-        messageText.setPrefWidth(0);
-        Region bottomThing = createBottomThing();
-        Region structEnvironment = createStructureEnvironment(sound, sourceValuesHandler);
-        Region controlsEnvironment = createPatchEnvironment();
-        Region settingsEnvironment = createSettingsEnvironment(masterVolume);
-        structEnvironment.setPrefWidth(600);
-        settingsEnvironment.setPrefWidth(30);
-        HBox.setHgrow(controlsEnvironment, Priority.ALWAYS);
-        HBox topThing = new HBox(structEnvironment, controlsEnvironment, settingsEnvironment);
-        VBox.setVgrow(topThing, Priority.ALWAYS);
-        VBox root = new VBox(topThing, messageText, bottomThing);
-
-        stage.setScene(new Scene(root, 1280, 720));
+//        stage.setScene(new Scene(root, 1280, 720));
+        stage.setScene(new Scene(new FXMLLoader(MainGUI.class.getResource("main-editor.fxml")).load(), 1280, 720));
+        stage.setMinWidth(640);
+        stage.setMinHeight(480);
         stage.show();
     }
 
     @Override
     public void stop() {
-        if (player != null)
-            player.stop();
-        if (receiver != null)
-            receiver.close();
-        if (midiDevices != null)
-            for (MidiDevice device : midiDevices)
-                device.close();
-        Platform.exit();
+
     }
 }
