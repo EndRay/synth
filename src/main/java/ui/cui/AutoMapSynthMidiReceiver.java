@@ -1,6 +1,6 @@
 package ui.cui;
 
-import ui.SynthMidiReceiver;
+import midi.SynthMidiReceiver;
 import ui.synthcontrollers.AutoMapSynthController;
 
 public class AutoMapSynthMidiReceiver extends SynthMidiReceiver<AutoMapSynthController> {

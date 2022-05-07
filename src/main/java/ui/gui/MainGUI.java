@@ -23,9 +23,9 @@ import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
 import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
-import ui.SynthMidiReceiver;
-import ui.structscript.Interpreter;
-import ui.structscript.StructScriptException;
+import midi.SynthMidiReceiver;
+import structscript.Interpreter;
+import structscript.StructScriptException;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
 

@@ -1,4 +1,4 @@
-package ui;
+package midi;
 
 import synthesizer.sources.SignalSource;
 import ui.synthcontrollers.SynthController;

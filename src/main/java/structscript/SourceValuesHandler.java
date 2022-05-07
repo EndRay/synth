@@ -1,4 +1,4 @@
-package ui.structscript;
+package structscript;
 
 import synthesizer.sources.utils.SourceValue;
 

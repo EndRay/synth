@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import synthesizer.sources.utils.SourceValue;
-import ui.structscript.SourceValuesHandler;
+import structscript.SourceValuesHandler;
 
 import java.util.HashMap;
 import java.util.Map;

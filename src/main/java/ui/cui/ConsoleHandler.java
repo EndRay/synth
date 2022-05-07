@@ -6,8 +6,8 @@ import synthesizer.TimeDependent;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
 import synthesizer.sources.utils.SourceValue;
-import ui.structscript.Interpreter;
-import ui.structscript.StructScriptException;
+import structscript.Interpreter;
+import structscript.StructScriptException;
 import ui.synthcontrollers.AutoMapSynthController;
 
 import javax.sound.midi.*;
@@ -19,7 +19,7 @@ import java.util.List;
 import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
-import static ui.SynthMidiReceiver.channels;
+import static midi.SynthMidiReceiver.channels;
 
 public class ConsoleHandler implements TimeDependent {
 

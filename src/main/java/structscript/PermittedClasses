@@ -1,0 +1,42 @@
+realisations
+    effects
+        CubicDrive as Drive
+        TanhDrive
+        Reverb
+    filters
+        ResonantLowPass2PoleFilter as 2Pole, Filter
+        FeedforwardCombFilter as FeedforwardComb
+        FeedbackCombFilter as FeedbackComb, CombFilter, Comb
+    modulators
+        ADSR
+        AD
+        AR
+        Hold
+    oscillators
+        waveforms
+            PulseWave
+            SawWave
+            TriangleWave as TriWave
+            SineWave
+        PMSineOscillator as PMSine
+        SawOscillator as Saw
+        SineOscillator as Sine
+        TriangleOscillator as Triangle, Tri
+        PulseOscillator as Pulse, PW
+sources
+    oscillators
+        scanners
+            PMScanner as PM
+            SyncableScanner
+        CompositeOscillator as CompOsc
+    utils
+        Attenuator as VCA, Att
+        Clip
+        DC
+        FrequencyAdder as Fadd
+        Socket as Value
+        SourceValue as CC, Property, Knob
+        Mixer as Mix
+        UnityMixer as UMixer, UMix
+        Morph
+        Noise

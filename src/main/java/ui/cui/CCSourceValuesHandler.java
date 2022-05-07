@@ -1,7 +1,7 @@
 package ui.cui;
 
 import synthesizer.sources.utils.SourceValue;
-import ui.structscript.SourceValuesHandler;
+import structscript.SourceValuesHandler;
 
 import java.util.*;
 
