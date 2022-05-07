@@ -14,6 +14,15 @@ Maybe you want to define synth's structure by your own. Then you can use StructS
 - to bind signal to output write "... => output"
 - all voices outputs become mixed in signal "voiceMix"
 
+# Changelog
+## First presentation
+- basic sequencer
+- parsing midi input
+- ability to play midi files
+- ability to describe synth structure
+- saving synths and their patches to the database 
+- ugly but functional gui
+
 ## TODO
 ### sound things
 - [ ] Exponential envelope stages
