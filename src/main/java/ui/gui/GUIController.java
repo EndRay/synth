@@ -9,7 +9,10 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -17,27 +20,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import midi.SynthMidiReceiver;
 import structscript.Interpreter;
 import structscript.StructScriptException;
-import synthesizer.SoundPlayer;
 import synthesizer.VoiceDistributor;
-import synthesizer.sources.utils.Socket;
-import synthesizer.sources.utils.SourceValue;
 import ui.synthcontrollers.SimpleSynthController;
-import ui.synthcontrollers.SynthController;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Transmitter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static database.Database.*;
-import static database.Database.savePatch;
 import static ui.gui.MainGUI.*;
 
 public class GUIController {
