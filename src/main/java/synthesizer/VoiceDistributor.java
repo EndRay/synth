@@ -26,6 +26,7 @@ public class VoiceDistributor implements SignalSource {
     }
 
     public synchronized void noteOn(int note, int velocity) {
+        noteOff(note);
         last.noteOn(note, velocity);
         heldNotes.add(note);
         Voice voice;
