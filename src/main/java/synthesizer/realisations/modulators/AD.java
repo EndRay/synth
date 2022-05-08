@@ -42,6 +42,8 @@ public class AD extends AbstractSignalSource implements Envelope {
     @Override
     protected double recalculate(int sampleId) {
         boolean g = gate().getGate(sampleId), t = trigger().getGate(sampleId);
+        double attack = attack().getTime(sampleId),
+                decay = decay().getTime(sampleId);
         triggered |= (!lastTrigger && t);
         attackStage |= (!lastGate && g);
         attackStage &= g;
@@ -49,13 +51,13 @@ public class AD extends AbstractSignalSource implements Envelope {
         lastGate = g;
         lastTrigger = t;
         if (attackStage) {
-            currentSample += 1 / attack().getTime(sampleId) / sampleRate;
+            currentSample += 1 / attack / sampleRate;
             if (currentSample >= 1) {
                 currentSample = 1;
                 attackStage = false;
                 triggered = false;
             }
-        } else currentSample = max(currentSample - 1 / decay().getTime(sampleId) / sampleRate, 0);
+        } else currentSample = max(currentSample - 1 / decay / sampleRate, 0);
         return currentSample;
     }
 }

@@ -30,12 +30,13 @@ public class Hold extends AbstractSignalSource {
     protected double recalculate(int sampleId) {
         ++samplesPassed;
         boolean t = trigger().getGate(sampleId);
+        double hold = hold().getTime(sampleId);
         if(!lastTrigger && t) {
             samplesPassed = 0;
             lastSample = 1;
         }
         lastTrigger = t;
-        if(samplesPassed > hold().getTime(sampleId) * sampleRate)
+        if(samplesPassed > hold * sampleRate)
             lastSample = 0;
         return lastSample;
     }
