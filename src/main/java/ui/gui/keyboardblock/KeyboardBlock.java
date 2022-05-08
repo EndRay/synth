@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 
@@ -17,12 +18,12 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsumer {
+
+    final int lowestShift = 0;
+    final int highestShift = 12;
 
     Receiver receiver;
 
@@ -30,6 +31,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     final Label label;
     int channel = -1;
     int transpose = 60;
+    List<KeyboardKey> keyboardKeys = new ArrayList<>();
 
     public KeyboardBlock(Receiver receiver){
 
@@ -41,28 +43,30 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
 
         HBox topRow = new HBox();
         HBox bottomRow = new HBox();
+        for(int i = 0; i < 13; ++i)
+            keyboardKeys.add(new KeyboardKey(this, i));
         topRow.setMaxWidth(USE_PREF_SIZE);
         bottomRow.setMaxWidth(USE_PREF_SIZE);
         {
             topRow.getChildren().add(new Rectangle(KeyboardKey.keyWidth/2, KeyboardKey.keyHeight, Color.TRANSPARENT));
-            topRow.getChildren().add(new KeyboardKey(this, 1));
-            topRow.getChildren().add(new KeyboardKey(this, 3));
+            topRow.getChildren().add(keyboardKeys.get(1));
+            topRow.getChildren().add(keyboardKeys.get(3));
             topRow.getChildren().add(new Rectangle(KeyboardKey.keyWidth, KeyboardKey.keyHeight, Color.TRANSPARENT));
-            topRow.getChildren().add(new KeyboardKey(this, 6));
-            topRow.getChildren().add(new KeyboardKey(this, 8));
-            topRow.getChildren().add(new KeyboardKey(this, 10));
+            topRow.getChildren().add(keyboardKeys.get(6));
+            topRow.getChildren().add(keyboardKeys.get(8));
+            topRow.getChildren().add(keyboardKeys.get(10));
             topRow.getChildren().add(new Rectangle(KeyboardKey.keyWidth, KeyboardKey.keyHeight, Color.TRANSPARENT));
             topRow.getChildren().add(new Rectangle(KeyboardKey.keyWidth/2, KeyboardKey.keyHeight, Color.TRANSPARENT));
         }
         {
-            bottomRow.getChildren().add(new KeyboardKey(this, 0));
-            bottomRow.getChildren().add(new KeyboardKey(this, 2));
-            bottomRow.getChildren().add(new KeyboardKey(this, 4));
-            bottomRow.getChildren().add(new KeyboardKey(this, 5));
-            bottomRow.getChildren().add(new KeyboardKey(this, 7));
-            bottomRow.getChildren().add(new KeyboardKey(this, 9));
-            bottomRow.getChildren().add(new KeyboardKey(this, 11));
-            bottomRow.getChildren().add(new KeyboardKey(this, 12));
+            bottomRow.getChildren().add(keyboardKeys.get(0));
+            bottomRow.getChildren().add(keyboardKeys.get(2));
+            bottomRow.getChildren().add(keyboardKeys.get(4));
+            bottomRow.getChildren().add(keyboardKeys.get(5));
+            bottomRow.getChildren().add(keyboardKeys.get(7));
+            bottomRow.getChildren().add(keyboardKeys.get(9));
+            bottomRow.getChildren().add(keyboardKeys.get(11));
+            bottomRow.getChildren().add(keyboardKeys.get(12));
         }
         topRow.setSpacing(KeyboardKey.keyWidth/8);
         bottomRow.setSpacing(KeyboardKey.keyWidth/8);
@@ -71,7 +75,25 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
         keyboardBox.setSpacing(KeyboardKey.keyWidth/8);
         keyboardBox.setMaxHeight(USE_PREF_SIZE);
 
-        this.setContent(keyboardBox);
+        Button octaveDownButton = new Button("<");
+        octaveDownButton.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+        octaveDownButton.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+        octaveDownButton.setPrefSize(KeyboardKey.keyWidth/2, KeyboardKey.keyWidth/2);
+        octaveDownButton.setFont(Font.font("Monospaced", FontWeight.BOLD, KeyboardKey.keyWidth/5));
+        octaveDownButton.setOnAction(event -> octaveDown());
+
+        Button octaveUpButton = new Button(">");
+        octaveUpButton.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+        octaveUpButton.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+        octaveUpButton.setPrefSize(KeyboardKey.keyWidth/2, KeyboardKey.keyWidth/2);
+        octaveUpButton.setFont(Font.font("Monospaced", FontWeight.BOLD, KeyboardKey.keyWidth/5));
+        octaveUpButton.setOnAction(event -> octaveUp());
+
+        HBox box = new HBox(octaveDownButton, octaveUpButton, keyboardBox);
+
+        box.setSpacing(KeyboardKey.keyWidth/8);
+
+        this.setContent(box);
 
         keyboardBlockController = new KeyboardBlockController();
         keyboardBlockController.pane = this;
@@ -82,27 +104,29 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     }
 
     Set<Integer> pressedKeys = new HashSet<>();
+    Map<KeyboardKey, Integer> pressedKeyByKeyboardKey = new HashMap<>();
 
-    public void pressKey(int shift) {
+    public void pressKey(KeyboardKey key) {
         if(channel == -1)
             return;
+        releaseKey(key);
         try {
+            int shift = key.shift;
             receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, transpose + shift, 64), 0);
             pressedKeys.add(transpose+shift);
+            pressedKeyByKeyboardKey.put(key, transpose+shift);
         } catch (InvalidMidiDataException e) {
             e.printStackTrace();
         }
     }
-    public void releaseKey(int shift) {
+
+    public void releaseKey(KeyboardKey key) {
         if(channel == -1)
             return;
-        try {
-            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, transpose + shift, 0), 0);
-            pressedKeys.remove(transpose+shift);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-        }
+        if(pressedKeyByKeyboardKey.containsKey(key))
+            releaseAbsoluteKey(pressedKeyByKeyboardKey.get(key));
     }
+
     public void releaseAbsoluteKey(int key) {
         if(channel == -1)
             return;
@@ -116,6 +140,17 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     public void releaseAllKeys(){
         while (!pressedKeys.isEmpty())
             releaseAbsoluteKey(pressedKeys.stream().findAny().get());
+        pressedKeyByKeyboardKey.clear();
+    }
+
+    public void octaveDown(){
+        if(transpose - 12 + lowestShift >= 0)
+            transpose -= 12;
+    }
+
+    public void octaveUp(){
+        if(transpose + 12 + highestShift <= 127)
+            transpose += 12;
     }
 
     public void setChannel(int channel){
@@ -130,38 +165,38 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     @Override
     public void keyPressConsume(KeyCode key) {
         switch (key){
-            case A -> pressKey(0);
-            case W -> pressKey(1);
-            case S -> pressKey(2);
-            case E -> pressKey(3);
-            case D -> pressKey(4);
-            case F -> pressKey(5);
-            case T -> pressKey(6);
-            case G -> pressKey(7);
-            case Y -> pressKey(8);
-            case H -> pressKey(9);
-            case U -> pressKey(10);
-            case J -> pressKey(11);
-            case K -> pressKey(12);
+            case A -> pressKey(keyboardKeys.get(0));
+            case W -> pressKey(keyboardKeys.get(1));
+            case S -> pressKey(keyboardKeys.get(2));
+            case E -> pressKey(keyboardKeys.get(3));
+            case D -> pressKey(keyboardKeys.get(4));
+            case F -> pressKey(keyboardKeys.get(5));
+            case T -> pressKey(keyboardKeys.get(6));
+            case G -> pressKey(keyboardKeys.get(7));
+            case Y -> pressKey(keyboardKeys.get(8));
+            case H -> pressKey(keyboardKeys.get(9));
+            case U -> pressKey(keyboardKeys.get(10));
+            case J -> pressKey(keyboardKeys.get(11));
+            case K -> pressKey(keyboardKeys.get(12));
         }
     }
 
     @Override
     public void keyReleaseConsume(KeyCode key) {
         switch (key){
-            case A -> releaseKey(0);
-            case W -> releaseKey(1);
-            case S -> releaseKey(2);
-            case E -> releaseKey(3);
-            case D -> releaseKey(4);
-            case F -> releaseKey(5);
-            case T -> releaseKey(6);
-            case G -> releaseKey(7);
-            case Y -> releaseKey(8);
-            case H -> releaseKey(9);
-            case U -> releaseKey(10);
-            case J -> releaseKey(11);
-            case K -> releaseKey(12);
+            case A -> releaseKey(keyboardKeys.get(0));
+            case W -> releaseKey(keyboardKeys.get(1));
+            case S -> releaseKey(keyboardKeys.get(2));
+            case E -> releaseKey(keyboardKeys.get(3));
+            case D -> releaseKey(keyboardKeys.get(4));
+            case F -> releaseKey(keyboardKeys.get(5));
+            case T -> releaseKey(keyboardKeys.get(6));
+            case G -> releaseKey(keyboardKeys.get(7));
+            case Y -> releaseKey(keyboardKeys.get(8));
+            case H -> releaseKey(keyboardKeys.get(9));
+            case U -> releaseKey(keyboardKeys.get(10));
+            case J -> releaseKey(keyboardKeys.get(11));
+            case K -> releaseKey(keyboardKeys.get(12));
         }
     }
 

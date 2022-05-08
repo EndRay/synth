@@ -9,12 +9,16 @@ public class KeyboardKey extends Rectangle {
     public final static double keyWidth = 40;
     public final static double keyHeight = 80;
 
+    public final int shift;
+
     final KeyboardKeyController keyboardKeyController;
 
     public KeyboardKey(KeyboardBlock keyboardBlock, int shift) {
         keyboardKeyController = new KeyboardKeyController();
-        keyboardKeyController.shift = shift;
+        keyboardKeyController.keyboardKey = this;
         keyboardKeyController.keyboardBlock = keyboardBlock;
+
+        this.shift = shift;
 
         this.setWidth(keyWidth);
         this.setHeight(keyHeight);

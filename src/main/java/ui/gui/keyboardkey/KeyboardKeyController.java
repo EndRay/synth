@@ -6,13 +6,13 @@ import ui.gui.keyboardblock.KeyboardBlock;
 
 public class KeyboardKeyController {
 
-    @FXML int shift;
     @FXML KeyboardBlock keyboardBlock;
+    @FXML KeyboardKey keyboardKey;
 
     @FXML void OnPressed(MouseEvent mouseEvent){
-        keyboardBlock.pressKey(shift);
+        keyboardBlock.pressKey(keyboardKey);
     }
     @FXML void OnReleased(MouseEvent mouseEvent){
-        keyboardBlock.releaseKey(shift);
+        keyboardBlock.releaseKey(keyboardKey);
     }
 }
