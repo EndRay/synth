@@ -22,7 +22,8 @@
                         <Region prefHeight="0.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
                         <TextField fx:id="synthNameField" minWidth="45.0" prefHeight="25.0" prefWidth="130.0" promptText="synth" />
                         <TextField fx:id="voiceCountField" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="50.0" promptText="voices" />
-                        <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createSynthBlock" text="create" />
+                        <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createSynthBlock" text="synth" />
+                        <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createKeyboardBlock" text="keyboard" />
                      </children>
                   </HBox>
                   <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;">
