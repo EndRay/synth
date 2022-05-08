@@ -178,6 +178,9 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
             case U -> pressKey(keyboardKeys.get(10));
             case J -> pressKey(keyboardKeys.get(11));
             case K -> pressKey(keyboardKeys.get(12));
+
+            case Z -> octaveDown();
+            case X -> octaveUp();
         }
     }
 
