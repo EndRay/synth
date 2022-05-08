@@ -4,15 +4,15 @@ import database.NoSuchPatchException;
 import database.NoSuchSynthException;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import structscript.Interpreter;
 import structscript.StructScriptException;
 import synthesizer.sources.SignalSource;
@@ -48,11 +48,15 @@ public class SynthBlock extends TitledPane {
         interpreter = new Interpreter(voiceCount, handler);
         interpreter.run(getSynthStructure(synth));
         List<KnobSource> knobs = handler.getKnobs();
-        if (knobs.isEmpty())
-            throw new RuntimeException("synth doesn't have knobs");
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        int width = knobs.stream().mapToInt(knob -> knob.getX() + knob.getSize()).max().getAsInt(),
-                height = knobs.stream().mapToInt(knob -> knob.getY() + knob.getSize()).max().getAsInt();
+        int width, height;
+        if (!knobs.isEmpty()) {
+            width = knobs.stream().mapToInt(knob -> knob.getX() + knob.getSize()).max().getAsInt();
+            //noinspection OptionalGetWithoutIsPresent
+            height = knobs.stream().mapToInt(knob -> knob.getY() + knob.getSize()).max().getAsInt();
+        } else {
+            width = 0;
+            height = 0;
+        }
         GridPane gridPane = new GridPane();
         for (int i = 0; i < width; ++i) {
             ColumnConstraints col = new ColumnConstraints();
@@ -83,20 +87,30 @@ public class SynthBlock extends TitledPane {
         }
         SourceValue volume = new SourceValue("volume");
         Slider volumeSlider = new Slider(0, 1, 0);
-        volumeSlider.setOrientation(Orientation.VERTICAL);
-        volumeSlider.setPrefHeight(cellSize * 3);
-        volumeSlider.setMinHeight(cellSize);
-        volumeSlider.setMaxHeight(USE_PREF_SIZE);
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> volume.setValue(newValue.doubleValue()));
+        volumeSlider.setMinWidth(USE_PREF_SIZE);
+        volumeSlider.setPrefWidth(cellSize * 2);
+        volumeSlider.setMaxWidth(USE_PREF_SIZE);
 
         sound = interpreter.getVoiceDistributor().attenuate(volume);
         synthController = new SimpleSynthController(interpreter.getVoiceDistributor());
 
         label = new Label(synth + " (" + voiceCount + ")");
-        label.minWidthProperty().bind(this.widthProperty());
+        label.setMaxWidth(Double.MAX_VALUE);
 
-        this.setGraphic(label);
-        this.setContent(new HBox(gridPane, volumeSlider));
+        HBox.setHgrow(label, Priority.ALWAYS);
+
+        HBox titleBox = new HBox(label, volumeSlider);
+        titleBox.setMaxWidth(Double.MAX_VALUE);
+        titleBox.setPadding(new Insets(0, 10, 0, 0));
+        titleBox.minWidthProperty().bind(this.widthProperty());
+
+        this.setGraphic(titleBox);
+        HBox box = new HBox(gridPane);
+        box.setAlignment(Pos.CENTER);
+        gridPane.setBorder(new Border(new BorderStroke(Color.GREY,
+                BorderStrokeStyle.DASHED, new CornerRadii(cellSize/3), BorderWidths.DEFAULT)));
+        this.setContent(box);
         this.setMaxWidth(USE_PREF_SIZE);
 
         synthBlockController = new SynthBlockController();
