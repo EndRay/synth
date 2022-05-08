@@ -65,7 +65,7 @@ public class MainGUI extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         stage.setTitle("Synth");
-        stage.setScene(new Scene(new FXMLLoader(MainGUI.class.getResource("main-editor.fxml")).load(), 1280, 720));
+        stage.setScene(new Scene(new FXMLLoader(MainGUI.class.getResource("main-menu.fxml")).load()));
         stage.setMinWidth(640);
         stage.setMinHeight(480);
         stage.show();

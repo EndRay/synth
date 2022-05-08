@@ -41,6 +41,10 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
         synths.get(channel).add(controller);
     }
 
+    public void removeSynthController(int channel, T controller) {
+        synths.get(channel).remove(controller);
+    }
+
     public void clearSynthControllers(int channel) {
         synths.get(channel).clear();
     }

@@ -12,14 +12,18 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="600.0" prefWidth="722.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.gui.GUIController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.gui.EditController">
    <children>
-      <VBox prefHeight="500.0" prefWidth="502.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox prefHeight="773.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <VBox prefHeight="500.0" prefWidth="502.0" HBox.hgrow="ALWAYS">
                <children>
-                  <SplitPane dividerPositions="0.4025522041763341" prefHeight="400.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                  <HBox>
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#goToMainMenu" text="menu" />
+                     </children>
+                  </HBox>
+                  <SplitPane dividerPositions="0.4025522041763341" prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
                     <items>
                       <AnchorPane minHeight="0.0" prefHeight="572.0" prefWidth="338.0">
                            <children>
@@ -66,19 +70,19 @@
                         </AnchorPane>
                     </items>
                   </SplitPane>
-                  <VBox prefHeight="773.0" prefWidth="14.0">
-                     <children>
-                        <Slider fx:id="masterVolumeSlider" max="1.0" orientation="VERTICAL" prefHeight="260.0" prefWidth="14.0" />
-                     </children>
-                  </VBox>
+                  <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;">
+                     <font>
+                        <Font name="Monospaced Regular" size="14.0" />
+                     </font>
+                  </TextField>
                </children>
-            </HBox>
-            <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;" text="Lol">
-               <font>
-                  <Font name="Monospaced Regular" size="14.0" />
-               </font>
-            </TextField>
+            </VBox>
+            <VBox prefHeight="773.0" prefWidth="14.0">
+               <children>
+                  <Slider fx:id="masterVolumeSlider" max="1.0" orientation="VERTICAL" prefHeight="260.0" prefWidth="14.0" />
+               </children>
+            </VBox>
          </children>
-      </VBox>
+      </HBox>
    </children>
 </AnchorPane>
