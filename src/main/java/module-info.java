@@ -15,4 +15,7 @@ module ui.gui {
     opens ui.gui to javafx.fxml;
     exports synthesizer.sources.utils;
     exports ui.gui;
+
+    opens ui.gui.knob to javafx.fxml;
+
 }

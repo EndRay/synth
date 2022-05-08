@@ -205,10 +205,12 @@ public class Interpreter {
             try {
                 res = (SignalSource) constructor.newInstance(usableArgs);
                 break;
-            } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
                 // ???
                 throw new InterpretationException("constructor problems");
+            } catch (InvocationTargetException e){
+                throw new InterpretationException(e.getCause().getMessage());
             }
         }
         if (res == null)
