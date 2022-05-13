@@ -59,12 +59,14 @@ public final class Database {
         }
     }
 
-    private static final String SQL_SYNTH_SAVE = "INSERT OR REPLACE INTO synths(synth_name, structure) VALUES (?, ?)";
+    private static final String SQL_SYNTH_SAVE = "INSERT OR REPLACE INTO synths(synth_id, synth_name, structure) VALUES " +
+            "((SELECT synth_id FROM synths WHERE synth_name = ?), ?, ?)";
     public static void saveSynth(String name, String structure){
         try (Connection c = getConnection();
              PreparedStatement statement = c.prepareStatement(SQL_SYNTH_SAVE)) {
             statement.setString(1, name);
-            statement.setString(2, structure);
+            statement.setString(2, name);
+            statement.setString(3, structure);
             statement.executeUpdate();
             c.commit();
         } catch (SQLException e) {
