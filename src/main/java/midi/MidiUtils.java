@@ -8,9 +8,11 @@ public class MidiUtils {
 
     private MidiUtils(){}
 
-    public static String getNoteName(int note){
-        if(note < lowestNote || note > highestNote)
-            throw new IllegalArgumentException();
+    public static int getNoteOctave(int note){
+        return (note/12 - 2);
+    }
+
+    public static String getNoteLetter(int note){
         String letter;
         switch (note%12){
             case 0 -> letter = "C";
@@ -27,6 +29,12 @@ public class MidiUtils {
             case 11 -> letter = "B";
             default -> throw new IllegalArgumentException();
         }
-        return letter + (note/12 - 2);
+        return letter;
+    }
+
+    public static String getNoteName(int note){
+        if(note < lowestNote || note > highestNote)
+            throw new IllegalArgumentException();
+        return getNoteLetter(note) + getNoteOctave(note);
     }
 }
