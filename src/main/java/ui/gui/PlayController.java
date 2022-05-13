@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import midi.MidiUtils;
 import structscript.StructScriptException;
 import structscript.polyphony.PolyphonyException;
 import structscript.polyphony.PolyphonyType;
@@ -26,9 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Predicate;
 
-import static midi.SynthMidiReceiver.*;
 import static ui.gui.MainGUI.*;
 
 public class PlayController {
@@ -62,7 +61,7 @@ public class PlayController {
             playgroundSound.modulate(synthBlock.getSound());
 
             ContextMenu menu = new ContextMenu();
-            for(int i = 0; i < channels; ++i){
+            for(int i = 0; i < MidiUtils.channels; ++i){
                 int channel = i;
                 CheckMenuItem item = new CheckMenuItem("midi channel " + (channel+1));
                 item.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -77,9 +76,9 @@ public class PlayController {
             Menu splitFromMenu = new Menu("lowest");
             {
                 ToggleGroup group = new ToggleGroup();
-                for (int i = lowestNote; i <= highestNote; ++i) {
+                for (int i = MidiUtils.lowestNote; i <= MidiUtils.highestNote; ++i) {
                     int note = i;
-                    RadioMenuItem item = new RadioMenuItem(String.valueOf(note));
+                    RadioMenuItem item = new RadioMenuItem(MidiUtils.getNoteName(note));
                     item.setToggleGroup(group);
                     item.selectedProperty().addListener((observable, oldValue, newValue) -> {
                         if(newValue)
@@ -92,9 +91,9 @@ public class PlayController {
             Menu splitToMenu = new Menu("highest");
             {
                 ToggleGroup group = new ToggleGroup();
-                for (int i = lowestNote; i <= highestNote; ++i) {
+                for (int i = MidiUtils.lowestNote; i <= MidiUtils.highestNote; ++i) {
                     int note = i;
-                    RadioMenuItem item = new RadioMenuItem(String.valueOf(note));
+                    RadioMenuItem item = new RadioMenuItem(MidiUtils.getNoteName(note));
                     item.setToggleGroup(group);
                     item.selectedProperty().addListener((observable, oldValue, newValue) -> {
                         if(newValue)
@@ -183,7 +182,7 @@ public class PlayController {
         ToggleGroup group = new ToggleGroup();
 
         ContextMenu menu = new ContextMenu();
-        for(int i = 0; i < channels; ++i){
+        for(int i = 0; i < MidiUtils.channels; ++i){
             int channel = i;
             RadioMenuItem item = new RadioMenuItem("midi channel " + (channel+1));
             item.selectedProperty().addListener((observable, oldValue, newValue) -> {

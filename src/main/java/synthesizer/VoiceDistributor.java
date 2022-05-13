@@ -6,7 +6,7 @@ import synthesizer.sources.voices.Voice;
 
 import java.util.*;
 
-import static midi.SynthMidiReceiver.pitchbendRange;
+import static midi.MidiUtils.pitchbendRange;
 
 /**
  * TODO: Correct last note

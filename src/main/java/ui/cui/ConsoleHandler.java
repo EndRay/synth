@@ -24,7 +24,7 @@ import java.util.List;
 import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
-import static midi.SynthMidiReceiver.channels;
+import static midi.MidiUtils.channels;
 
 public class ConsoleHandler implements TimeDependent {
 
