@@ -5,6 +5,7 @@ import java.util.List;
 
 import static synthesizer.sources.SignalSource.*;
 import static structscript.Lexer.TokenType.*;
+import static synthesizer.utils.FrequencyManipulations.getSemitonesShift;
 
 /**
  * StructScript Lexer! :,)
@@ -66,6 +67,8 @@ public class Lexer {
             return timeToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 1)));
         if (arg.endsWith("x"))
             return frequencyRatioToVoltage(Double.parseDouble(arg.substring(0, arg.length() - 1)));
+        if (arg.endsWith("semi"))
+            return frequencyRatioToVoltage(getSemitonesShift(Double.parseDouble(arg.substring(0, arg.length() - 4))));
         return Double.parseDouble(arg);
     }
 
