@@ -17,7 +17,7 @@ import static sequencer.Clock.PPQ;
 public class Sequencer implements Transmitter, Clockable {
     private Sequence sequence = null;
     private Receiver receiver;
-    private final ExecutorService playing = Executors.newCachedThreadPool();
+    private ExecutorService playing;
     private int midiChannel, pingsRemain = 1;
     private Long lastTimeOfPing = null;
     private boolean isPlaying = false;
@@ -51,14 +51,16 @@ public class Sequencer implements Transmitter, Clockable {
         if(isPlaying)
             return;
         if (sequence == null)
-            throw new SequencerException("Play in sequencer called without sequence provided.");
+            return;
+        playing = Executors.newCachedThreadPool();
         isPlaying = true;
         stepIndex = 0;
         pingsRemain = 1;
     }
 
     public synchronized void stop() {
-        playing.shutdownNow();
+        if(playing != null)
+            playing.shutdownNow();
         lastTimeOfPing = null;
         isPlaying = false;
     }
@@ -118,6 +120,7 @@ public class Sequencer implements Transmitter, Clockable {
 
     @Override
     public void start() {
+        stop();
         play();
     }
 
@@ -149,6 +152,8 @@ public class Sequencer implements Transmitter, Clockable {
 
     void playNextStep() {
         ++stepIndex;
+        while(stepIndex >= sequence.length())
+            stepIndex -= sequence.length();
         playStep(sequence.getStep(stepIndex));
     }
 
