@@ -12,6 +12,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import structscript.StructScriptException;
+import structscript.polyphony.PolyphonyException;
+import structscript.polyphony.PolyphonyType;
+import structscript.polyphony.PolyphonyUtils;
 import synthesizer.sources.utils.Socket;
 import ui.gui.keyboardblock.KeyboardBlock;
 import ui.gui.synthblock.SynthBlock;
@@ -51,8 +54,8 @@ public class PlayController {
     @FXML void createSynthBlock(){
         String synth = synthNameField.getText();
         try {
-            int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
-            SynthBlock synthBlock = new SynthBlock(synth, voiceCount);
+            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString());
+            SynthBlock synthBlock = new SynthBlock(synth, polyphony);
             table.getChildren().add(synthBlock);
             playgroundSound.modulate(synthBlock.getSound());
 
@@ -74,8 +77,8 @@ public class PlayController {
             messageText.setText("no such synth \"" + synth + "\"");
         } catch (StructScriptException e) {
             messageText.setText(e.getStructScriptMessage());
-        } catch (NumberFormatException e) {
-            messageText.setText("voice count must be an integer");
+        } catch (PolyphonyException e) {
+            messageText.setText("incorrect polyphony type");
         }
     }
 
