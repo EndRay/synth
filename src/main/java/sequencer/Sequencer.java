@@ -118,6 +118,11 @@ public class Sequencer implements Transmitter, Clockable {
         }
     }
 
+    @Override
+    public void start() {
+        play();
+    }
+
     void playStep(Step step){
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
