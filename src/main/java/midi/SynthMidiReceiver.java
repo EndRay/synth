@@ -19,6 +19,7 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
 
     public static final int channels = 16;
     public static final int pitchbendRange = 128*128;
+    public static final int lowestNote = 0, highestNote = 127;
 
     protected List<Collection<T>> synths = new ArrayList<>(channels);
 

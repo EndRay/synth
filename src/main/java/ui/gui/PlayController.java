@@ -1,6 +1,8 @@
 package ui.gui;
 
 import database.NoSuchSynthException;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,13 +22,13 @@ import ui.gui.keyboardblock.KeyboardBlock;
 import ui.gui.synthblock.SynthBlock;
 
 import java.io.IOException;
-import java.security.Key;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Predicate;
 
-import static midi.SynthMidiReceiver.channels;
+import static midi.SynthMidiReceiver.*;
 import static ui.gui.MainGUI.*;
 
 public class PlayController {
@@ -70,6 +72,46 @@ public class PlayController {
                 });
                 menu.getItems().add(item);
             }
+            IntegerProperty splitFrom = new SimpleIntegerProperty(0);
+            IntegerProperty splitTo = new SimpleIntegerProperty(127);
+            Menu splitFromMenu = new Menu("lowest");
+            {
+                ToggleGroup group = new ToggleGroup();
+                for (int i = lowestNote; i <= highestNote; ++i) {
+                    int note = i;
+                    RadioMenuItem item = new RadioMenuItem(String.valueOf(note));
+                    item.setToggleGroup(group);
+                    item.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                        if(newValue)
+                            splitFrom.setValue(note);
+                    });
+                    splitTo.addListener((observable, oldValue, newValue) -> item.setDisable(note > newValue.intValue()));
+                    splitFromMenu.getItems().add(item);
+                }
+            }
+            Menu splitToMenu = new Menu("highest");
+            {
+                ToggleGroup group = new ToggleGroup();
+                for (int i = lowestNote; i <= highestNote; ++i) {
+                    int note = i;
+                    RadioMenuItem item = new RadioMenuItem(String.valueOf(note));
+                    item.setToggleGroup(group);
+                    item.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                        if(newValue)
+                            splitTo.setValue(note);
+                    });
+                    splitFrom.addListener((observable, oldValue, newValue) -> item.setDisable(note < newValue.intValue()));
+                    splitToMenu.getItems().add(item);
+                }
+            }
+            Runnable updateCondition = () -> {
+                int from = splitFrom.intValue(),
+                    to = splitTo.intValue();
+                synthBlock.getSynthController().setCondition(note -> from <= note && note <= to);
+            };
+            splitFrom.addListener((observable, oldValue, newValue) -> updateCondition.run());
+            splitTo.addListener((observable, oldValue, newValue) -> updateCondition.run());
+            menu.getItems().addAll(new SeparatorMenuItem(), splitFromMenu, splitToMenu);
             synthBlock.setLabelContextMenu(menu);
 
             messageText.setText("synth successfully created");
