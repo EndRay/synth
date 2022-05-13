@@ -71,23 +71,19 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
                     int type = mm.getType();
                     byte[] data = mm.getData();
                     switch (type) {
-                        case 0x03:
-                            System.out.println("Track name: " + new String(data, StandardCharsets.UTF_8));
-                            break;
-                        case 0x51:
+                        case 0x03 -> System.out.println("Track name: " + new String(data, StandardCharsets.UTF_8));
+                        case 0x51 -> {
                             double microseconds = (data[0] << 16) + (data[1] << 8) + data[0];
                             bpm = 60 * 1e6 / microseconds;
                             System.out.println("BPM: " + bpm);
-                            break;
+                        }
 //                        case 0x54:
 //                            int minutes = data[0];
 //                            int seconds = data[1];
 //                            offset = 60*minutes + seconds;
 //                            System.out.println("Offset: " + offset + " seconds");
 //                            break;
-                        default:
-                            System.out.println("Unknown meta message with type: " + type);
-                            break;
+                        default -> System.out.println("Unknown meta message with type: " + type);
                     }
                 } else
                     events.add(new Event((int) (event.getTick() / ticksPerBeat / bpm * 60 * SignalSource.sampleRate), message));
