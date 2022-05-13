@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class SynthMidiReceiver<T extends SynthController> implements Receiver {
 
     public static final int channels = 16;
+    public static final int pitchbendRange = 128*128;
 
     protected List<Collection<T>> synths = new ArrayList<>(channels);
 
@@ -120,6 +121,10 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
         if (action == -7 && mArr[2] == 0)
             action = -8;
         switch (action) {
+            case -2:
+                for (SynthController synth : synths.get(channel))
+                    synth.pitchbend(mArr[1] + 128 * mArr[2]);
+                break;
             case -5:
                 for (SynthController synth : synths.get(channel))
                     synth.midiCC(mArr[1], mArr[2]);

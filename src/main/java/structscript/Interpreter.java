@@ -92,8 +92,12 @@ public class Interpreter {
     public Interpreter(PolyphonyType polyphony, SourceValuesHandler handler) {
         sourceValuesHandler = handler;
         this.output = new Socket();
-        SourceValue aftertouchChannel = new SourceValue("channel aftertouch");
+        SourceValue aftertouchChannel = new SourceValue("channel aftertouch"),
+                pitchbend = new SourceValue("pitch bend"),
+                modwheel = new SourceValue("modulation wheel");
         objects.put("aftertouchChannel", aftertouchChannel);
+        objects.put("pitchbend", pitchbend);
+        objects.put("modwheel", modwheel);
 
         SourceValue lastNotePitch = new SourceValue("last note pitch", frequencyToVoltage(440)),
                 lastNoteVelocity = new SourceValue("last note velocity", 0.5),
@@ -158,7 +162,7 @@ public class Interpreter {
             }
         Socket outputGain = new Socket(1);
         objects.put("outputGain", outputGain);
-        synth = new VoiceDistributor(voices, output.attenuate(outputGain).clipBi(), last);
+        synth = new VoiceDistributor(voices, output.attenuate(outputGain).clipBi(), last, pitchbend, modwheel);
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 

@@ -25,5 +25,13 @@ public class SimpleSynthController implements SynthController{
     }
 
     @Override
-    public void midiCC(int CC, int value) {}
+    public void pitchbend(int value) {
+        distributor.pitchbend(value);
+    }
+
+    @Override
+    public void midiCC(int CC, int value) {
+        if(CC == 1)
+            distributor.modwheel(value);
+    }
 }

@@ -13,6 +13,7 @@ public class CCSourceValuesHandler implements SourceValuesHandler {
 
     Set<Integer> forbiddenCCs = new HashSet<>();
     {
+        forbiddenCCs.add(1);
         for(int i = 32; i <= 63; ++i)
             forbiddenCCs.add(i);
         for(int i = 120; i <= 127; ++i)

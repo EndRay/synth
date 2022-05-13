@@ -12,5 +12,7 @@ public interface SynthController {
         noteOff(note, 0);
     }
 
+    void pitchbend(int value);
+
     void midiCC(int CC, int value);
 }
