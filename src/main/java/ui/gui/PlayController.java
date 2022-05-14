@@ -50,6 +50,14 @@ public class PlayController {
     @FXML
     Slider masterVolumeSlider;
 
+    private int lastViewOrder = 0;
+    private void reorderOnFocus(Node node){
+        node.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!oldValue && newValue)
+                node.setViewOrder(--lastViewOrder);
+        });
+    }
+
     @FXML
     void goToMainMenu(ActionEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -140,6 +148,8 @@ public class PlayController {
             splitTo.addListener((observable, oldValue, newValue) -> updateCondition.run());
             menu.getItems().addAll(new SeparatorMenuItem(), splitFromMenu, splitToMenu);
             synthBlock.setLabelContextMenu(menu);
+
+            reorderOnFocus(synthBlock);
 
             messageText.setText("synth successfully created");
         } catch (NoSuchSynthException e) {
@@ -232,6 +242,8 @@ public class PlayController {
             item.setSelected(true);
         }
         keyboardBlock.setLabelContextMenu(menu);
+
+        reorderOnFocus(keyboardBlock);
 
         messageText.setText("keyboard successfully created");
     }
