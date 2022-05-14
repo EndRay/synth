@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static structscript.Lexer.TokenType;
+import static structscript.Lexer.TokenType.OPEN_BRACKET;
 import static structscript.Parser.NodeType.*;
 
 /**
@@ -93,7 +94,7 @@ public class Parser {
     }
 
     private List<Node> parseArguments() throws SyntaxException {
-        if (getToken().type() != TokenType.OPEN_BRACKET)
+        if (getToken().type() != OPEN_BRACKET)
             throw new SyntaxException(getToken().line(), "open bracket expected");
         List<Node> res = new ArrayList<>();
         movePtr();
@@ -140,8 +141,10 @@ public class Parser {
                 movePtr();
                 return createNode(TEXT, token.info());
             case FIELD:
-                res = createNode(OBJECT, token.info());
                 movePtr();
+                if(getToken().type() == OPEN_BRACKET)
+                    res = createNode(CONSTRUCTOR, token.info(), parseArguments());
+                else res = createNode(OBJECT, token.info());
                 break;
             case OPERATOR:
                 if (token.info().equals("-")) {
@@ -157,7 +160,7 @@ public class Parser {
             if(func.type() != TokenType.FIELD)
                 throw new SyntaxException(getToken().line(), "expected function or socket name");
             movePtr();
-            if(getToken().type() == TokenType.OPEN_BRACKET) {
+            if(getToken().type() == OPEN_BRACKET) {
                 List<Node> args = new ArrayList<>();
                 args.add(res);
                 args.addAll(parseArguments());
