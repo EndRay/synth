@@ -9,9 +9,6 @@ module ui.gui {
     requires java.sql;
     requires ibatis.core;
 
-    opens com.example.synthfx to javafx.fxml;
-    exports com.example.synthfx;
-
     opens ui.gui to javafx.fxml;
     exports synthesizer.sources.utils;
     exports ui.gui;
