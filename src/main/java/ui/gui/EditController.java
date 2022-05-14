@@ -13,10 +13,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -49,9 +49,12 @@ public class EditController {
 
     ObservableList<Region> list;
 
+    KeyCombination buildHotkey = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
+
     @FXML TextArea structureField;
     @FXML TextField synthNameField;
     @FXML TextField voiceCountField;
+    @FXML Button buildButton;
 
     @FXML TextField leftPatchNameField;
     @FXML TextField rightPatchNameField;
@@ -61,7 +64,6 @@ public class EditController {
     @FXML Slider morphSlider;
 
     @FXML Slider masterVolumeSlider;
-
 
     @FXML TextField messageText;
 
@@ -194,6 +196,11 @@ public class EditController {
         sound.bind(editorSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
         masterVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> masterVolume.setValue(newValue.doubleValue()));
+
+        structureField.setOnKeyPressed(event -> {
+            if(buildHotkey.match(event))
+                buildButton.fire();
+        });
 
         sourceValuesHandler = new PropertiesSourceValuesHandler();
         values = sourceValuesHandler.getValues();
