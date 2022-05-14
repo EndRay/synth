@@ -97,7 +97,7 @@ public class EditController {
     }
 
     @FXML void onSynthLoadButtonClick(){
-        String name = synthNameField.getCharacters().toString();
+        String name = synthNameField.getCharacters().toString().trim();
         try {
             structureField.setText(getSynthStructure(name));
             messageText.setText("synth \"" + name + "\" loaded successfully");
@@ -106,7 +106,7 @@ public class EditController {
         }
     }
     @FXML void onSynthSaveButtonClick(){
-        String name = synthNameField.getCharacters().toString();
+        String name = synthNameField.getCharacters().toString().trim();
         String code = structureField.getText();
         saveSynth(name, code);
         messageText.setText("synth \"" + name + "\" saved successfully");
@@ -114,7 +114,7 @@ public class EditController {
     @FXML void onSynthBuildButtonClick(){
         String structure = structureField.getText();
         try {
-            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString());
+            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString().trim());
             sourceValuesHandler.resetValues();
             Interpreter interpreter = new Interpreter(polyphony, sourceValuesHandler);
             interpreter.run(structure);

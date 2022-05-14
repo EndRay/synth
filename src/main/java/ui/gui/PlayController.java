@@ -71,9 +71,9 @@ public class PlayController {
 
     @FXML
     void createSynthBlock() {
-        String synth = synthNameField.getText();
+        String synth = synthNameField.getText().trim();
         try {
-            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString());
+            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString().trim());
             SynthBlock synthBlock = new SynthBlock(synth, polyphony);
             table.getChildren().add(synthBlock);
             playgroundSound.modulate(synthBlock.getSound());
