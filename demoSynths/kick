@@ -1,0 +1,22 @@
+Decay = Knob("decay", 0.5, "Decay", 0, 0, 3).mapUni(100ms, 1000ms)
+Overdrive = Knob("drive", 0, "Overdrive", 3, 0, 3).mapUni(1, 2)
+
+Pitch = Knob("pitch", 0.5, "Pitch", 0, 3, 2).mapUni(25hz, 100hz)
+SweepTime = Knob("sweep time", 0.5, "Sweep Time", 2, 3, 2).mapUni(10ms, 60ms)
+SweepPitch = Knob("sweep pitch", 0, "Sweep Pitch", 4, 3, 2).mapUni(0semi, 24semi)
+
+-v-
+
+env = AD(2ms, Decay)
+envPitch = AD(0.1ms, SweepTime)
+env.trig <= trigger
+envPitch.trig <= trigger
+osc = Sine(Pitch + envPitch * SweepPitch)
+drive = Drive()
+
+drive.source <= osc * env * Overdrive
+
+drive => output
+
+---
+voiceMix => output

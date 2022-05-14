@@ -1,0 +1,21 @@
+Decay = Knob("decay", 0.5, "Decay", 0, 0, 4).mapUni(100ms, 1000ms)
+Cutoff = Knob("cutoff", 0.5, "Cutoff", 0, 4, 2)
+EnvAmount = Knob("env amount", 0, "Envelope Amount", 2, 4, 2)
+
+
+-v-
+
+env = AD(0.1ms, Decay)
+env.trig <= trigger
+noise = Noise()
+
+cutoff = (Cutoff + EnvAmount * env).mapUni(100hz, 15000hz)
+
+filter = Filter(cutoff)
+
+filter.source <= noise * env
+
+filter => output
+
+---
+voiceMix => output

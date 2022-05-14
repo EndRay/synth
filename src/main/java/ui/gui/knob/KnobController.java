@@ -15,7 +15,7 @@ import static javafx.beans.binding.Bindings.min;
 
 public class KnobController {
 
-    private static final double knobSizeCoefficient = 0.85;
+    private static final double knobSizeCoefficient = 0.9;
     private static final double textSizeCoefficient = 0.12;
     private static final double dragSpeed = 0.004;
     private static final double scrollSpeed = 0.00015;
