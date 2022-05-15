@@ -18,6 +18,7 @@ public class Sequencer implements Transmitter, Clockable {
     private int midiChannel, pingsRemain = 1;
     private Long lastTimeOfPing = null;
     private boolean isPlaying = false;
+    private boolean isMuted = false;
     private int stepIndex = 0;
     private final AverageBPMCalculator averageBPMCalculator = new AverageBPMCalculator(6);
 
@@ -38,6 +39,22 @@ public class Sequencer implements Transmitter, Clockable {
     public synchronized void setSequence(Sequence sequence) {
         this.sequence = sequence;
     }
+
+    public synchronized void setMuted(boolean isMuted){
+        this.isMuted = isMuted;
+    }
+    public synchronized boolean isMuted(){
+        return isMuted;
+    }
+    public synchronized void mute(){
+        setMuted(true);
+    }
+
+    public synchronized void unmute(){
+        setMuted(false);
+    }
+
+
 
     @Override
     public synchronized Receiver getReceiver() {
@@ -123,7 +140,7 @@ public class Sequencer implements Transmitter, Clockable {
 
     void playStep(Step step){
         int channel = midiChannel;
-        if(channel == -1)
+        if(channel == -1 || isMuted())
             return;
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
