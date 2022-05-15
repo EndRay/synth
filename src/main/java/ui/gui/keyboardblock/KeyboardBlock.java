@@ -1,28 +1,34 @@
 package ui.gui.keyboardblock;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import sequencer.Clock;
+import sequencer.Clockable;
 import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
+import ui.gui.sequencer.ControlButton;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
+import javax.swing.event.ChangeListener;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 
-public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsumer {
+public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsumer, Clockable {
 
     final int lowestShift = 0;
     final int highestShift = 12;
@@ -36,8 +42,8 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     List<KeyboardKey> keyboardKeys = new ArrayList<>();
 
     public KeyboardBlock(Receiver receiver){
-        keyboardBlockController = new KeyboardBlockController();
-
+        keyboardBlockController = new KeyboardBlockController(receiver);
+        
         this.receiver = receiver;
         label = new Label("keyboard");
         label.minWidthProperty().bind(this.widthProperty());
@@ -92,9 +98,56 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
         octaveUpButton.setFont(Font.font("Monospaced", FontWeight.BOLD, KeyboardKey.keyWidth/5));
         octaveUpButton.setOnAction(event -> octaveUp());
 
-        HBox box = new HBox(octaveDownButton, octaveUpButton, keyboardBox);
+        VBox box = new VBox();
+        box.setSpacing(2);
 
-        box.setSpacing(KeyboardKey.keyWidth/8);
+        {
+            HBox sequenceControlPanel = new HBox();
+            {
+                Button button = new ControlButton("Tie");
+                button.setOnAction(keyboardBlockController::onTie);
+                sequenceControlPanel.getChildren().add(button);
+            }
+            {
+                Button button = new ControlButton("⚫");
+                button.setOnAction(keyboardBlockController::onRecord);
+                Consumer<Boolean> recolor = on -> button.setTextFill(on ? Color.RED : Color.DARKRED);
+                keyboardBlockController.recordingProperty().addListener(
+                        (observable, oldValue, newValue) -> recolor.accept(newValue));
+                recolor.accept(false);
+                sequenceControlPanel.getChildren().add(button);
+            }
+            {
+                Button button = new ControlButton("M");
+                button.setOnAction(keyboardBlockController::onMute);
+                Consumer<Boolean> recolor = on -> button.setTextFill(on ? Color.BLUE : Color.DARKBLUE);
+                keyboardBlockController.mutedProperty().addListener(
+                        (observable, oldValue, newValue) -> recolor.accept(newValue));
+                recolor.accept(false);
+                sequenceControlPanel.getChildren().add(button);
+            }
+
+            sequenceControlPanel.setSpacing(KeyboardKey.keyWidth / 10);
+            sequenceControlPanel.setPadding(new Insets(8));
+            sequenceControlPanel.setAlignment(Pos.CENTER_RIGHT);
+
+            sequenceControlPanel.setBorder(new Border(new BorderStroke(Color.GREY,
+                    BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
+
+            box.getChildren().add(sequenceControlPanel);
+        }
+
+        {
+            HBox playBox = new HBox(octaveDownButton, octaveUpButton, keyboardBox);
+            playBox.setPadding(new Insets(8));
+            playBox.setBorder(new Border(new BorderStroke(Color.GREY,
+                    BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
+
+            playBox.setSpacing(KeyboardKey.keyWidth / 8);
+
+            box.getChildren().add(playBox);
+        }
+
 
         this.setContent(box);
 
@@ -220,5 +273,15 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public void ping() {
+        keyboardBlockController.sequencer.ping();
+    }
+
+    @Override
+    public void start() {
+        keyboardBlockController.sequencer.start();
     }
 }

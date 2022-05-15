@@ -26,11 +26,17 @@
                         <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createKeyboardBlock" text="keyboard" />
                      </children>
                   </HBox>
-                  <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;">
-                     <font>
-                        <Font name="Monospaced Regular" size="14.0" />
-                     </font>
-                  </TextField>
+                  <HBox>
+                     <TextField fx:id="messageText" editable="false" style="-fx-text-fill: grey;" HBox.hgrow="ALWAYS">
+                        <font>
+                           <Font name="Monospaced Regular" size="14.0" />
+                        </font>
+                     </TextField>
+                     <HBox fx:id="clockControls">
+
+                     </HBox>
+                  </HBox>
+
                   <ScrollPane prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
                     <content>
                       <AnchorPane fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1500.0" prefWidth="2000.0" />

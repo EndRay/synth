@@ -1,7 +1,9 @@
 package ui.gui;
 
 import database.NoSuchSynthException;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,15 +13,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import midi.MidiUtils;
+import sequencer.Clock;
 import structscript.StructScriptException;
 import structscript.polyphony.PolyphonyException;
 import structscript.polyphony.PolyphonyType;
 import structscript.polyphony.PolyphonyUtils;
 import synthesizer.sources.utils.Socket;
 import ui.gui.keyboardblock.KeyboardBlock;
+import ui.gui.sequencer.ControlButton;
 import ui.gui.synthblock.SynthBlock;
 
 import java.io.IOException;
@@ -27,6 +33,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -49,7 +56,13 @@ public class PlayController {
     TextField messageText;
 
     @FXML
+    HBox clockControls;
+
+    @FXML
     Slider masterVolumeSlider;
+
+    Clock clock = new Clock();
+    BooleanProperty playingProperty = new SimpleBooleanProperty(false);
 
     private int lastViewOrder = 0;
     private void reorderOnFocus(Node node){
@@ -217,6 +230,9 @@ public class PlayController {
         configureSceneKeyConsuming();
 
         KeyboardBlock keyboardBlock = new KeyboardBlock(receiver);
+
+        clock.add(keyboardBlock);
+
         table.getChildren().add(keyboardBlock);
 
         ToggleGroup group = new ToggleGroup();
@@ -254,5 +270,24 @@ public class PlayController {
         sound.bind(playgroundSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
         makeVolumeSlider(masterVolumeSlider, masterVolume);
+        {
+            Button button = new ControlButton("▶");
+            button.setOnAction(event -> {
+                clock.start();
+                playingProperty.set(true);
+            });
+            Consumer<Boolean> recolor = on -> button.setTextFill(on ? Color.LIMEGREEN : Color.DARKGREEN);
+            playingProperty.addListener((observable, oldValue, newValue) -> recolor.accept(newValue));
+            recolor.accept(false);
+            clockControls.getChildren().add(button);
+        }
+        {
+            Button button = new ControlButton("⯀");
+            button.setOnAction(event -> {
+                clock.stop();
+                playingProperty.set(false);
+            });
+            clockControls.getChildren().add(button);
+        }
     }
 }
