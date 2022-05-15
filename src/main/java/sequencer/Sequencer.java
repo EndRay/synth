@@ -122,20 +122,20 @@ public class Sequencer implements Transmitter, Clockable {
     }
 
     void playStep(Step step){
+        int channel = midiChannel;
+        if(channel == -1)
+            return;
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
             try {
-                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, note.pitch(), note.velocity()), 0);
+                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.pitch(), note.velocity()), 0);
                 Thread thread = new Thread(() -> {
                     try {
                         try {
-//                            System.out.println("start wait " + note.pitch());
                             TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
                         } catch (InterruptedException ignored) {
                         } finally {
-//                            System.out.println("try release " + note.pitch());
-                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, note.pitch(), 0), 0);
-//                            System.out.println("released " + note.pitch());
+                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, note.pitch(), 0), 0);
                         }
                     } catch (InvalidMidiDataException e) {
                         throw new SequencerException(e);
