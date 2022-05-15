@@ -39,6 +39,7 @@ public class Clock{
                 }
             } catch (InterruptedException ignored) {}
         });
+        process.setDaemon(true);
         process.start();
     }
 
