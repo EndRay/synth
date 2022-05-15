@@ -4,10 +4,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +14,7 @@ import static sequencer.Clock.PPQ;
 public class Sequencer implements Transmitter, Clockable {
     private Sequence sequence = null;
     private Receiver receiver;
-    private ExecutorService playing;
+    private final Collection<Thread> playing = new ArrayList<>();
     private int midiChannel, pingsRemain = 1;
     private Long lastTimeOfPing = null;
     private boolean isPlaying = false;
@@ -52,15 +49,15 @@ public class Sequencer implements Transmitter, Clockable {
             return;
         if (sequence == null)
             return;
-        playing = Executors.newCachedThreadPool();
         isPlaying = true;
         stepIndex = 0;
         pingsRemain = 1;
     }
 
     public synchronized void stop() {
-        if(playing != null)
-            playing.shutdownNow();
+        for(Thread thread : playing)
+            thread.interrupt();
+        playing.clear();
         lastTimeOfPing = null;
         isPlaying = false;
     }
@@ -129,7 +126,7 @@ public class Sequencer implements Transmitter, Clockable {
         for (Note note : step.getNotes()) {
             try {
                 receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, note.pitch(), note.velocity()), 0);
-                playing.submit(() -> {
+                Thread thread = new Thread(() -> {
                     try {
                         try {
 //                            System.out.println("start wait " + note.pitch());
@@ -144,6 +141,9 @@ public class Sequencer implements Transmitter, Clockable {
                         throw new SequencerException(e);
                     }
                 });
+                thread.setDaemon(true);
+                thread.start();
+                playing.add(thread);
             } catch (InvalidMidiDataException e) {
                 throw new SequencerException(e);
             }
