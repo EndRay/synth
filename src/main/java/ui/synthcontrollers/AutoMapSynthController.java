@@ -14,6 +14,7 @@ public class AutoMapSynthController extends SimpleSynthController implements Syn
 
     @Override
     public void midiCC(int CC, int value) {
+        super.midiCC(CC, value);
         handler.midiCC(CC, value);
     }
 

@@ -1,5 +1,9 @@
 package structscript;
 
+import structscript.polyphony.Monophonic;
+import structscript.polyphony.Nophonic;
+import structscript.polyphony.Polyphonic;
+import structscript.polyphony.PolyphonyType;
 import synthesizer.VoiceDistributor;
 import synthesizer.sources.SignalProcessor;
 import synthesizer.sources.SignalSource;
@@ -81,17 +85,19 @@ public class Interpreter {
 
     EditMode editMode = GLOBAL;
 
-    public Interpreter(int voicesCount) {
-        this(voicesCount, null);
+    public Interpreter(PolyphonyType polyphony) {
+        this(polyphony, null);
     }
 
-    public Interpreter(int voicesCount, SourceValuesHandler handler) {
+    public Interpreter(PolyphonyType polyphony, SourceValuesHandler handler) {
         sourceValuesHandler = handler;
-        voices = new Voice[voicesCount];
         this.output = new Socket();
-        voiceOutputs = new Socket[voicesCount];
-        SourceValue aftertouchChannel = new SourceValue("channel aftertouch");
+        SourceValue aftertouchChannel = new SourceValue("channel aftertouch"),
+                pitchbend = new SourceValue("pitch bend"),
+                modwheel = new SourceValue("modulation wheel");
         objects.put("aftertouchChannel", aftertouchChannel);
+        objects.put("pitchbend", pitchbend);
+        objects.put("modwheel", modwheel);
 
         SourceValue lastNotePitch = new SourceValue("last note pitch", frequencyToVoltage(440)),
                 lastNoteVelocity = new SourceValue("last note velocity", 0.5),
@@ -107,31 +113,56 @@ public class Interpreter {
         objects.put("lastNoteTrigger", lastNoteTrigger);
         Voice last = new Voice(lastNotePitch, lastNoteVelocity, lastNoteAftertouch, lastNoteReleaseVelocity, lastNoteGate, lastNoteTrigger);
 
+        int voicesCount;
+        if(polyphony instanceof Polyphonic polyphonic)
+            voicesCount = polyphonic.getVoicesCount();
+        else if(polyphony instanceof Monophonic)
+            voicesCount = 1;
+        else voicesCount = 0;
+        voices = new Voice[voicesCount];
+        voiceOutputs = new Socket[voicesCount];
         voiceObjects.put("pitch", new SignalSource[voicesCount]);
         voiceObjects.put("velocity", new SignalSource[voicesCount]);
         voiceObjects.put("aftertouch", new SignalSource[voicesCount]);
         voiceObjects.put("releaseVelocity", new SignalSource[voicesCount]);
         voiceObjects.put("gate", new SignalSource[voicesCount]);
         voiceObjects.put("trigger", new SignalSource[voicesCount]);
-        for (int i = 0; i < voicesCount; ++i) {
-            voiceOutputs[i] = new Socket();
-            SourceValue pitch = new SourceValue("voice #" + i + " pitch", frequencyToVoltage(440)),
-                    velocity = new SourceValue("voice #" + i + " velocity", 0.5),
-                    aftertouch = new SourceValue("voice #" + i + " aftertouch"),
-                    releaseVelocity = new SourceValue("voice #" + i + " release velocity"),
-                    gate = new SourceValue("voice #" + i + " gate");
-            Triggerable trigger = new Triggerable("voice #" + i + " trigger");
-            voiceObjects.get("pitch")[i] = pitch;
-            voiceObjects.get("velocity")[i] = velocity;
-            voiceObjects.get("aftertouch")[i] = aftertouch;
-            voiceObjects.get("releaseVelocity")[i] = releaseVelocity;
-            voiceObjects.get("gate")[i] = gate;
-            voiceObjects.get("trigger")[i] = trigger;
-            voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
+        if(polyphony instanceof Monophonic){
+            voiceOutputs[0] = new Socket();
+            SourceValue pitch = new SourceValue("mono voice pitch", frequencyToVoltage(440)),
+                    velocity = new SourceValue("mono voice velocity", 0.5),
+                    aftertouch = new SourceValue("mono voice aftertouch"),
+                    releaseVelocity = new SourceValue("mono voice release velocity"),
+                    gate = new SourceValue("mono voice gate");
+            Triggerable trigger = new Triggerable("mono voice trigger");
+            voiceObjects.get("pitch")[0] = lastNotePitch;
+            voiceObjects.get("velocity")[0] = lastNoteVelocity;
+            voiceObjects.get("aftertouch")[0] = lastNoteAftertouch;
+            voiceObjects.get("releaseVelocity")[0] = lastNoteReleaseVelocity;
+            voiceObjects.get("gate")[0] = lastNoteGate;
+            voiceObjects.get("trigger")[0] = lastNoteTrigger;
+            voices[0] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
         }
+        else
+            for (int i = 0; i < voicesCount; ++i) {
+                voiceOutputs[i] = new Socket();
+                SourceValue pitch = new SourceValue("voice #" + i + " pitch", frequencyToVoltage(440)),
+                        velocity = new SourceValue("voice #" + i + " velocity", 0.5),
+                        aftertouch = new SourceValue("voice #" + i + " aftertouch"),
+                        releaseVelocity = new SourceValue("voice #" + i + " release velocity"),
+                        gate = new SourceValue("voice #" + i + " gate");
+                Triggerable trigger = new Triggerable("voice #" + i + " trigger");
+                voiceObjects.get("pitch")[i] = pitch;
+                voiceObjects.get("velocity")[i] = velocity;
+                voiceObjects.get("aftertouch")[i] = aftertouch;
+                voiceObjects.get("releaseVelocity")[i] = releaseVelocity;
+                voiceObjects.get("gate")[i] = gate;
+                voiceObjects.get("trigger")[i] = trigger;
+                voices[i] = new Voice(pitch, velocity, aftertouch, releaseVelocity, gate, trigger);
+            }
         Socket outputGain = new Socket(1);
         objects.put("outputGain", outputGain);
-        synth = new VoiceDistributor(voices, output.attenuate(outputGain).clipBi(), last);
+        synth = new VoiceDistributor(voices, output.attenuate(outputGain).clipBi(), last, pitchbend, modwheel);
         objects.put("voiceMix", new Mixer(voiceOutputs));
     }
 

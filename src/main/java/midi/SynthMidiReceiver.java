@@ -17,12 +17,10 @@ import java.util.stream.Collectors;
 
 public class SynthMidiReceiver<T extends SynthController> implements Receiver {
 
-    public static final int channels = 16;
-
-    protected List<Collection<T>> synths = new ArrayList<>(channels);
+    protected List<Collection<T>> synths = new ArrayList<>(MidiUtils.channels);
 
     {
-        for (int i = 0; i < channels; ++i)
+        for (int i = 0; i < MidiUtils.channels; ++i)
             synths.add(new ArrayList<>());
     }
 
@@ -73,23 +71,19 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
                     int type = mm.getType();
                     byte[] data = mm.getData();
                     switch (type) {
-                        case 0x03:
-                            System.out.println("Track name: " + new String(data, StandardCharsets.UTF_8));
-                            break;
-                        case 0x51:
+                        case 0x03 -> System.out.println("Track name: " + new String(data, StandardCharsets.UTF_8));
+                        case 0x51 -> {
                             double microseconds = (data[0] << 16) + (data[1] << 8) + data[0];
                             bpm = 60 * 1e6 / microseconds;
                             System.out.println("BPM: " + bpm);
-                            break;
+                        }
 //                        case 0x54:
 //                            int minutes = data[0];
 //                            int seconds = data[1];
 //                            offset = 60*minutes + seconds;
 //                            System.out.println("Offset: " + offset + " seconds");
 //                            break;
-                        default:
-                            System.out.println("Unknown meta message with type: " + type);
-                            break;
+                        default -> System.out.println("Unknown meta message with type: " + type);
                     }
                 } else
                     events.add(new Event((int) (event.getTick() / ticksPerBeat / bpm * 60 * SignalSource.sampleRate), message));
@@ -120,6 +114,10 @@ public class SynthMidiReceiver<T extends SynthController> implements Receiver {
         if (action == -7 && mArr[2] == 0)
             action = -8;
         switch (action) {
+            case -2:
+                for (SynthController synth : synths.get(channel))
+                    synth.pitchbend(mArr[1] + 128 * mArr[2]);
+                break;
             case -5:
                 for (SynthController synth : synths.get(channel))
                     synth.midiCC(mArr[1], mArr[2]);

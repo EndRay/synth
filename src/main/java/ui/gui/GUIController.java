@@ -22,6 +22,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import structscript.Interpreter;
 import structscript.StructScriptException;
+import structscript.polyphony.PolyphonyException;
+import structscript.polyphony.PolyphonyType;
+import structscript.polyphony.PolyphonyUtils;
 import synthesizer.VoiceDistributor;
 import ui.synthcontrollers.SimpleSynthController;
 
@@ -90,17 +93,17 @@ public class GUIController {
     @FXML void onSynthBuildButtonClick(){
         String structure = structureField.getText();
         try {
-            int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
+            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString());
             sourceValuesHandler.resetValues();
-            Interpreter interpreter = new Interpreter(voiceCount, sourceValuesHandler);
+            Interpreter interpreter = new Interpreter(polyphony, sourceValuesHandler);
             interpreter.run(structure);
             VoiceDistributor distributor = interpreter.getVoiceDistributor();
             sound.bind(distributor);
             receiver.clearSynthControllers(0);
             receiver.addSynthController(0, new SimpleSynthController(distributor));
             messageText.setText("synth built successfully");
-        } catch (NumberFormatException e) {
-            messageText.setText("voice count must be an integer");
+        } catch (PolyphonyException e) {
+            messageText.setText("incorrect polyphony type");
         } catch (StructScriptException e) {
             messageText.setText(e.getStructScriptMessage());
             int linePos = 0;

@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import structscript.Interpreter;
 import structscript.StructScriptException;
+import structscript.polyphony.PolyphonyType;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.KnobSource;
 import synthesizer.sources.utils.SourceValue;
@@ -42,10 +43,10 @@ public class SynthBlock extends TitledPane {
     final SynthController synthController;
     final Label label;
 
-    public SynthBlock(String synth, int voiceCount) throws NoSuchSynthException, StructScriptException {
+    public SynthBlock(String synth, PolyphonyType polyphony) throws NoSuchSynthException, StructScriptException {
         this.synth = synth;
         handler = new KnobsSourceValuesHandler();
-        interpreter = new Interpreter(voiceCount, handler);
+        interpreter = new Interpreter(polyphony, handler);
         interpreter.run(getSynthStructure(synth));
         List<KnobSource> knobs = handler.getKnobs();
         int width, height;
@@ -95,7 +96,7 @@ public class SynthBlock extends TitledPane {
         sound = interpreter.getVoiceDistributor().attenuate(volume);
         synthController = new SimpleSynthController(interpreter.getVoiceDistributor());
 
-        label = new Label(synth + " (" + voiceCount + ")");
+        label = new Label(synth + " (" + polyphony.getShortName() + ")");
         label.setMaxWidth(Double.MAX_VALUE);
 
         HBox.setHgrow(label, Priority.ALWAYS);

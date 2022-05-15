@@ -13,10 +13,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -27,6 +27,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import structscript.Interpreter;
 import structscript.StructScriptException;
+import structscript.polyphony.PolyphonyException;
+import structscript.polyphony.PolyphonyType;
+import structscript.polyphony.PolyphonyUtils;
 import synthesizer.VoiceDistributor;
 import synthesizer.sources.utils.Socket;
 import ui.synthcontrollers.SimpleSynthController;
@@ -46,9 +49,12 @@ public class EditController {
 
     ObservableList<Region> list;
 
+    KeyCombination buildHotkey = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
+
     @FXML TextArea structureField;
     @FXML TextField synthNameField;
     @FXML TextField voiceCountField;
+    @FXML Button buildButton;
 
     @FXML TextField leftPatchNameField;
     @FXML TextField rightPatchNameField;
@@ -58,7 +64,6 @@ public class EditController {
     @FXML Slider morphSlider;
 
     @FXML Slider masterVolumeSlider;
-
 
     @FXML TextField messageText;
 
@@ -109,17 +114,17 @@ public class EditController {
     @FXML void onSynthBuildButtonClick(){
         String structure = structureField.getText();
         try {
-            int voiceCount = Integer.parseInt(voiceCountField.getCharacters().toString());
+            PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString());
             sourceValuesHandler.resetValues();
-            Interpreter interpreter = new Interpreter(voiceCount, sourceValuesHandler);
+            Interpreter interpreter = new Interpreter(polyphony, sourceValuesHandler);
             interpreter.run(structure);
             VoiceDistributor distributor = interpreter.getVoiceDistributor();
             editorSound.bind(distributor);
             receiver.clearSynthControllers(0);
             receiver.addSynthController(0, new SimpleSynthController(distributor));
             messageText.setText("synth built successfully");
-        } catch (NumberFormatException e) {
-            messageText.setText("voice count must be an integer");
+        } catch (PolyphonyException e) {
+            messageText.setText("incorrect polyphony type");
         } catch (StructScriptException e) {
             messageText.setText(e.getStructScriptMessage());
             int linePos = 0;
@@ -191,6 +196,11 @@ public class EditController {
         sound.bind(editorSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
         masterVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> masterVolume.setValue(newValue.doubleValue()));
+
+        structureField.setOnKeyPressed(event -> {
+            if(buildHotkey.match(event))
+                buildButton.fire();
+        });
 
         sourceValuesHandler = new PropertiesSourceValuesHandler();
         values = sourceValuesHandler.getValues();

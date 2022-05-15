@@ -1,9 +1,12 @@
 package synthesizer;
 
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.utils.SourceValue;
 import synthesizer.sources.voices.Voice;
 
 import java.util.*;
+
+import static midi.MidiUtils.pitchbendRange;
 
 /**
  * TODO: Correct last note
@@ -14,14 +17,18 @@ public class VoiceDistributor implements SignalSource {
     Map<Integer, Voice> voiceByNote = new HashMap<>();
     Set<Voice> freeVoices = new LinkedHashSet<>(), releasedVoices = new LinkedHashSet<>(), gatedVoices = new LinkedHashSet<>();
     SignalSource soundSource;
+    SourceValue pitchbend;
+    SourceValue modwheel;
 
     List<Integer> heldNotes = new ArrayList<>();
     Voice last;
 
-    public VoiceDistributor(Voice[] voices, SignalSource soundSource, Voice last) {
+    public VoiceDistributor(Voice[] voices, SignalSource soundSource, Voice last, SourceValue pitchbend, SourceValue modwheel) {
         this.voices = voices;
         this.soundSource = soundSource;
+        this.pitchbend = pitchbend;
         this.last = last;
+        this.modwheel = modwheel;
         freeVoices.addAll(Arrays.asList(voices));
     }
 
@@ -87,6 +94,14 @@ public class VoiceDistributor implements SignalSource {
 
     public void noteOff(int note){
         noteOff(note, 0);
+    }
+    public void pitchbend(int value){
+        int halfRange = pitchbendRange/2;
+        pitchbend.setValue((double)(value - halfRange)/halfRange);
+    }
+
+    public void modwheel(int value){
+        modwheel.setValue(value/127.0);
     }
 
     public double getSample(int sampleId) {

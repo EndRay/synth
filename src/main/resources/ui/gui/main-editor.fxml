@@ -41,7 +41,7 @@
                                           <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
                                           <Region prefHeight="64.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
                                           <TextField fx:id="voiceCountField" minWidth="48.0" prefHeight="25.0" prefWidth="48.0" promptText="voices" text="6" />
-                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthBuildButtonClick" prefHeight="25.0" prefWidth="45.0" text="build" />
+                                          <Button fx:id="buildButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthBuildButtonClick" prefHeight="25.0" prefWidth="45.0" text="build" />
                                        </children>
                                     </HBox>
                                  </children>

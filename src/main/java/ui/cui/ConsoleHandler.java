@@ -4,6 +4,9 @@ import database.NoSuchSynthException;
 import sequencer.*;
 import sequencer.Sequence;
 import sequencer.Sequencer;
+import structscript.polyphony.PolyphonyException;
+import structscript.polyphony.PolyphonyType;
+import structscript.polyphony.PolyphonyUtils;
 import synthesizer.TimeDependent;
 import synthesizer.sources.SignalSource;
 import synthesizer.sources.utils.Mixer;
@@ -21,7 +24,7 @@ import java.util.List;
 import static database.Database.getSynthStructure;
 import static java.lang.Math.min;
 import static javax.sound.midi.MidiSystem.getSequence;
-import static midi.SynthMidiReceiver.channels;
+import static midi.MidiUtils.channels;
 
 public class ConsoleHandler implements TimeDependent {
 
@@ -151,19 +154,15 @@ public class ConsoleHandler implements TimeDependent {
 //        }
         if (command.matches("create +[0-9]+")) {
             try {
-                int voiceCount = Integer.parseInt(command.substring(6).trim());
-                if (voiceCount < 0) {
-                    System.out.println("wrong voice count");
-                    return;
-                }
+                PolyphonyType polyphony = PolyphonyUtils.byString(command.substring(6).trim());
                 CCSourceValuesHandler handler = new CCSourceValuesHandler();
-                builders[editedChannel] = new Interpreter(voiceCount, handler);
+                builders[editedChannel] = new Interpreter(polyphony, handler);
                 mix.get(editedChannel).bind(builders[editedChannel].getVoiceDistributor());
                 midiReceiver.clearSynthControllers(editedChannel);
                 midiReceiver.addSynthController(editedChannel, new AutoMapSynthController(builders[editedChannel].getVoiceDistributor(), handler));
                 return;
-            } catch (NumberFormatException e) {
-                System.out.println("wrong voice count format");
+            } catch (PolyphonyException e) {
+                System.out.println("incorrect polyphony type");
                 return;
             }
         }
