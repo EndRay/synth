@@ -31,6 +31,8 @@ public class KeyboardKey extends Rectangle {
             default -> this.setFill(Color.BLACK);
         }
 
+        this.setStyle("-fx-stroke: grey; -fx-stroke-width: 3;");
+
         this.setOnMousePressed(keyboardKeyController::OnPressed);
         this.setOnMouseReleased(keyboardKeyController::OnReleased);
     }
