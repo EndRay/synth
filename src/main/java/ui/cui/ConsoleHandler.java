@@ -65,7 +65,6 @@ public class ConsoleHandler implements TimeDependent {
             sequencers[i] = new Sequencer(midiReceiver, i);
             clock.add(sequencers[i]);
         }
-        clock.start();
     }
 
     void handleCommand(String command) {
@@ -106,6 +105,10 @@ public class ConsoleHandler implements TimeDependent {
             double new_volume = Double.parseDouble(command.substring(17).trim());
             new_volume = min(new_volume, 1);
             masterVolume.setValue(new_volume);
+            return;
+        }
+        if(command.matches("clock start")){
+            clock.start();
             return;
         }
         if(editedChannel == -1){

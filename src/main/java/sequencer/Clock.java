@@ -28,6 +28,8 @@ public class Clock{
         signalize.remove(el);
     }
     public void start(){
+        for(Clockable el : signalize)
+            el.start();
         process = new Thread(() -> {
             try {
                 while(true){
@@ -39,6 +41,7 @@ public class Clock{
         });
         process.start();
     }
+
     public void stop(){
         if(process == null)
             return;

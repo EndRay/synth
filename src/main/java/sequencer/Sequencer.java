@@ -17,11 +17,11 @@ import static sequencer.Clock.PPQ;
 public class Sequencer implements Transmitter, Clockable {
     private Sequence sequence = null;
     private Receiver receiver;
-    private final ExecutorService playing = Executors.newCachedThreadPool();
+    private ExecutorService playing;
     private int midiChannel, pingsRemain = 1;
     private Long lastTimeOfPing = null;
     private boolean isPlaying = false;
-    private Iterator<Step> stepIterator = null;
+    private int stepIndex = 0;
     private final AverageBPMCalculator averageBPMCalculator = new AverageBPMCalculator(6);
 
     public Sequencer(Receiver receiver, int midiChannel) {
@@ -51,18 +51,18 @@ public class Sequencer implements Transmitter, Clockable {
         if(isPlaying)
             return;
         if (sequence == null)
-            throw new SequencerException("Play in sequencer called without sequence provided.");
+            return;
+        playing = Executors.newCachedThreadPool();
         isPlaying = true;
-        if (stepIterator == null)
-            stepIterator = sequence.iterator();
+        stepIndex = 0;
         pingsRemain = 1;
     }
 
     public synchronized void stop() {
-        playing.shutdownNow();
+        if(playing != null)
+            playing.shutdownNow();
         lastTimeOfPing = null;
         isPlaying = false;
-        stepIterator = null;
     }
 
     public synchronized void pause() {
@@ -118,6 +118,12 @@ public class Sequencer implements Transmitter, Clockable {
         }
     }
 
+    @Override
+    public void start() {
+        stop();
+        play();
+    }
+
     void playStep(Step step){
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
@@ -145,15 +151,10 @@ public class Sequencer implements Transmitter, Clockable {
     }
 
     void playNextStep() {
-        Step nowStep;
-        final Sequence nowSequence = sequence;
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (nowSequence){
-            if (!stepIterator.hasNext())
-                stepIterator = nowSequence.iterator();
-        }
-        nowStep = stepIterator.next();
-        playStep(nowStep);
+        ++stepIndex;
+        while(stepIndex >= sequence.length())
+            stepIndex -= sequence.length();
+        playStep(sequence.getStep(stepIndex));
     }
 
 }
