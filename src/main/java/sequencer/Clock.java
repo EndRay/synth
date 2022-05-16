@@ -48,6 +48,8 @@ public class Clock{
         if(process == null)
             return;
         process.interrupt();
+        for(Clockable el : signalize)
+            el.stop();
         process = null;
     }
 }

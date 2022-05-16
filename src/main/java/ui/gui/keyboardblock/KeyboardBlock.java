@@ -284,4 +284,9 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     public void start() {
         keyboardBlockController.sequencer.start();
     }
+
+    @Override
+    public void stop() {
+        keyboardBlockController.sequencer.stop();
+    }
 }
