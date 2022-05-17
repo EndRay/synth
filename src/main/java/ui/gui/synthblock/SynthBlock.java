@@ -5,7 +5,6 @@ import database.NoSuchSynthException;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -29,6 +28,7 @@ import java.util.Map;
 
 import static database.Database.getPatch;
 import static database.Database.getSynthStructure;
+import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
 public class SynthBlock extends TitledPane {
@@ -45,6 +45,8 @@ public class SynthBlock extends TitledPane {
     final Label label;
 
     public SynthBlock(String synth, PolyphonyType polyphony) throws NoSuchSynthException, StructScriptException {
+        synthBlockController = new SynthBlockController();
+
         this.synth = synth;
         handler = new KnobsSourceValuesHandler();
         interpreter = new Interpreter(polyphony, handler);
@@ -115,12 +117,8 @@ public class SynthBlock extends TitledPane {
         this.setContent(box);
         this.setMaxWidth(USE_PREF_SIZE);
 
-        synthBlockController = new SynthBlockController();
-        synthBlockController.pane = this;
+        makeDraggable(this, label);
         synthBlockController.initialize();
-        label.setOnMousePressed(synthBlockController::onPressed);
-        label.setOnMouseDragged(synthBlockController::onDragged);
-        label.setOnMouseReleased(synthBlockController::onReleased);
     }
 
     public void loadPatch(String patch) throws NoSuchPatchException {

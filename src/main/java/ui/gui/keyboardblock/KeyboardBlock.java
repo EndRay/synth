@@ -20,6 +20,8 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
 import java.util.*;
 
+import static ui.gui.draggable.DraggablesUtils.makeDraggable;
+
 public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsumer {
 
     final int lowestShift = 0;
@@ -34,6 +36,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     List<KeyboardKey> keyboardKeys = new ArrayList<>();
 
     public KeyboardBlock(Receiver receiver){
+        keyboardBlockController = new KeyboardBlockController();
 
         this.receiver = receiver;
         label = new Label("keyboard");
@@ -95,12 +98,8 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
 
         this.setContent(box);
 
-        keyboardBlockController = new KeyboardBlockController();
-        keyboardBlockController.pane = this;
+        makeDraggable(this, label);
         keyboardBlockController.initialize();
-        label.setOnMousePressed(keyboardBlockController::onPressed);
-        label.setOnMouseDragged(keyboardBlockController::onDragged);
-        label.setOnMouseReleased(keyboardBlockController::onReleased);
     }
 
     Set<Integer> pressedKeys = new HashSet<>();
