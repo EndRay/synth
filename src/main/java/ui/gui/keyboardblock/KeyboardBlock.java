@@ -12,7 +12,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.gui.KeyConsumer;
-import ui.gui.keyboardkey.KeyboardKey;
+import ui.gui.keyboardblock.keyboardkey.KeyboardKey;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
