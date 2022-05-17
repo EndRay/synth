@@ -32,6 +32,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static midi.MidiUtils.getNoteOctave;
 import static ui.gui.MainGUI.*;
+import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
 public class PlayController {
 
@@ -252,6 +253,6 @@ public class PlayController {
     void initialize() {
         sound.bind(playgroundSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
-        masterVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> masterVolume.setValue(newValue.doubleValue()));
+        makeVolumeSlider(masterVolumeSlider, masterVolume);
     }
 }

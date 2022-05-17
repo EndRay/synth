@@ -39,7 +39,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static database.Database.*;
+import static java.lang.Math.exp;
 import static ui.gui.MainGUI.*;
+import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
 public class EditController {
 
@@ -195,7 +197,7 @@ public class EditController {
     public void initialize(){
         sound.bind(editorSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
-        masterVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> masterVolume.setValue(newValue.doubleValue()));
+        makeVolumeSlider(masterVolumeSlider, masterVolume);
 
         structureField.setOnKeyPressed(event -> {
             if(buildHotkey.match(event))

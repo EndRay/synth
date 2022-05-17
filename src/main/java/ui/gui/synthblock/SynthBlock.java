@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static database.Database.getPatch;
 import static database.Database.getSynthStructure;
+import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
 public class SynthBlock extends TitledPane {
 
@@ -88,7 +89,7 @@ public class SynthBlock extends TitledPane {
         }
         SourceValue volume = new SourceValue("volume");
         Slider volumeSlider = new Slider(0, 1, 0);
-        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> volume.setValue(newValue.doubleValue()));
+        makeVolumeSlider(volumeSlider, volume);
         volumeSlider.setMinWidth(USE_PREF_SIZE);
         volumeSlider.setPrefWidth(cellSize * 2);
         volumeSlider.setMaxWidth(USE_PREF_SIZE);
