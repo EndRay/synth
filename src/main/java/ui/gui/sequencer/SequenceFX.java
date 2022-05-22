@@ -13,6 +13,9 @@ public class SequenceFX{
     private final IntegerProperty stepNumberProperty = new SimpleIntegerProperty(0);
     private final MeasureDivisionProperty measureDivisionProperty = new SimpleMeasureDivisionProperty();
 
+    public SequenceFX(){
+        this(null);
+    }
     public SequenceFX(Sequence sequence) {
         this.sequence = sequence;
         measureDivisionProperty.addListener((observable, oldValue, newValue) -> sequence.setMeasureDivision(newValue));
@@ -23,6 +26,10 @@ public class SequenceFX{
     }
 
     public void updateProperties(){
+        if(sequence == null){
+            stepNumberProperty.set(0);
+            measureDivisionProperty.setValue(null);
+        }
         stepNumberProperty.set(sequence.length());
         measureDivisionProperty.setValue(sequence.getMeasureDivision());
     }
