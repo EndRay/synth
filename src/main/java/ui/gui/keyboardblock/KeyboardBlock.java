@@ -12,18 +12,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import sequencer.Clock;
 import sequencer.Clockable;
 import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import javax.swing.event.ChangeListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
