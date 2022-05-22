@@ -12,7 +12,12 @@ public class SimpleMeasureDivisionProperty extends SimpleObjectProperty<MeasureD
 
     public SimpleMeasureDivisionProperty(MeasureDivision measureDivision){
         super(measureDivision);
-        this.addListener((observable, oldValue, newValue) -> nameProperty.set(newValue.getShortName()));
+        this.addListener((observable, oldValue, newValue) -> {
+            if(newValue == null)
+                nameProperty.set("--");
+            else
+                nameProperty.set(newValue.getShortName());
+        });
     }
 
     @Override
