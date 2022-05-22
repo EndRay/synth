@@ -29,6 +29,11 @@ import java.util.Set;
 public class KeyboardBlockController {
 
     Sequencer sequencer;
+
+    public KeyboardBlockController(Receiver receiver){
+        sequencer = new Sequencer(receiver, -1);
+    }
+
     private final BooleanProperty recording = new SimpleBooleanProperty(false);
     private final BooleanProperty muted = new SimpleBooleanProperty(false);
     private Sequence newSequence = null;

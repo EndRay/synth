@@ -17,10 +17,11 @@ import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
@@ -205,6 +206,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
     public void setChannel(int channel){
         releaseAllKeys();
         this.channel = channel;
+        keyboardBlockController.sequencer.setMidiChannel(channel);
     }
 
     public void setLabelContextMenu(ContextMenu contextMenu) {
