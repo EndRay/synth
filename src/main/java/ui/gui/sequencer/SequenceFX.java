@@ -5,7 +5,6 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import sequencer.MeasureDivision;
 import sequencer.Sequence;
-import sequencer.Step;
 
 public class SequenceFX{
 
@@ -16,12 +15,16 @@ public class SequenceFX{
     public SequenceFX(){
         this(null);
     }
+
+    void setSequenceMeasureDivision(MeasureDivision measureDivision){
+        sequence.setMeasureDivision(measureDivision);
+    }
     public SequenceFX(Sequence sequence) {
         this.sequence = sequence;
-        measureDivisionProperty.addListener((observable, oldValue, newValue) -> sequence.setMeasureDivision(newValue));
+        measureDivisionProperty.addListener((observable, oldValue, newValue) -> setSequenceMeasureDivision(newValue));
     }
 
-    public void changeSequence(Sequence sequence){
+    public void setSequence(Sequence sequence){
         this.sequence = sequence;
     }
 
@@ -38,7 +41,7 @@ public class SequenceFX{
         return measureDivisionProperty;
     }
 
-    public ReadOnlyIntegerProperty stepNumber() {
+    public ReadOnlyIntegerProperty stepNumberProperty() {
         return stepNumberProperty;
     }
 }

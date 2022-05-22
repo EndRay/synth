@@ -2,10 +2,7 @@ package ui.gui.keyboardblock;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -17,9 +14,7 @@ import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,21 +23,14 @@ import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 
 public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsumer, Clockable {
 
-    final int lowestShift = 0;
-    final int highestShift = 12;
-
-    Receiver receiver;
 
     final KeyboardBlockController keyboardBlockController;
     final Label label;
-    int channel = -1;
-    int transpose = 60;
     List<KeyboardKey> keyboardKeys = new ArrayList<>();
 
     public KeyboardBlock(Receiver receiver){
         keyboardBlockController = new KeyboardBlockController(receiver);
         
-        this.receiver = receiver;
         label = new Label("keyboard");
         label.minWidthProperty().bind(this.widthProperty());
         this.setGraphic(label);
@@ -102,6 +90,17 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
         {
             HBox sequenceControlPanel = new HBox();
             {
+                TextField stepsField = new TextField();
+                stepsField.setEditable(false);
+                stepsField.setFont(Font.font("Monospaced", FontWeight.BOLD, 14));
+                stepsField.setAlignment(Pos.CENTER_RIGHT);
+                stepsField.setPrefWidth(KeyboardKey.keyWidth * 1.2);
+                stepsField.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+                stepsField.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+                stepsField.textProperty().bind(keyboardBlockController.sequenceFX.stepNumberProperty().asString());
+                sequenceControlPanel.getChildren().add(stepsField);
+            }
+            {
                 Button button = new ControlButton("Tie");
                 button.setOnAction(keyboardBlockController::onTie);
                 sequenceControlPanel.getChildren().add(button);
@@ -124,6 +123,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
                 recolor.accept(false);
                 sequenceControlPanel.getChildren().add(button);
             }
+
 
             sequenceControlPanel.setSpacing(KeyboardKey.keyWidth / 10);
             sequenceControlPanel.setPadding(new Insets(8));
@@ -153,60 +153,28 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
         keyboardBlockController.initialize();
     }
 
-    Set<Integer> pressedKeys = new HashSet<>();
-    Map<KeyboardKey, Integer> pressedKeyByKeyboardKey = new HashMap<>();
-
     public void pressKey(KeyboardKey key) {
-        if(channel == -1)
-            return;
-        releaseKey(key);
-        try {
-            int shift = key.shift;
-            receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, transpose + shift, 64), 0);
-            pressedKeys.add(transpose+shift);
-            pressedKeyByKeyboardKey.put(key, transpose+shift);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-        }
+        keyboardBlockController.pressKey(key);
     }
 
     public void releaseKey(KeyboardKey key) {
-        if(channel == -1)
-            return;
-        if(pressedKeyByKeyboardKey.containsKey(key))
-            releaseAbsoluteKey(pressedKeyByKeyboardKey.get(key));
+        keyboardBlockController.releaseKey(key);
     }
 
-    public void releaseAbsoluteKey(int key) {
-        if(channel == -1)
-            return;
-        try {
-            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, key, 0), 0);
-            pressedKeys.remove(key);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-        }
-    }
     public void releaseAllKeys(){
-        while (!pressedKeys.isEmpty())
-            releaseAbsoluteKey(pressedKeys.stream().findAny().get());
-        pressedKeyByKeyboardKey.clear();
+        keyboardBlockController.releaseAllKeys();
     }
 
     public void octaveDown(){
-        if(transpose - 12 + lowestShift >= 0)
-            transpose -= 12;
+        keyboardBlockController.octaveDown();
     }
 
     public void octaveUp(){
-        if(transpose + 12 + highestShift <= 127)
-            transpose += 12;
+        keyboardBlockController.octaveUp();
     }
 
     public void setChannel(int channel){
-        releaseAllKeys();
-        this.channel = channel;
-        keyboardBlockController.sequencer.setMidiChannel(channel);
+        keyboardBlockController.setChannel(channel);
     }
 
     public void setLabelContextMenu(ContextMenu contextMenu) {
@@ -261,12 +229,12 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
 
     @Override
     public void setReceiver(Receiver receiver) {
-        this.receiver = receiver;
+        keyboardBlockController.receiver = receiver;
     }
 
     @Override
     public Receiver getReceiver() {
-        return receiver;
+        return keyboardBlockController.receiver;
     }
 
     @Override
