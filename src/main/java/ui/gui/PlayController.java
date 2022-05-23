@@ -19,6 +19,7 @@ import structscript.polyphony.PolyphonyException;
 import structscript.polyphony.PolyphonyType;
 import structscript.polyphony.PolyphonyUtils;
 import synthesizer.sources.utils.Socket;
+import ui.gui.chordmachineblock.ChordMachineBlock;
 import ui.gui.keyboardblock.KeyboardBlock;
 import ui.gui.synthblock.SynthBlock;
 
@@ -247,6 +248,16 @@ public class PlayController {
         reorderOnFocus(keyboardBlock);
 
         messageText.setText("keyboard successfully created");
+    }
+
+    @FXML
+    void createChordMachineBlock() {
+        configureSceneKeyConsuming();
+
+        ChordMachineBlock chordMachine = new ChordMachineBlock(receiver);
+        table.getChildren().add(chordMachine);
+
+        reorderOnFocus(chordMachine);
     }
 
     @FXML
