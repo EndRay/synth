@@ -1,7 +1,5 @@
 package ui.gui.keyboardblock;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -21,9 +19,10 @@ import ui.gui.sequencer.ControlButton;
 
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 
@@ -109,7 +108,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
             {
                 ObservableList<String> divisions = FXCollections.observableArrayList(Arrays.stream(MeasureDivision.values()).map(MeasureDivision::getShortName).toList());
                 ComboBox<String> measureDivisionBox = new ComboBox<>(divisions);
-                measureDivisionBox.setPrefWidth(KeyboardKey.keyWidth * 1.5);
+                measureDivisionBox.setPrefWidth(KeyboardKey.keyWidth * 1.8);
                 measureDivisionBox.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.getSelectionModel().select("1/4");

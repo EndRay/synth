@@ -5,6 +5,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,10 +16,12 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import midi.MidiUtils;
 import sequencer.Clock;
+import sequencer.MeasureDivision;
 import structscript.StructScriptException;
 import structscript.polyphony.PolyphonyException;
 import structscript.polyphony.PolyphonyType;
@@ -37,6 +40,7 @@ import java.util.function.Consumer;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static javafx.scene.layout.Region.USE_PREF_SIZE;
 import static midi.MidiUtils.getNoteOctave;
 import static ui.gui.MainGUI.*;
 import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
@@ -70,6 +74,10 @@ public class PlayController {
             if(!oldValue && newValue)
                 node.setViewOrder(--lastViewOrder);
         });
+    }
+
+    private void clockBPMset(double BPM){
+        clock.setBPM(BPM);
     }
 
     @FXML
@@ -270,6 +278,17 @@ public class PlayController {
         sound.bind(playgroundSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
         makeVolumeSlider(masterVolumeSlider, masterVolume);
+        {
+            Spinner<Integer> BPMspinner = new Spinner<>();
+            BPMspinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,  999));
+            BPMspinner.getValueFactory().setValue(120);
+            BPMspinner.setPrefWidth(ControlButton.buttonSize * 3);
+            BPMspinner.setMinWidth(USE_PREF_SIZE);
+            BPMspinner.setMaxWidth(USE_PREF_SIZE);
+            BPMspinner.setEditable(true);
+            BPMspinner.valueProperty().addListener((observable, oldValue, newValue) -> clockBPMset(newValue));
+            clockControls.getChildren().add(BPMspinner);
+        }
         {
             Button button = new ControlButton("▶");
             button.setOnAction(event -> {
