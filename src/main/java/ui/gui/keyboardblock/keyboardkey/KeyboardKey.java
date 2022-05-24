@@ -1,4 +1,4 @@
-package ui.gui.keyboardkey;
+package ui.gui.keyboardblock.keyboardkey;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;

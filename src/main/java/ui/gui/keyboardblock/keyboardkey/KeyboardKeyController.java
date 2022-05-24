@@ -1,4 +1,4 @@
-package ui.gui.keyboardkey;
+package ui.gui.keyboardblock.keyboardkey;
 
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;

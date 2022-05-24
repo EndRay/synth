@@ -16,6 +16,7 @@ import sequencer.MeasureDivision;
 import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
+import ui.gui.keyboardblock.keyboardkey.KeyboardKey;
 
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
