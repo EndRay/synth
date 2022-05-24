@@ -14,7 +14,6 @@ import javafx.scene.text.FontWeight;
 import sequencer.Clockable;
 import sequencer.MeasureDivision;
 import ui.gui.KeyConsumer;
-import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
 import ui.gui.keyboardblock.keyboardkey.KeyboardKey;
 
