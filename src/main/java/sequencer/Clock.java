@@ -28,6 +28,7 @@ public class Clock{
         signalize.remove(el);
     }
     public void start(){
+        stop();
         for(Clockable el : signalize)
             el.start();
         process = new Thread(() -> {
@@ -39,6 +40,7 @@ public class Clock{
                 }
             } catch (InterruptedException ignored) {}
         });
+        process.setDaemon(true);
         process.start();
     }
 
@@ -46,6 +48,8 @@ public class Clock{
         if(process == null)
             return;
         process.interrupt();
+        for(Clockable el : signalize)
+            el.stop();
         process = null;
     }
 }

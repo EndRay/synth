@@ -4,10 +4,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,10 +14,11 @@ import static sequencer.Clock.PPQ;
 public class Sequencer implements Transmitter, Clockable {
     private Sequence sequence = null;
     private Receiver receiver;
-    private ExecutorService playing;
+    private final Collection<Thread> playing = new ArrayList<>();
     private int midiChannel, pingsRemain = 1;
     private Long lastTimeOfPing = null;
     private boolean isPlaying = false;
+    private boolean isMuted = false;
     private int stepIndex = 0;
     private final AverageBPMCalculator averageBPMCalculator = new AverageBPMCalculator(6);
 
@@ -42,6 +40,22 @@ public class Sequencer implements Transmitter, Clockable {
         this.sequence = sequence;
     }
 
+    public synchronized void setMuted(boolean isMuted){
+        this.isMuted = isMuted;
+    }
+    public synchronized boolean isMuted(){
+        return isMuted;
+    }
+    public synchronized void mute(){
+        setMuted(true);
+    }
+
+    public synchronized void unmute(){
+        setMuted(false);
+    }
+
+
+
     @Override
     public synchronized Receiver getReceiver() {
         return receiver;
@@ -52,15 +66,15 @@ public class Sequencer implements Transmitter, Clockable {
             return;
         if (sequence == null)
             return;
-        playing = Executors.newCachedThreadPool();
         isPlaying = true;
         stepIndex = 0;
         pingsRemain = 1;
     }
 
     public synchronized void stop() {
-        if(playing != null)
-            playing.shutdownNow();
+        for(Thread thread : playing)
+            thread.interrupt();
+        playing.clear();
         lastTimeOfPing = null;
         isPlaying = false;
     }
@@ -125,25 +139,28 @@ public class Sequencer implements Transmitter, Clockable {
     }
 
     void playStep(Step step){
+        int channel = midiChannel;
+        if(channel == -1 || isMuted())
+            return;
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
             try {
-                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, midiChannel, note.pitch(), note.velocity()), 0);
-                playing.submit(() -> {
+                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.pitch(), note.velocity()), 0);
+                Thread thread = new Thread(() -> {
                     try {
                         try {
-//                            System.out.println("start wait " + note.pitch());
                             TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
                         } catch (InterruptedException ignored) {
                         } finally {
-//                            System.out.println("try release " + note.pitch());
-                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, midiChannel, note.pitch(), 0), 0);
-//                            System.out.println("released " + note.pitch());
+                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, note.pitch(), 0), 0);
                         }
                     } catch (InvalidMidiDataException e) {
                         throw new SequencerException(e);
                     }
                 });
+                thread.setDaemon(true);
+                thread.start();
+                playing.add(thread);
             } catch (InvalidMidiDataException e) {
                 throw new SequencerException(e);
             }
@@ -151,6 +168,8 @@ public class Sequencer implements Transmitter, Clockable {
     }
 
     void playNextStep() {
+        if(sequence.length() == 0)
+            return;
         ++stepIndex;
         while(stepIndex >= sequence.length())
             stepIndex -= sequence.length();
