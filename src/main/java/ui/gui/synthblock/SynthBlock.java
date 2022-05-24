@@ -16,8 +16,11 @@ import structscript.Interpreter;
 import structscript.StructScriptException;
 import structscript.polyphony.PolyphonyType;
 import synthesizer.sources.SignalSource;
+import synthesizer.sources.utils.DC;
 import synthesizer.sources.utils.KnobSource;
+import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
+import ui.gui.draggable.Deletable;
 import ui.gui.knob.Knob;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
@@ -31,7 +34,7 @@ import static database.Database.getSynthStructure;
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
-public class SynthBlock extends TitledPane {
+public class SynthBlock extends TitledPane implements Deletable {
 
     private static final double cellSize = 40;
 
@@ -39,7 +42,7 @@ public class SynthBlock extends TitledPane {
     final Interpreter interpreter;
     final Map<String, DoubleProperty> properties;
     final KnobsSourceValuesHandler handler;
-    final SignalSource sound;
+    final Socket sound;
     final SynthBlockController synthBlockController;
     final SynthController synthController;
     final Label label;
@@ -96,7 +99,7 @@ public class SynthBlock extends TitledPane {
         volumeSlider.setPrefWidth(cellSize * 2);
         volumeSlider.setMaxWidth(USE_PREF_SIZE);
 
-        sound = interpreter.getVoiceDistributor().attenuate(volume);
+        sound = new Socket(interpreter.getVoiceDistributor().attenuate(volume));
         synthController = new SimpleSynthController(interpreter.getVoiceDistributor());
 
         label = new Label(synth + " (" + polyphony.getShortName() + ")");
@@ -138,5 +141,10 @@ public class SynthBlock extends TitledPane {
 
     public void setLabelContextMenu(ContextMenu contextMenu){
         label.setContextMenu(contextMenu);
+    }
+
+    @Override
+    public void onDelete() {
+        sound.bind(new DC(0));
     }
 }

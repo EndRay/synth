@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 
 public class DraggablesUtils {
     private DraggablesUtils(){}
@@ -24,7 +25,14 @@ public class DraggablesUtils {
                 startX = e.getX();
                 startY = e.getY();
                 canDrag = true;
+                if (e.getClickCount() >= 4 && pane instanceof Deletable deletable) {
+                    if (pane.getParent() instanceof Pane parent) {
+                        deletable.onDelete();
+                        parent.getChildren().remove(pane);
+                    } else throw new RuntimeException("Deletable node's parent is not a pane.");
+                }
             }
+
         }
         void onDragged(MouseEvent e){
             if(canDrag) {
@@ -48,7 +56,7 @@ public class DraggablesUtils {
         }
     }
 
-    static public void makeDraggable(TitledPane pane, Node grip){
+    static public void makeDraggable(TitledPane pane, Node grip) {
         DraggableController controller = new DraggableController(pane);
 
         grip.setOnMousePressed(controller::onPressed);

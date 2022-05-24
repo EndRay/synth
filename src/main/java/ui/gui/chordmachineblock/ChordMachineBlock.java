@@ -3,13 +3,14 @@ package ui.gui.chordmachineblock;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import midi.MidiUtils;
+import ui.gui.draggable.Deletable;
 
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 
-public class ChordMachineBlock extends TitledPane implements Transmitter {
+public class ChordMachineBlock extends TitledPane implements Transmitter, Deletable {
     final Label label;
 
     final public static int width = 4;
@@ -82,6 +83,11 @@ public class ChordMachineBlock extends TitledPane implements Transmitter {
 
     @Override
     public void close() {
+
+    }
+
+    @Override
+    public void onDelete() {
 
     }
 }
