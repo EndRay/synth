@@ -1,5 +1,9 @@
 package ui.gui.keyboardblock;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -10,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import sequencer.Clockable;
+import sequencer.MeasureDivision;
 import ui.gui.KeyConsumer;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.ControlButton;
@@ -18,6 +23,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 
@@ -99,6 +105,16 @@ public class KeyboardBlock extends TitledPane implements Transmitter, KeyConsume
                 stepsField.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 stepsField.textProperty().bind(keyboardBlockController.sequenceFX.stepNumberProperty().asString());
                 sequenceControlPanel.getChildren().add(stepsField);
+            }
+            {
+                ObservableList<String> divisions = FXCollections.observableArrayList(Arrays.stream(MeasureDivision.values()).map(MeasureDivision::getShortName).toList());
+                ComboBox<String> measureDivisionBox = new ComboBox<>(divisions);
+                measureDivisionBox.setPrefWidth(KeyboardKey.keyWidth * 1.5);
+                measureDivisionBox.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+                measureDivisionBox.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+                measureDivisionBox.getSelectionModel().select("1/4");
+                measureDivisionBox.valueProperty().addListener(keyboardBlockController.divisionComboBoxListener);
+                sequenceControlPanel.getChildren().add(measureDivisionBox);
             }
             {
                 Button button = new ControlButton("Tie");

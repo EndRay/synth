@@ -3,12 +3,11 @@ package ui.gui.keyboardblock;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import sequencer.Note;
-import sequencer.Sequence;
-import sequencer.Sequencer;
-import sequencer.Step;
+import sequencer.*;
 import ui.gui.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.SequenceFX;
 
@@ -40,6 +39,7 @@ public class KeyboardBlockController {
     private final BooleanProperty recording = new SimpleBooleanProperty(false);
     private final BooleanProperty muted = new SimpleBooleanProperty(false);
     private Sequence newSequence = null;
+    private MeasureDivision nowMeasureDivision = MeasureDivision.QUARTER;
 
     public ReadOnlyBooleanProperty recordingProperty() {
         return recording;
@@ -58,6 +58,14 @@ public class KeyboardBlockController {
     void onRecord(ActionEvent event){
         recording.setValue(recording.not().getValue());
     }
+
+    ChangeListener<String> divisionComboBoxListener = (observableValue, oldValue, newValue) -> {
+        for(MeasureDivision our : MeasureDivision.values())
+            if(our.getShortName().equals(newValue))
+                nowMeasureDivision = our;
+        if(newSequence != null)
+            newSequence.setMeasureDivision(nowMeasureDivision);
+    };
 
     @FXML
     void onTie(ActionEvent event){
@@ -140,7 +148,7 @@ public class KeyboardBlockController {
     void initialize() {
         recordingProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
-                newSequence = new Sequence();
+                newSequence = new Sequence(nowMeasureDivision);
                 sequenceFX.setSequence(newSequence);
                 sequenceFX.updateProperties();
             }else{
