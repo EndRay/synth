@@ -11,18 +11,26 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 public class Knob extends Region {
 
     final static Image image;
+    final static Image fixedImage;
 
     static {
         try {
             image = new Image(Knob.class.getResource("knob.png").toURI().toString());
+            URL fixedURL = Knob.class.getResource("fixedKnob.png");
+            if(fixedURL == null)
+                fixedImage = null;
+            else fixedImage = new Image(fixedURL.toURI().toString());
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     final KnobController controller;
@@ -31,11 +39,17 @@ public class Knob extends Region {
         controller = new KnobController();
 
         ImageView sprite = new ImageView(image);
+        ImageView fixedSprite = null;
+        if(fixedImage != null)
+             fixedSprite = new ImageView(fixedImage);
         Label text = new Label();
         text.setTextAlignment(TextAlignment.CENTER);
         VBox textBox = new VBox(text);
         textBox.setAlignment(Pos.BOTTOM_CENTER);
-        VBox spriteBox = new VBox(sprite);
+        StackPane spriteBox;
+        if(fixedSprite == null)
+            spriteBox = new StackPane(sprite);
+        else spriteBox = new StackPane(fixedSprite, sprite);
         spriteBox.setAlignment(Pos.CENTER);
         StackPane pane = new StackPane(textBox, spriteBox);
         spriteBox.minWidthProperty().bind(pane.widthProperty());
@@ -44,6 +58,7 @@ public class Knob extends Region {
         spriteBox.maxHeightProperty().bind(pane.heightProperty());
 
         controller.sprite = sprite;
+        controller.fixedSprite = fixedSprite;
         controller.text = text;
         controller.pane = pane;
 
@@ -51,6 +66,13 @@ public class Knob extends Region {
         sprite.setOnMouseDragged(controller::OnKnobDragged);
         sprite.setOnMouseReleased(controller::OnKnobReleased);
         sprite.setOnScroll(controller::OnKnobScrolled);
+
+        if(fixedSprite != null) {
+            fixedSprite.setOnMousePressed(controller::OnKnobPressed);
+            fixedSprite.setOnMouseDragged(controller::OnKnobDragged);
+            fixedSprite.setOnMouseReleased(controller::OnKnobReleased);
+            fixedSprite.setOnScroll(controller::OnKnobScrolled);
+        }
 
         controller.initialize();
 

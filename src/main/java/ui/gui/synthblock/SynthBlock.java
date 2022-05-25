@@ -115,8 +115,7 @@ public class SynthBlock extends TitledPane implements Deletable {
         this.setGraphic(titleBox);
         HBox box = new HBox(gridPane);
         box.setAlignment(Pos.CENTER);
-        gridPane.setBorder(new Border(new BorderStroke(Color.GREY,
-                BorderStrokeStyle.DASHED, new CornerRadii(cellSize/3), BorderWidths.DEFAULT)));
+        gridPane.getStyleClass().addAll("control-block");
         this.setContent(box);
         this.setMaxWidth(USE_PREF_SIZE);
 

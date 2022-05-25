@@ -15,7 +15,7 @@ import static javafx.beans.binding.Bindings.min;
 
 public class KnobController {
 
-    private static final double knobSizeCoefficient = 0.9;
+    private static final double knobSizeCoefficient = 0.7;
     private static final double textSizeCoefficient = 0.12;
     private static final double dragSpeed = 0.004;
     private static final double scrollSpeed = 0.00015;
@@ -27,6 +27,7 @@ public class KnobController {
     @FXML Label text;
     @FXML StackPane pane;
     @FXML ImageView sprite;
+    @FXML ImageView fixedSprite;
 
     private double prevDragY;
 
@@ -59,6 +60,11 @@ public class KnobController {
     public void initialize(){
         sprite.fitWidthProperty().bind(pane.widthProperty().multiply(knobSizeCoefficient));
         sprite.fitHeightProperty().bind(pane.heightProperty().multiply(knobSizeCoefficient));
+
+        if(fixedSprite != null) {
+            fixedSprite.fitWidthProperty().bind(pane.widthProperty().multiply(knobSizeCoefficient));
+            fixedSprite.fitHeightProperty().bind(pane.heightProperty().multiply(knobSizeCoefficient));
+        }
 
         sizeProperty = new SimpleDoubleProperty();
         sizeProperty.addListener(((observable, oldValue, newValue) -> text.setFont(Font.font("Comic Sans MS", newValue.doubleValue()*textSizeCoefficient))));
