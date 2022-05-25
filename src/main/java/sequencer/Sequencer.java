@@ -145,14 +145,14 @@ public class Sequencer implements Transmitter, Clockable {
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
             try {
-                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.pitch(), note.velocity()), 0);
+                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.getPitch(), note.getVelocity()), 0);
                 Thread thread = new Thread(() -> {
                     try {
                         try {
-                            TimeUnit.MILLISECONDS.sleep((long) (note.gate() * playLengthInMilliseconds));
+                            TimeUnit.MILLISECONDS.sleep((long) (note.getGate() * playLengthInMilliseconds));
                         } catch (InterruptedException ignored) {
                         } finally {
-                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, note.pitch(), 0), 0);
+                            receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, note.getPitch(), 0), 0);
                         }
                     } catch (InvalidMidiDataException e) {
                         throw new SequencerException(e);
