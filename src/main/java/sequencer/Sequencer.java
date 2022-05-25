@@ -145,11 +145,17 @@ public class Sequencer implements Transmitter, Clockable {
         double playLengthInMilliseconds = (60 * 1000) / (averageBPMCalculator.getDerivedBPM() * sequence.getMeasureDivision().getDivision());
         for (Note note : step.getNotes()) {
             try {
-                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.getPitch(), note.getVelocity()), 0);
+                Integer nowVelocity = sequence.getDefaultVelocity();
+                if(note.getVelocity() != null)
+                    nowVelocity = note.getVelocity();
+                receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, note.getPitch(), nowVelocity), 0);
                 Thread thread = new Thread(() -> {
                     try {
                         try {
-                            TimeUnit.MILLISECONDS.sleep((long) (note.getGate() * playLengthInMilliseconds));
+                            Double nowGate = sequence.getDefaultGate();
+                            if(note.getGate() != null)
+                                nowGate = note.getGate();
+                            TimeUnit.MILLISECONDS.sleep((long) (nowGate * playLengthInMilliseconds));
                         } catch (InterruptedException ignored) {
                         } finally {
                             receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, channel, note.getPitch(), 0), 0);

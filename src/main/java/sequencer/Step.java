@@ -9,6 +9,11 @@ public class Step implements Iterable<Note> {
         this.notes = new CopyOnWriteArrayList<>();
         Collections.addAll(this.notes, notes);
     }
+
+    public void setGate(Double gate){
+        for(Note note : notes)
+            note.setGate(gate);
+    }
     void addNote(Note note){
         this.notes.add(note);
     }

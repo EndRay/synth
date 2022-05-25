@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
+import static ui.gui.keyboardblock.KeyboardBlockController.defaultDefaultGate;
 
 public class KeyboardBlock extends TitledPane implements Transmitter, Deletable, KeyConsumer, Clockable {
 
@@ -115,6 +116,17 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
                 measureDivisionBox.getSelectionModel().select("1/4");
                 measureDivisionBox.valueProperty().addListener(keyboardBlockController.divisionComboBoxListener);
                 sequenceControlPanel.getChildren().add(measureDivisionBox);
+            }
+            {
+                Spinner<Double> GateSpinner = new Spinner<>();
+                GateSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, defaultDefaultGate, 0.1));
+                GateSpinner.setViewOrder(0.1);
+                GateSpinner.setPrefWidth(ControlButton.buttonSize * 2.5);
+                GateSpinner.setMinWidth(USE_PREF_SIZE);
+                GateSpinner.setMaxWidth(USE_PREF_SIZE);
+                GateSpinner.setEditable(true);
+                GateSpinner.valueProperty().addListener(keyboardBlockController.gateSpinnerListener);
+                sequenceControlPanel.getChildren().add(GateSpinner);
             }
             {
                 Button button = new ControlButton("Tie");

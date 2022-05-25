@@ -2,16 +2,16 @@ package sequencer;
 
 public class Note{
     private int pitch;
-    private int velocity;
-    private double gate;
+    private Integer velocity;
+    private Double gate;
 
-    public Note(int pitch, int velocity, double gate) {
+    public Note(Integer pitch, Integer velocity, Double gate) {
         this.setPitch(pitch);
         this.setVelocity(velocity);
         this.setGate(gate);
     }
 
-    public int getPitch() {
+    public Integer getPitch() {
         return pitch;
     }
 
@@ -21,22 +21,22 @@ public class Note{
         this.pitch = pitch;
     }
 
-    public int getVelocity() {
+    public Integer getVelocity() {
         return velocity;
     }
 
-    public void setVelocity(int velocity) {
-        if (velocity < 1 || velocity > 127)
+    public void setVelocity(Integer velocity) {
+        if (velocity != null && (velocity < 1 || velocity > 127))
             throw new SequenceException("Invalid note velocity.");
         this.velocity = velocity;
     }
 
-    public double getGate() {
+    public Double getGate() {
         return gate;
     }
 
-    public void setGate(double gate) {
-        if (gate < 0)
+    public void setGate(Double gate) {
+        if (gate != null && gate < 0)
             throw new SequenceException("Invalid note gate.");
         this.gate = gate;
     }

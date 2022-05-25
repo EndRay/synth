@@ -1,5 +1,6 @@
 package ui.gui.keyboardblock;
 
+import javafx.beans.DefaultProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 public class KeyboardBlockController {
 
+    static final Double defaultDefaultGate = 0.5;
     final int lowestShift = 0;
     final int highestShift = 12;
     Receiver receiver;
@@ -40,6 +42,7 @@ public class KeyboardBlockController {
     private final BooleanProperty muted = new SimpleBooleanProperty(false);
     private Sequence newSequence = null;
     private MeasureDivision nowMeasureDivision = MeasureDivision.QUARTER;
+    private Double nowDefaultGate = defaultDefaultGate;
 
     public ReadOnlyBooleanProperty recordingProperty() {
         return recording;
@@ -65,6 +68,12 @@ public class KeyboardBlockController {
                 nowMeasureDivision = our;
         if(newSequence != null)
             newSequence.setMeasureDivision(nowMeasureDivision);
+    };
+
+    ChangeListener<Double> gateSpinnerListener = (observableValue, oldValue, newValue) -> {
+        nowDefaultGate = newValue;
+        if(newSequence != null)
+            newSequence.setDefaultGate(newValue);
     };
 
     @FXML
@@ -93,7 +102,7 @@ public class KeyboardBlockController {
     public void pressAbsoluteKey(int key){
         try {
             if(isRecording()){
-                newSequence.addStep(new Step(new Note(key, 64, 0.5)));
+                newSequence.addStep(new Step(new Note(key, null, null)));
                 sequenceFX.updateProperties();
             }
             if(channel == -1)
@@ -149,6 +158,7 @@ public class KeyboardBlockController {
         recordingProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
                 newSequence = new Sequence(nowMeasureDivision);
+                newSequence.setDefaultGate(nowDefaultGate);
                 sequenceFX.setSequence(newSequence);
                 sequenceFX.updateProperties();
             }else{

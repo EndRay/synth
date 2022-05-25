@@ -9,10 +9,30 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Sequence{
     private final ReadWriteLock l = new ReentrantReadWriteLock();
     private MeasureDivision measureDivision;
+    private Double defaultGate = 0.5;
+    private Integer defaultVelocity = 60;
     private final List<Step> steps = new ArrayList<>();
 
     public Sequence(Step... steps) {
         this(MeasureDivision.SIXTEENTH, steps);
+    }
+
+    public void setDefaultGate(Double gate){
+        try{
+            l.writeLock().lock();
+            defaultGate = gate;
+        } finally {
+            l.writeLock().unlock();
+        }
+    }
+
+    public void setDefaultVelocity(Integer velocity){
+        try{
+            l.writeLock().lock();
+            defaultVelocity = velocity;
+        } finally {
+            l.writeLock().unlock();
+        }
     }
 
     public Sequence(MeasureDivision measureDivision, Step... steps) {
@@ -82,5 +102,13 @@ public class Sequence{
         } finally {
             l.writeLock().unlock();
         }
+    }
+
+    public Double getDefaultGate() {
+        return defaultGate;
+    }
+
+    public Integer getDefaultVelocity() {
+        return defaultVelocity;
     }
 }
