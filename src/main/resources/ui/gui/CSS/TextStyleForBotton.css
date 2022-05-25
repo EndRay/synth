@@ -1,0 +1,6 @@
+.button{
+    /*-fx-font-weight: bold;*/
+    /*-fx-font-size: 1.5em;*/
+    -fx-font-family: monospace;
+    -fx-text-fill: #333333;
+}

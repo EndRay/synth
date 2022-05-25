@@ -1,0 +1,8 @@
+.control-block{
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-background-color: lightgray;
+    -fx-border-style: dashed;
+    -fx-border-color: darkgrey;
+    -fx-border-width: 2px;
+}

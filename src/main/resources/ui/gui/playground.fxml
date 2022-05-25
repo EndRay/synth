@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
@@ -40,7 +41,7 @@
 
                   <ScrollPane prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
                     <content>
-                      <AnchorPane fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1500.0" prefWidth="2000.0" />
+                      <AnchorPane fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1500.0" prefWidth="2000.0" styleClass="table" />
                     </content>
                   </ScrollPane>
                </children>
@@ -53,4 +54,10 @@
          </children>
       </HBox>
    </children>
+   <stylesheets>
+      <URL value="@CSS/BottonStyle.css" />
+      <URL value="@CSS/BackGroundPlay.css" />
+      <URL value="@CSS/BackGroundPlay.css" />
+      <URL value="@CSS/DraggableStyle.css" />
+   </stylesheets>
 </AnchorPane>
