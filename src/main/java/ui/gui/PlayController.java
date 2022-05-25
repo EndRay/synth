@@ -94,7 +94,13 @@ public class PlayController {
 
     @FXML
     void createSynthBlock() {
-        String synth = synthNameField.getValue().trim();
+        String synthName = synthNameField.getValue();
+        if(synthName == null){
+            messageText.setText("choose synth to load first");
+            return;
+        }
+        synthName = synthName.trim();
+        String synth = synthName;
         try {
             PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString().trim());
             SynthBlock synthBlock = new SynthBlock(synth, polyphony);
