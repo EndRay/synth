@@ -85,8 +85,6 @@ public class SequencerPanelController{
                 sequenceFX.setSequence(newSequence);
                 sequenceFX.updateProperties();
             }else{
-                System.out.println("kekw");
-                System.out.println(newSequence.length());
                 sequencer.setSequence(newSequence);
             }
         });
