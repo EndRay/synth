@@ -14,7 +14,7 @@ public class Step implements Iterable<Note> {
         for(Note note : notes)
             note.setGate(gate);
     }
-    void addNote(Note note){
+    public void addNote(Note note){
         this.notes.add(note);
     }
     void clear(){
@@ -28,5 +28,9 @@ public class Step implements Iterable<Note> {
     @Override
     public ListIterator<Note> iterator() {
         return getNotes().listIterator();
+    }
+
+    public void clearNotes() {
+        notes.clear();
     }
 }

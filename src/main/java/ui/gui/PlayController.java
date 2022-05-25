@@ -277,6 +277,7 @@ public class PlayController {
         configureSceneKeyConsuming();
 
         ChordMachineBlock chordMachine = new ChordMachineBlock(receiver);
+        clock.add(chordMachine);
         table.getChildren().add(chordMachine);
 
         reorderOnFocus(chordMachine);

@@ -18,6 +18,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import midi.MidiUtils;
+import sequencer.Note;
+import sequencer.Step;
+import ui.gui.sequencer.SequencerPanelController;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.ShortMessage;
@@ -109,8 +112,17 @@ public class ChordKey extends StackPane {
 
         setOnContextMenuRequested(e -> menu.show(this, e.getScreenX(), e.getScreenY()));
 
+        Step step = new Step();
+
+        chord.addListener((SetChangeListener<? super Integer>) e -> {
+            step.clearNotes();
+            for(int note : e.getSet())
+                step.addNote(new Note(note, null, null));
+        });
+
         setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {
+                chordMachineBlock.chordMachineBlockController.sequencerPanelController.addStepOnPress(step);
                 int channel = chordMachineBlock.getChannel();
                 if (channel == -1)
                     return;
