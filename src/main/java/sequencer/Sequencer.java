@@ -176,10 +176,10 @@ public class Sequencer implements Transmitter, Clockable {
     void playNextStep() {
         if(sequence.length() == 0)
             return;
+        playStep(sequence.getStep(stepIndex));
         ++stepIndex;
         while(stepIndex >= sequence.length())
             stepIndex -= sequence.length();
-        playStep(sequence.getStep(stepIndex));
     }
 
 }
