@@ -5,6 +5,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,6 +37,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
+import static database.Database.getSynths;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static javafx.scene.layout.Region.USE_PREF_SIZE;
@@ -51,7 +53,7 @@ public class PlayController {
     @FXML
     Pane table;
     @FXML
-    TextField synthNameField;
+    ComboBox<String> synthNameField;
     @FXML
     TextField voiceCountField;
 
@@ -92,7 +94,7 @@ public class PlayController {
 
     @FXML
     void createSynthBlock() {
-        String synth = synthNameField.getText().trim();
+        String synth = synthNameField.getValue().trim();
         try {
             PolyphonyType polyphony = PolyphonyUtils.byString(voiceCountField.getCharacters().toString().trim());
             SynthBlock synthBlock = new SynthBlock(synth, polyphony);
@@ -288,6 +290,11 @@ public class PlayController {
         sound.bind(playgroundSound);
         masterVolumeSlider.setValue(masterVolume.getValue());
         makeVolumeSlider(masterVolumeSlider, masterVolume);
+
+        {
+            synthNameField.setItems(FXCollections.observableList(getSynths()));
+        }
+
         {
             Spinner<Integer> BPMspinner = new Spinner<>();
             BPMspinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,  999));
