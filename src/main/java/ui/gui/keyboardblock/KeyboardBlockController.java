@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import sequencer.*;
 import ui.gui.keyboardblock.keyboardkey.KeyboardKey;
 import ui.gui.sequencer.SequenceFX;
+import ui.gui.sequencer.SequencerPanelController;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
@@ -22,71 +23,17 @@ import java.util.Set;
 
 public class KeyboardBlockController {
 
-    static final Double defaultDefaultGate = 0.5;
+    public final SequencerPanelController sequencerPanelController;
     final int lowestShift = 0;
     final int highestShift = 12;
     Receiver receiver;
 
     int channel = -1;
     int transpose = 60;
-    final Sequencer sequencer;
-    final SequenceFX sequenceFX;
 
     public KeyboardBlockController(Receiver receiver){
         this.receiver = receiver;
-        sequencer = new Sequencer(receiver, -1);
-        sequenceFX = new SequenceFX();
-    }
-
-    private final BooleanProperty recording = new SimpleBooleanProperty(false);
-    private final BooleanProperty muted = new SimpleBooleanProperty(false);
-    private Sequence newSequence = null;
-    private MeasureDivision nowMeasureDivision = MeasureDivision.QUARTER;
-    private Double nowDefaultGate = defaultDefaultGate;
-
-    public ReadOnlyBooleanProperty recordingProperty() {
-        return recording;
-    }
-    public boolean isRecording(){
-        return recordingProperty().get();
-    }
-    public ReadOnlyBooleanProperty mutedProperty() {
-        return muted;
-    }
-    public boolean isMuted(){
-        return mutedProperty().get();
-    }
-
-    @FXML
-    void onRecord(ActionEvent event){
-        recording.setValue(recording.not().getValue());
-    }
-
-    ChangeListener<String> divisionComboBoxListener = (observableValue, oldValue, newValue) -> {
-        for(MeasureDivision our : MeasureDivision.values())
-            if(our.getShortName().equals(newValue))
-                nowMeasureDivision = our;
-        if(newSequence != null)
-            newSequence.setMeasureDivision(nowMeasureDivision);
-    };
-
-    ChangeListener<Double> gateSpinnerListener = (observableValue, oldValue, newValue) -> {
-        nowDefaultGate = newValue;
-        if(newSequence != null)
-            newSequence.setDefaultGate(newValue);
-    };
-
-    @FXML
-    void onTie(ActionEvent event){
-        if(isRecording()) {
-            newSequence.addStep(new Step());
-            sequenceFX.updateProperties();
-        }
-    }
-
-    @FXML
-    void onMute(ActionEvent event){
-        muted.setValue(muted.not().getValue());
+        sequencerPanelController = new SequencerPanelController(receiver);
     }
 
     Set<Integer> pressedKeys = new HashSet<>();
@@ -101,10 +48,7 @@ public class KeyboardBlockController {
 
     public void pressAbsoluteKey(int key){
         try {
-            if(isRecording()){
-                newSequence.addStep(new Step(new Note(key, null, null)));
-                sequenceFX.updateProperties();
-            }
+            sequencerPanelController.addStepOnPress(new Step(new Note(key, null, null)));
             if(channel == -1)
                 return;
             receiver.send(new ShortMessage(ShortMessage.NOTE_ON, channel, key, 64), 0);
@@ -150,21 +94,11 @@ public class KeyboardBlockController {
     public void setChannel(int channel){
         releaseAllKeys();
         this.channel = channel;
-        sequencer.setMidiChannel(channel);
+        sequencerPanelController.setMidiChannel(channel);
     }
 
     @FXML
     void initialize() {
-        recordingProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue){
-                newSequence = new Sequence(nowMeasureDivision);
-                newSequence.setDefaultGate(nowDefaultGate);
-                sequenceFX.setSequence(newSequence);
-                sequenceFX.updateProperties();
-            }else{
-                sequencer.setSequence(newSequence);
-            }
-        });
-        mutedProperty().addListener((observable, oldValue, newValue) -> sequencer.setMuted(newValue));
+        sequencerPanelController.initialize();
     }
 }

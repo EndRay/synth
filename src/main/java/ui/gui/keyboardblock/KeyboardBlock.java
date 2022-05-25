@@ -17,6 +17,7 @@ import ui.gui.KeyConsumer;
 import ui.gui.draggable.Deletable;
 import ui.gui.sequencer.ControlButton;
 import ui.gui.keyboardblock.keyboardkey.KeyboardKey;
+import ui.gui.sequencer.SequencerPanelController;
 
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
-import static ui.gui.keyboardblock.KeyboardBlockController.defaultDefaultGate;
 
 public class KeyboardBlock extends TitledPane implements Transmitter, Deletable, KeyConsumer, Clockable {
 
@@ -104,7 +104,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
                 stepsField.setPrefWidth(KeyboardKey.keyWidth * 1.2);
                 stepsField.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 stepsField.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-                stepsField.textProperty().bind(keyboardBlockController.sequenceFX.stepNumberProperty().asString());
+                stepsField.textProperty().bind(keyboardBlockController.sequencerPanelController.sequenceFX.stepNumberProperty().asString());
                 sequenceControlPanel.getChildren().add(stepsField);
             }
             {
@@ -114,39 +114,39 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
                 measureDivisionBox.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.getSelectionModel().select("1/4");
-                measureDivisionBox.valueProperty().addListener(keyboardBlockController.divisionComboBoxListener);
+                measureDivisionBox.valueProperty().addListener(keyboardBlockController.sequencerPanelController.divisionComboBoxListener);
                 sequenceControlPanel.getChildren().add(measureDivisionBox);
             }
             {
                 Spinner<Double> GateSpinner = new Spinner<>();
-                GateSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, defaultDefaultGate, 0.1));
+                GateSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 0.9, SequencerPanelController.defaultDefaultGate, 0.1));
                 GateSpinner.setViewOrder(0.1);
                 GateSpinner.setPrefWidth(ControlButton.buttonSize * 2.5);
                 GateSpinner.setMinWidth(USE_PREF_SIZE);
                 GateSpinner.setMaxWidth(USE_PREF_SIZE);
                 GateSpinner.setEditable(true);
-                GateSpinner.valueProperty().addListener(keyboardBlockController.gateSpinnerListener);
+                GateSpinner.valueProperty().addListener(keyboardBlockController.sequencerPanelController.gateSpinnerListener);
                 sequenceControlPanel.getChildren().add(GateSpinner);
             }
             {
                 Button button = new ControlButton("Tie");
-                button.setOnAction(keyboardBlockController::onTie);
+                button.setOnAction(keyboardBlockController.sequencerPanelController::onTie);
                 sequenceControlPanel.getChildren().add(button);
             }
             {
                 Button button = new ControlButton("⚫");
-                button.setOnAction(keyboardBlockController::onRecord);
+                button.setOnAction(keyboardBlockController.sequencerPanelController::onRecord);
                 Consumer<Boolean> recolor = on -> button.setTextFill(on ? Color.RED : Color.DARKRED);
-                keyboardBlockController.recordingProperty().addListener(
+                keyboardBlockController.sequencerPanelController.recordingProperty().addListener(
                         (observable, oldValue, newValue) -> recolor.accept(newValue));
                 recolor.accept(false);
                 sequenceControlPanel.getChildren().add(button);
             }
             {
                 Button button = new ControlButton("M");
-                button.setOnAction(keyboardBlockController::onMute);
+                button.setOnAction(keyboardBlockController.sequencerPanelController::onMute);
                 Consumer<Boolean> recolor = on -> button.setTextFill(on ? Color.BLUE : Color.DARKBLUE);
-                keyboardBlockController.mutedProperty().addListener(
+                keyboardBlockController.sequencerPanelController.mutedProperty().addListener(
                         (observable, oldValue, newValue) -> recolor.accept(newValue));
                 recolor.accept(false);
                 sequenceControlPanel.getChildren().add(button);
@@ -272,17 +272,17 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
 
     @Override
     public void ping() {
-        keyboardBlockController.sequencer.ping();
+        keyboardBlockController.sequencerPanelController.sequencer.ping();
     }
 
     @Override
     public void start() {
-        keyboardBlockController.sequencer.start();
+        keyboardBlockController.sequencerPanelController.sequencer.start();
     }
 
     @Override
     public void stop() {
-        keyboardBlockController.sequencer.stop();
+        keyboardBlockController.sequencerPanelController.sequencer.stop();
     }
 
     @Override
