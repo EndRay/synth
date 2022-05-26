@@ -84,6 +84,7 @@ public class PlayController {
 
     @FXML
     void goToMainMenu(ActionEvent event) {
+        clock.clear();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         try {
             Parent root = new FXMLLoader(EditController.class.getResource("main-menu.fxml")).load();

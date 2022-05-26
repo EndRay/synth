@@ -27,6 +27,9 @@ public class Clock{
     public void remove(Clockable el){
         signalize.remove(el);
     }
+    public void clear(){
+        signalize.clear();
+    }
     public void start(){
         stop();
         for(Clockable el : signalize)
