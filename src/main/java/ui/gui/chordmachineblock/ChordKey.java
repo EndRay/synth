@@ -47,9 +47,7 @@ public class ChordKey extends StackPane {
         this.setAlignment(Pos.CENTER);
 
         Rectangle rectangle = new Rectangle(size, size);
-        rectangle.setFill(Color.LIGHTGRAY);
-        rectangle.setArcWidth(30);
-        rectangle.setArcHeight(30);
+        rectangle.getStyleClass().add("chordkey");
 
         ObservableSet<Integer> chord = FXCollections.observableSet();
         ContextMenu menu = new ContextMenu();
@@ -77,6 +75,7 @@ public class ChordKey extends StackPane {
         }
 
         GridPane grid = new GridPane();
+        grid.setMouseTransparent(true);
 
         grid.setVgap(3);
         grid.setHgap(3);

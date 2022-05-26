@@ -26,12 +26,12 @@ public class KeyboardKey extends Rectangle {
         this.setArcWidth(keyWidth/2);
         this.setArcHeight(keyWidth/2);
 
-        switch ((shift % 12 + 12) % 12) {
-            case 0, 2, 4, 5, 7, 9, 11 -> this.setFill(Color.WHITE);
-            default -> this.setFill(Color.BLACK);
-        }
+        this.getStyleClass().addAll("keyboardkey");
 
-        this.setStyle("-fx-stroke: grey; -fx-stroke-width: 3;");
+        switch ((shift % 12 + 12) % 12) {
+            case 0, 2, 4, 5, 7, 9, 11 -> this.getStyleClass().add("white");
+            default -> this.getStyleClass().add("black");
+        }
 
         this.setOnMousePressed(keyboardKeyController::OnPressed);
         this.setOnMouseReleased(keyboardKeyController::OnReleased);

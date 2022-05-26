@@ -48,6 +48,7 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
         this.setContent(ChordMachineBox);
         {
             HBox sequenceControlPanel = new HBox();
+            sequenceControlPanel.getStyleClass().addAll("control-block", "control-panel");
             {
                 TextField stepsField = new TextField();
                 stepsField.setEditable(false);
@@ -105,13 +106,6 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
             }
 
 
-            sequenceControlPanel.setSpacing(KeyboardKey.keyWidth / 10);
-            sequenceControlPanel.setPadding(new Insets(8));
-            sequenceControlPanel.setAlignment(Pos.CENTER_RIGHT);
-
-            sequenceControlPanel.setBorder(new Border(new BorderStroke(Color.GREY,
-                    BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
-
             ChordMachineBox.getChildren().add(sequenceControlPanel);
         }
         {
@@ -124,12 +118,8 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
                 grid.setHgap(10);
                 grid.setVgap(10);
 
-                grid.setPadding(new Insets(8));
-                grid.setAlignment(Pos.CENTER_RIGHT);
-                grid.setBorder(new Border(new BorderStroke(Color.GREY,
-                        BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
+                grid.getStyleClass().add("control-block");
 
-                ChordMachineBox.setSpacing(KeyboardKey.keyWidth / 8);
                 ChordMachineBox.getChildren().add(grid);
             }
 

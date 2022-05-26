@@ -15,3 +15,40 @@
     -fx-spacing: 4px;
     -fx-alignment: center-right;
 }
+
+.chordkey{
+    -fx-arc-width: 30px;
+    -fx-arc-height: 30px;
+    -fx-background-radius: 30px;
+
+    -fx-fill: #a9a9a9;
+}
+
+.chordkey:hover{
+    -fx-fill: #8d8d8d;
+}
+
+.chordkey:pressed {
+    -fx-fill: #999999;
+}
+
+.keyboardkey{
+    -fx-stroke: #a9a9a9;
+    -fx-stroke-width: 3;
+}
+
+.keyboardkey.white{
+    -fx-fill: white;
+}
+
+.keyboardkey.black{
+    -fx-fill: black;
+}
+
+.keyboardkey:hover{
+    -fx-stroke: #8d8d8d;
+}
+
+.keyboardkey:pressed {
+    -fx-stroke: #999999;
+}

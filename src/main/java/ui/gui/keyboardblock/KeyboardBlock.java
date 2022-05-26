@@ -80,22 +80,22 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
         Button octaveDownButton = new Button("<");
         octaveDownButton.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
         octaveDownButton.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-        octaveDownButton.setPrefSize(KeyboardKey.keyWidth/2, KeyboardKey.keyWidth/2);
+        octaveDownButton.setPrefSize(KeyboardKey.keyWidth/1.5, KeyboardKey.keyWidth/1.5);
         octaveDownButton.setFont(Font.font("Monospaced", FontWeight.BOLD, KeyboardKey.keyWidth/5));
         octaveDownButton.setOnAction(event -> octaveDown());
 
         Button octaveUpButton = new Button(">");
         octaveUpButton.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
         octaveUpButton.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-        octaveUpButton.setPrefSize(KeyboardKey.keyWidth/2, KeyboardKey.keyWidth/2);
+        octaveUpButton.setPrefSize(KeyboardKey.keyWidth/1.5, KeyboardKey.keyWidth/1.5);
         octaveUpButton.setFont(Font.font("Monospaced", FontWeight.BOLD, KeyboardKey.keyWidth/5));
         octaveUpButton.setOnAction(event -> octaveUp());
 
         VBox box = new VBox();
-        box.setSpacing(2);
 
         {
             HBox sequenceControlPanel = new HBox();
+            sequenceControlPanel.getStyleClass().addAll("control-block", "control-panel");
             {
                 TextField stepsField = new TextField();
                 stepsField.setEditable(false);
@@ -153,21 +153,12 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
             }
 
 
-            sequenceControlPanel.setSpacing(KeyboardKey.keyWidth / 10);
-            sequenceControlPanel.setPadding(new Insets(8));
-            sequenceControlPanel.setAlignment(Pos.CENTER_RIGHT);
-
-            sequenceControlPanel.setBorder(new Border(new BorderStroke(Color.GREY,
-                    BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
-
             box.getChildren().add(sequenceControlPanel);
         }
 
         {
             HBox playBox = new HBox(octaveDownButton, octaveUpButton, keyboardBox);
-            playBox.setPadding(new Insets(8));
-            playBox.setBorder(new Border(new BorderStroke(Color.GREY,
-                    BorderStrokeStyle.DASHED, new CornerRadii(10), BorderWidths.DEFAULT)));
+            playBox.getStyleClass().add("control-block");
 
             playBox.setSpacing(KeyboardKey.keyWidth / 8);
 
