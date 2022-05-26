@@ -43,7 +43,7 @@
 
                   <ScrollPane prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
                     <content>
-                      <AnchorPane fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1500.0" prefWidth="2000.0" styleClass="table" />
+                      <AnchorPane fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="3000.0" prefWidth="4000.0" styleClass="table" />
                     </content>
                   </ScrollPane>
                </children>
