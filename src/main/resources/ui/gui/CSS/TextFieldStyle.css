@@ -1,3 +1,27 @@
 .text-field {
+    -fx-background-radius: 5px;
+    -fx-background-color:
+            radial-gradient(center 50% 50%, radius 100%, #ffffff, #dcdcdc);
+    -fx-border-color: gray;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+    -fx-prompt-text-fill: #9b9b9b;
+    /*-fx-prompt-text-famaly: italic;*/
+    /*-moz-box-shadow: 0px, 0px, 5px, 1px, rgba(0,0,0,0.03);*/
+}
 
+/*.text-field:hover{
+    -fx-background-radius: 5px;
+    -fx-background-color: #eeeeee;
+    -fx-border-color: #8d8b8b;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+}*/
+
+.text-field:focused{
+    -fx-background-radius: 5px;
+    -fx-background-color: #f1f1f1;
+    -fx-border-color: #a2a2a2;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
 }

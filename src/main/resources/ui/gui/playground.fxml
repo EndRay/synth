@@ -56,9 +56,11 @@
       </HBox>
    </children>
    <stylesheets>
-      <URL value="@CSS/BottonStyle.css" />
+      <URL value="@CSS/ButtonStyle.css" />
       <URL value="@CSS/BackGroundPlay.css" />
       <URL value="@CSS/BackGroundPlay.css" />
       <URL value="@CSS/DraggableStyle.css" />
+      <URL value="@CSS/TextFieldStyle.css" />
+      <URL value="@CSS/TextStyleForButton.css" />
    </stylesheets>
 </AnchorPane>

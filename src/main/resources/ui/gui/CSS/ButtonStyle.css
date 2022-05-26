@@ -9,7 +9,7 @@
     -fx-effect: dropshadow(gaussian, rgba(17, 16, 16,0.75),3,0,0,1);
 }
 
-.button:hover, .text-field:hover {
+.button:hover {
     -fx-background-radius: 8;
     -fx-background-color:
             linear-gradient(from 0% 93% to 0% 100%, #d0c7d2 0%, #dedee7 100%),

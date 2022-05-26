@@ -30,7 +30,7 @@
       </VBox>
    </children>
    <stylesheets>
-      <URL value="@CSS/BottonStyle.css" />
+      <URL value="@CSS/ButtonStyle.css" />
       <URL value="@CSS/BackGroundStyle.css" />
    </stylesheets>
 </AnchorPane>

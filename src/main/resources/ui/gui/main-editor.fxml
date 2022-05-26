@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Slider?>
@@ -12,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@CSS/BottonStyle.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.gui.EditController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.gui.EditController">
    <children>
       <HBox prefHeight="773.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -20,7 +21,7 @@
                <children>
                   <HBox>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#goToMainMenu" text="menu" />
+                        <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goToMainMenu" text="menu" />
                      </children>
                   </HBox>
                   <SplitPane dividerPositions="0.4025522041763341" prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
@@ -36,12 +37,12 @@
                                     </TextArea>
                                     <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="352.0">
                                        <children>
-                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthLoadButtonClick" text="load" />
                                           <TextField fx:id="synthNameField" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="synth name" />
-                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                          <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthSaveButtonClick" text="save" />
                                           <Region prefHeight="64.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
                                           <TextField fx:id="voiceCountField" minWidth="48.0" prefHeight="25.0" prefWidth="48.0" promptText="voices" text="6" />
-                                          <Button fx:id="buildButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthBuildButtonClick" prefHeight="25.0" prefWidth="45.0" text="build" />
+                                          <Button fx:id="buildButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSynthBuildButtonClick" text="build" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -55,13 +56,13 @@
                                     <ListView fx:id="propertiesList" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                     <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="352.0">
                                        <children>
-                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchLoadButtonClick" text="load" />
                                           <TextField fx:id="leftPatchNameField" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="patch name" />
-                                          <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                          <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLeftPatchSaveButtonClick" text="save" />
                                           <Slider fx:id="morphSlider" max="1.0" minWidth="60.0" HBox.hgrow="ALWAYS" />
-                                          <Button layoutX="10.0" layoutY="10.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchLoadButtonClick" prefHeight="25.0" prefWidth="44.0" text="load" />
+                                          <Button layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchLoadButtonClick" text="load" />
                                           <TextField fx:id="rightPatchNameField" layoutX="54.0" layoutY="10.0" minWidth="45.0" prefHeight="25.0" prefWidth="80.0" promptText="patch name" />
-                                          <Button layoutX="151.0" layoutY="10.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchSaveButtonClick" prefHeight="25.0" prefWidth="42.0" text="save" />
+                                          <Button layoutX="151.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRightPatchSaveButtonClick" text="save" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -85,4 +86,9 @@
          </children>
       </HBox>
    </children>
+   <stylesheets>
+      <URL value="@CSS/ButtonStyle.css" />
+      <URL value="@CSS/TextFieldStyle.css" />
+      <URL value="@CSS/TextStyleForButton.css" />
+   </stylesheets>
 </AnchorPane>
