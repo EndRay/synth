@@ -1,15 +1,15 @@
 package ui.gui.synthblock;
 
+import database.Database;
 import database.NoSuchPatchException;
 import database.NoSuchSynthException;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import structscript.Interpreter;
@@ -22,6 +22,7 @@ import synthesizer.sources.utils.Socket;
 import synthesizer.sources.utils.SourceValue;
 import ui.gui.draggable.Deletable;
 import ui.gui.knob.Knob;
+import ui.gui.sequencer.ControlButton;
 import ui.synthcontrollers.SimpleSynthController;
 import ui.synthcontrollers.SynthController;
 
@@ -29,8 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static database.Database.getPatch;
-import static database.Database.getSynthStructure;
+import static database.Database.*;
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
 import static ui.gui.volume.VolumeUtils.makeVolumeSlider;
 
@@ -46,6 +46,7 @@ public class SynthBlock extends TitledPane implements Deletable {
     final SynthBlockController synthBlockController;
     final SynthController synthController;
     final Label label;
+    final ObservableList<String> patches = FXCollections.observableArrayList();
 
     public SynthBlock(String synth, PolyphonyType polyphony) throws NoSuchSynthException, StructScriptException {
         synthBlockController = new SynthBlockController();
@@ -113,7 +114,49 @@ public class SynthBlock extends TitledPane implements Deletable {
         titleBox.minWidthProperty().bind(this.widthProperty());
 
         this.setGraphic(titleBox);
-        HBox box = new HBox(gridPane);
+
+        HBox controlPanel = new HBox();
+        controlPanel.getStyleClass().addAll("control-block", "control-panel");
+        {
+            {
+                Button saveButton = new ControlButton("Save");
+                TextField patchName = new TextField();
+                patchName.setPromptText("patch name");
+
+                saveButton.setOnAction(e -> {
+                    String patch = patchName.getText();
+                    patchName.setText("");
+                    savePatch(patch);
+                    if(!patches.contains(patch))
+                        patches.add(patch);
+                });
+
+                controlPanel.getChildren().addAll(saveButton, patchName);
+            }
+
+            {
+                Region space = new Region();
+                HBox.setHgrow(space, Priority.ALWAYS);
+                controlPanel.getChildren().add(space);
+            }
+
+            {
+                ComboBox<String> patchesList = new ComboBox<>();
+                patchesList.setPromptText("patch");
+                patchesList.setItems(patches);
+                patches.addAll(getPatches(synth));
+
+                Button loadButton = new ControlButton("Load");
+                loadButton.setOnAction(e -> {
+                    String patch = patchesList.getValue();
+                    if (patch == null)
+                        return;
+                    loadPatch(patch);
+                });
+                controlPanel.getChildren().addAll(patchesList, loadButton);
+            }
+        }
+        VBox box = new VBox(controlPanel, gridPane);
         box.setAlignment(Pos.CENTER);
         gridPane.getStyleClass().addAll("control-block");
         this.setContent(box);
@@ -123,11 +166,26 @@ public class SynthBlock extends TitledPane implements Deletable {
         synthBlockController.initialize();
     }
 
-    public void loadPatch(String patch) throws NoSuchPatchException {
-        Map<String, Double> patchProperties = getPatch(synth, patch);
-        for (Map.Entry<String, Double> property : patchProperties.entrySet())
-            if (properties.containsKey(property.getKey()))
-                properties.get(property.getKey()).setValue(property.getValue());
+    public void loadPatch(String patch){
+        try {
+            Map<String, Double> patchProperties = getPatch(synth, patch);
+            for (Map.Entry<String, Double> property : patchProperties.entrySet())
+                if (properties.containsKey(property.getKey()))
+                    properties.get(property.getKey()).setValue(property.getValue());
+        } catch (NoSuchPatchException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void savePatch(String patch){
+        try {
+            Map<String, Double> patchProperties = new HashMap<>();
+            for(Map.Entry<String, DoubleProperty> property : properties.entrySet())
+                patchProperties.put(property.getKey(), property.getValue().doubleValue());
+            Database.savePatch(synth, patch, patchProperties);
+        } catch (NoSuchSynthException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public SynthController getSynthController() {

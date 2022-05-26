@@ -112,6 +112,23 @@ public final class Database {
         }
     }
 
+    private static final String SQL_PATCHES_GET =
+            "SELECT patch_name FROM patches WHERE synth_id = (SELECT synth_id FROM synths WHERE synth_name = ?)";
+
+    public static List<String> getPatches(String synth) {
+        try (Connection c = getConnection();
+             PreparedStatement statement = c.prepareStatement(SQL_PATCHES_GET)) {
+            statement.setString(1, synth);
+            ResultSet res = statement.executeQuery();
+            List<String> ans = new ArrayList<>();
+            while (res.next())
+                ans.add(res.getString(1));
+            return ans;
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+    }
+
     private static final String SQL_PATCH_CREATE =
             "INSERT OR IGNORE INTO patches (synth_id, patch_name) VALUES ((SELECT synth_id FROM synths WHERE synth_name = ?), ?)";
     private static final String SQL_PARAMETER_SAVE =
