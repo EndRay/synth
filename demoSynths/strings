@@ -1,0 +1,45 @@
+Cutoff = modwheel
+Detune = Property("detune", 0.1).mapUni(0, 0.3semi)
+DryWet = Property("drywet reverb", 0.3)
+
+-v-
+
+speed = velocity.mapUni(2s, 100ms)
+
+env = AR(speed, speed)
+env.gate <= gate
+
+
+osc1 = Saw(pitch - Detune)
+osc2 = Saw(pitch)
+osc3 = Saw(pitch + Detune)
+
+mix = UMix()
+
+mix <- osc1
+mix <- osc2
+mix <- osc3
+
+filter = Filter()
+
+filter.freq <= Cutoff.mapUni(300hz, 15000hz)
+
+filter.source <= mix
+
+filter * env => output
+
+---
+
+preEffects = Socket()
+
+reverb = Reverb(2s)
+
+reverb.source <= preEffects
+
+dryWetter = Morph(preEffects, reverb)
+
+dryWetter.morph <= DryWet
+
+dryWetter => output
+
+voiceMix => preEffects
