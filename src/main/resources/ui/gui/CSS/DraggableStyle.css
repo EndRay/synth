@@ -4,5 +4,14 @@
     -fx-background-color: lightgray;
     -fx-border-style: dashed;
     -fx-border-color: darkgrey;
-    -fx-border-width: 2px;
+    -fx-border-width: 1.5px;
+
+    -fx-border-insets: 2px;
+    -fx-background-insets: 2px;
+    -fx-padding: 10px;
+}
+
+.control-panel{
+    -fx-spacing: 4px;
+    -fx-alignment: center-right;
 }
