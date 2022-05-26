@@ -43,7 +43,7 @@ public class MidiUtils {
         switch (name.charAt(0)){
             case 'C' -> note = 0;
             case 'D' -> note = 2;
-            case 'E' -> note = 3;
+            case 'E' -> note = 4;
             case 'F' -> note = 5;
             case 'G' -> note = 7;
             case 'A' -> note = 9;
