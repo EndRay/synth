@@ -39,9 +39,12 @@ public class Knob extends Region {
         controller = new KnobController();
 
         ImageView sprite = new ImageView(image);
+        sprite.setPreserveRatio(true);
         ImageView fixedSprite = null;
-        if(fixedImage != null)
-             fixedSprite = new ImageView(fixedImage);
+        if(fixedImage != null) {
+            fixedSprite = new ImageView(fixedImage);
+            fixedSprite.setPreserveRatio(true);
+        }
         Label text = new Label();
         text.setTextAlignment(TextAlignment.CENTER);
         VBox textBox = new VBox(text);
