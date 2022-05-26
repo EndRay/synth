@@ -12,9 +12,9 @@ cutoff = (Cutoff).mapUni(300hz, 15000hz)
 
 filter = Filter(cutoff)
 
-filter.source <= noise * env
+filter.source <= noise
 
-filter => output
+(noise - filter) * env => output
 
 ---
 voiceMix => output
