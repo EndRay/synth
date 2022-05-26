@@ -251,31 +251,6 @@ public class PlayController {
 
         table.getChildren().add(keyboardBlock);
 
-        ToggleGroup group = new ToggleGroup();
-
-        ContextMenu menu = new ContextMenu();
-        for (int i = 0; i < MidiUtils.channels; ++i) {
-            int channel = i;
-            RadioMenuItem item = new RadioMenuItem("midi channel " + (channel + 1));
-            item.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue)
-                    keyboardBlock.setChannel(channel);
-            });
-            item.setToggleGroup(group);
-            menu.getItems().add(item);
-        }
-        {
-            RadioMenuItem item = new RadioMenuItem("disabled");
-            item.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue)
-                    keyboardBlock.setChannel(-1);
-            });
-            menu.getItems().add(item);
-            item.setToggleGroup(group);
-            item.setSelected(true);
-        }
-        keyboardBlock.setLabelContextMenu(menu);
-
         reorderOnFocus(keyboardBlock);
 
         messageText.setText("keyboard successfully created");

@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import midi.MidiUtils;
 import sequencer.Clockable;
 import sequencer.MeasureDivision;
 import ui.gui.KeyConsumer;
@@ -168,6 +169,33 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
 
         this.setContent(box);
 
+        {
+            ToggleGroup group = new ToggleGroup();
+
+            ContextMenu menu = new ContextMenu();
+            for (int i = 0; i < MidiUtils.channels; ++i) {
+                int channel = i;
+                RadioMenuItem item = new RadioMenuItem("midi channel " + (channel + 1));
+                item.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue)
+                        this.setChannel(channel);
+                });
+                item.setToggleGroup(group);
+                menu.getItems().add(item);
+            }
+            {
+                RadioMenuItem item = new RadioMenuItem("disabled");
+                item.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue)
+                        this.setChannel(-1);
+                });
+                menu.getItems().add(item);
+                item.setToggleGroup(group);
+                item.setSelected(true);
+            }
+            label.setContextMenu(menu);
+        }
+
         makeDraggable(this, label);
         keyboardBlockController.initialize();
     }
@@ -194,10 +222,6 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
 
     public void setChannel(int channel){
         keyboardBlockController.setChannel(channel);
-    }
-
-    public void setLabelContextMenu(ContextMenu contextMenu) {
-        label.setContextMenu(contextMenu);
     }
 
     @Override
