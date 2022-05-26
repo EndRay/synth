@@ -37,4 +37,33 @@ public class MidiUtils {
             throw new IllegalArgumentException();
         return getNoteLetter(note) + getNoteOctave(note);
     }
+
+    public static int getNoteByName(String name) {
+        int note;
+        switch (name.charAt(0)){
+            case 'C' -> note = 0;
+            case 'D' -> note = 2;
+            case 'E' -> note = 3;
+            case 'F' -> note = 5;
+            case 'G' -> note = 7;
+            case 'A' -> note = 9;
+            case 'B' -> note = 11;
+            default -> throw new IllegalArgumentException();
+        }
+        name = name.substring(1);
+        while(name.charAt(0) == '#' || name.charAt(0) == 'b'){
+            if(name.charAt(0) == '#')
+                ++note;
+            else --note;
+            name = name.substring(1);
+        }
+        try{
+            note += (Integer.parseInt(name) + 2) * 12;
+        } catch (NumberFormatException e){
+            throw new IllegalArgumentException();
+        }
+        if(note < lowestNote || note > highestNote)
+            throw new IllegalArgumentException();
+        return note;
+    }
 }
