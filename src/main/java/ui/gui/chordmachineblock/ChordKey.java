@@ -6,13 +6,11 @@ import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -20,13 +18,10 @@ import javafx.scene.text.TextAlignment;
 import midi.MidiUtils;
 import sequencer.Note;
 import sequencer.Step;
-import ui.gui.sequencer.SequencerPanelController;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.ShortMessage;
-
 import java.util.Collection;
-import java.util.List;
 
 import static java.lang.Math.*;
 import static midi.MidiUtils.getNoteOctave;
@@ -70,12 +65,20 @@ public class ChordKey extends StackPane {
                             else item.setSelected(false);
                         } else chord.remove(note);
                     });
+                    chord.addListener((SetChangeListener<? super Integer>) e -> item.setSelected(e.getSet().contains(note)));
                     octaveMenu.getItems().add(item);
                 }
                 menu.getItems().add(octaveMenu);
             }
         }
-
+        {
+            menu.getItems().add(new SeparatorMenuItem());
+        }
+        {
+            MenuItem item = new MenuItem("clr");
+            item.setOnAction(e -> chord.clear());
+            menu.getItems().add(item);
+        }
         GridPane grid = new GridPane();
         grid.setMouseTransparent(true);
 
@@ -88,6 +91,9 @@ public class ChordKey extends StackPane {
             grid.getChildren().clear();
 
             int notes = change.getSet().size();
+
+            if(notes == 0)
+                return;
 
             int height = (int)ceil(sqrt(notes));
             int width = (notes+height-1)/height;
