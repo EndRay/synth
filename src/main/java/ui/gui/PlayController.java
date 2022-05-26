@@ -27,6 +27,7 @@ import structscript.polyphony.PolyphonyUtils;
 import synthesizer.sources.utils.Socket;
 import ui.gui.chordmachineblock.ChordMachineBlock;
 import ui.gui.keyboardblock.KeyboardBlock;
+import ui.gui.multidrumsequencer.DrumSequencerBlock;
 import ui.gui.sequencer.ControlButton;
 import ui.gui.synthblock.SynthBlock;
 
@@ -289,6 +290,15 @@ public class PlayController {
         table.getChildren().add(chordMachine);
 
         reorderOnFocus(chordMachine);
+    }
+
+    @FXML
+    void createDrumSequencerBlock(){
+        DrumSequencerBlock drumSequencer = new DrumSequencerBlock(receiver);
+        clock.add(drumSequencer);
+        table.getChildren().add(drumSequencer);
+
+        reorderOnFocus(drumSequencer);
     }
 
     @FXML

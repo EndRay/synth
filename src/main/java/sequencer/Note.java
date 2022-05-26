@@ -1,7 +1,7 @@
 package sequencer;
 
 public class Note{
-    private int pitch;
+    private Integer pitch;
     private Integer velocity;
     private Double gate;
 
@@ -15,8 +15,8 @@ public class Note{
         return pitch;
     }
 
-    public void setPitch(int pitch) {
-        if (pitch < 0 || pitch > 127)
+    public void setPitch(Integer pitch) {
+        if (pitch != null && (pitch < 0 || pitch > 127))
             throw new SequenceException("Invalid note pitch.");
         this.pitch = pitch;
     }

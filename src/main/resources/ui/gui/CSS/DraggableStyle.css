@@ -62,3 +62,14 @@
 .keyboardkey:pressed {
     -fx-stroke: #999999;
 }
+
+.stepbutton{
+    -fx-arc-width: 7px;
+    -fx-arc-height: 7px;
+
+    -fx-fill: grey;
+}
+
+.stepbutton.active{
+    -fx-fill: green;
+}
