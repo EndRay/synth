@@ -138,6 +138,7 @@ public class PlayController {
                             if (newValue)
                                 splitFrom.setValue(note);
                         });
+                        splitFrom.addListener((observable, oldValue, newValue) -> item.setSelected(note == newValue.intValue()));
                         splitTo.addListener((observable, oldValue, newValue) -> item.setDisable(note > newValue.intValue()));
                         octaveMenu.getItems().add(item);
                     }
@@ -163,10 +164,39 @@ public class PlayController {
                                 splitTo.setValue(note);
                         });
                         splitFrom.addListener((observable, oldValue, newValue) -> item.setDisable(note < newValue.intValue()));
+                        splitTo.addListener((observable, oldValue, newValue) -> item.setSelected(note == newValue.intValue()));
                         octaveMenu.getItems().add(item);
                     }
                     splitFrom.addListener((observable, oldValue, newValue) -> octaveMenu.setDisable(highestNoteInOctave < newValue.intValue()));
                     splitToMenu.getItems().add(octaveMenu);
+                }
+            }
+            Menu splitOnlyMenu = new Menu("only");
+            {
+                ToggleGroup group = new ToggleGroup();
+                int lowestOctave = getNoteOctave(MidiUtils.lowestNote),
+                        highestOctave = getNoteOctave(MidiUtils.highestNote);
+                for (int octave = lowestOctave; octave <= highestOctave; ++octave) {
+                    int lowestNoteInOctave = max((octave - lowestOctave) * 12, MidiUtils.lowestNote),
+                            highestNoteInOctave = min((octave - lowestOctave) * 12 + 11, MidiUtils.highestNote);
+                    Menu octaveMenu = new Menu(String.valueOf(octave));
+                    for (int i = lowestNoteInOctave; i <= highestNoteInOctave; ++i) {
+                        int note = i;
+                        RadioMenuItem item = new RadioMenuItem(MidiUtils.getNoteName(note));
+                        item.setToggleGroup(group);
+                        item.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                            if (newValue) {
+                                splitFrom.setValue(note);
+                                splitTo.setValue(note);
+                            }
+                        });
+                        splitFrom.addListener((observable, oldValue, newValue) ->
+                                item.setSelected(note == splitFrom.intValue() && note == splitTo.intValue()));
+                        splitTo.addListener((observable, oldValue, newValue) ->
+                                item.setSelected(note == splitFrom.intValue() && note == splitTo.intValue()));
+                        octaveMenu.getItems().add(item);
+                    }
+                    splitOnlyMenu.getItems().add(octaveMenu);
                 }
             }
             Runnable updateCondition = () -> {
@@ -176,7 +206,7 @@ public class PlayController {
             };
             splitFrom.addListener((observable, oldValue, newValue) -> updateCondition.run());
             splitTo.addListener((observable, oldValue, newValue) -> updateCondition.run());
-            menu.getItems().addAll(new SeparatorMenuItem(), splitFromMenu, splitToMenu);
+            menu.getItems().addAll(new SeparatorMenuItem(), splitFromMenu, splitToMenu, splitOnlyMenu);
             synthBlock.setLabelContextMenu(menu);
 
             reorderOnFocus(synthBlock);
