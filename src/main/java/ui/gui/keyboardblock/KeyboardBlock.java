@@ -110,7 +110,7 @@ public class KeyboardBlock extends TitledPane implements Transmitter, Deletable,
             {
                 ObservableList<String> divisions = FXCollections.observableArrayList(Arrays.stream(MeasureDivision.values()).map(MeasureDivision::getShortName).toList());
                 ComboBox<String> measureDivisionBox = new ComboBox<>(divisions);
-                measureDivisionBox.setPrefWidth(KeyboardKey.keyWidth * 1.8);
+                measureDivisionBox.setPrefWidth(KeyboardKey.keyWidth * 2.2);
                 measureDivisionBox.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
                 measureDivisionBox.getSelectionModel().select("1/4");

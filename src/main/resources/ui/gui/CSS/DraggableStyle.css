@@ -16,6 +16,16 @@
     -fx-alignment: center-right;
 }
 
+.control-panel.left{
+    -fx-alignment: center-left;
+}
+
+.combo-box{
+    -fx-font-weight: bold;
+    -fx-font-size: 1.1em;
+    -fx-font-family: monospace;
+}
+
 .chordkey{
     -fx-arc-width: 30px;
     -fx-arc-height: 30px;
