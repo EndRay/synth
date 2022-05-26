@@ -21,7 +21,7 @@ NoiseMix = Knob("noise volume", 0, "Noise", 9, 6, 2)
 "Filter"
 Cutoff = Knob("cutoff", 0.5, "Cutoff", 11, 0, 4)
 Resonance = Knob("resonance", 0, "Resonance", 15, 0, 2)
-EnvAmount = Knob("env amount", 0.5, "Envelope Amount", 17, 0, 2)
+EnvAmount = Knob("env amount", 0.5, "Envelope Amount", 17, 0, 2).mapUni(-1, 1)
 LFOAmount = Knob("lfo amount", 0, "LFO Amount", 17, 2, 2)
 
 "Filter Envelope"
