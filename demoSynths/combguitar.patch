@@ -3,7 +3,7 @@ env = new Hold(pitch)
 env.trig <= trigger
 
 noise = new Noise()
-noise * env * volume => output
+noise * env => output
 
 filter = new Filter(0.35)
 filter.f <- pitch * 0.7
