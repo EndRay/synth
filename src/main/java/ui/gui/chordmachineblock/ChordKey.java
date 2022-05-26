@@ -25,6 +25,7 @@ import ui.gui.sequencer.SequencerPanelController;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.ShortMessage;
 
+import java.util.Collection;
 import java.util.List;
 
 import static java.lang.Math.*;
@@ -38,6 +39,8 @@ public class ChordKey extends StackPane {
 
     final ChordMachineBlock chordMachineBlock;
 
+    ObservableSet<Integer> chord = FXCollections.observableSet();
+
     public ChordKey(ChordMachineBlock chordMachineBlock) {
         this.chordMachineBlock = chordMachineBlock;
         this.setPrefSize(size, size);
@@ -49,7 +52,6 @@ public class ChordKey extends StackPane {
         Rectangle rectangle = new Rectangle(size, size);
         rectangle.getStyleClass().add("chordkey");
 
-        ObservableSet<Integer> chord = FXCollections.observableSet();
         ContextMenu menu = new ContextMenu();
         {
             int lowestOctave = getNoteOctave(MidiUtils.lowestNote),
@@ -147,5 +149,12 @@ public class ChordKey extends StackPane {
                 }
             }
         });
+    }
+
+    public void setChord(Collection<Integer> chord){
+        if(chord.size() > maxNotes)
+            throw new IllegalArgumentException();
+        this.chord.clear();
+        this.chord.addAll(chord);
     }
 }

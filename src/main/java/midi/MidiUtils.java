@@ -1,5 +1,8 @@
 package midi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MidiUtils {
     public static final int channels = 16;
     public static final int pitchbendRange = 128*128;
@@ -65,5 +68,33 @@ public class MidiUtils {
         if(note < lowestNote || note > highestNote)
             throw new IllegalArgumentException();
         return note;
+    }
+
+
+    public static List<Integer> getQuickChord(String name) {
+        List<Integer> chord = new ArrayList<>();
+        boolean isMinor = name.endsWith("m");
+        if(isMinor)
+            name = name.substring(0, name.length()-1);
+        int note = getNoteByName(name);
+        chord.add(note);
+        chord.add(note-12);
+        {
+            int newNote = note + 7;
+            if(getNoteOctave(newNote) > getNoteOctave(note))
+                newNote -= 12;
+            chord.add(newNote);
+        }
+        {
+            int newNote = note + (isMinor ? 3 : 4);
+            if(getNoteOctave(newNote) > getNoteOctave(note))
+                newNote -= 12;
+            chord.add(newNote);
+        }
+
+        for(int n : chord)
+            if(n < lowestNote || n > highestNote)
+                throw new IllegalArgumentException();
+        return chord;
     }
 }

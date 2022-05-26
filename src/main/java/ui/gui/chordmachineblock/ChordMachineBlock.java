@@ -21,6 +21,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import static ui.gui.draggable.DraggablesUtils.makeDraggable;
@@ -31,6 +32,8 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
 
     final public static int width = 4;
     final public static int height = 2;
+
+    final ChordKey[][] chordKeys = new ChordKey[width][height];
 
     Receiver receiver;
 
@@ -113,8 +116,10 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
             {
                 GridPane grid = new GridPane();
                 for (int i = 0; i < width; ++i)
-                    for (int j = 0; j < height; ++j)
-                        grid.add(new ChordKey(this), i, j);
+                    for (int j = 0; j < height; ++j) {
+                        chordKeys[i][j] = new ChordKey(this);
+                        grid.add(chordKeys[i][j], i, j);
+                    }
                 grid.setHgap(10);
                 grid.setVgap(10);
 
@@ -153,7 +158,10 @@ public class ChordMachineBlock extends TitledPane implements Transmitter, Deleta
     public void setChannel(int channel){
         this.channel = channel;
         chordMachineBlockController.sequencerPanelController.sequencer.setMidiChannel(channel);
+    }
 
+    public void setChord(int i, int j, Collection<Integer> chord){
+        chordKeys[i][j].setChord(chord);
     }
 
     public int getChannel(){

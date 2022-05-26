@@ -294,6 +294,15 @@ public class PlayController {
         clock.add(chordMachine);
         table.getChildren().add(chordMachine);
 
+        chordMachine.setChord(0, 0, MidiUtils.getQuickChord("F3"));
+        chordMachine.setChord(0, 1, MidiUtils.getQuickChord("D3m"));
+        chordMachine.setChord(1, 0, MidiUtils.getQuickChord("C3"));
+        chordMachine.setChord(1, 1, MidiUtils.getQuickChord("A3m"));
+        chordMachine.setChord(2, 0, MidiUtils.getQuickChord("G3"));
+        chordMachine.setChord(2, 1, MidiUtils.getQuickChord("E3m"));
+
+        chordMachine.setChord(3, 1, MidiUtils.getQuickChord("E3"));
+
         reorderOnFocus(chordMachine);
     }
 
