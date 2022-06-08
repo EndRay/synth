@@ -39,6 +39,9 @@ public class SynthBlock extends TitledPane implements Deletable {
     private static final double cellSize = 40;
 
     final String synth;
+    final PolyphonyType polyphony;
+    final Slider volumeSlider;
+    final ComboBox<String> patchesList;
     final Interpreter interpreter;
     final Map<String, DoubleProperty> properties;
     final KnobsSourceValuesHandler handler;
@@ -52,6 +55,7 @@ public class SynthBlock extends TitledPane implements Deletable {
         synthBlockController = new SynthBlockController();
 
         this.synth = synth;
+        this.polyphony = polyphony;
         handler = new KnobsSourceValuesHandler();
         interpreter = new Interpreter(polyphony, handler);
         interpreter.run(getSynthStructure(synth));
@@ -94,7 +98,7 @@ public class SynthBlock extends TitledPane implements Deletable {
             gridPane.add(knob, knobSource.getX(), knobSource.getY(), knobSource.getSize(), knobSource.getSize());
         }
         SourceValue volume = new SourceValue("volume");
-        Slider volumeSlider = new Slider(0, 1, 0);
+        volumeSlider = new Slider(0, 1, 0);
         makeVolumeSlider(volumeSlider, volume);
         volumeSlider.setMinWidth(USE_PREF_SIZE);
         volumeSlider.setPrefWidth(cellSize * 2);
@@ -141,7 +145,7 @@ public class SynthBlock extends TitledPane implements Deletable {
             }
 
             {
-                ComboBox<String> patchesList = new ComboBox<>();
+                patchesList = new ComboBox<>();
                 patchesList.setPromptText("patch");
                 patchesList.setItems(patches);
                 patches.addAll(getPatches(synth));
@@ -166,6 +170,14 @@ public class SynthBlock extends TitledPane implements Deletable {
         synthBlockController.initialize();
     }
 
+    public String getSynthName(){
+        return synth;
+    }
+
+    public PolyphonyType getPolyphony(){
+        return polyphony;
+    }
+
     public void loadPatch(String patch){
         try {
             Map<String, Double> patchProperties = getPatch(synth, patch);
@@ -188,6 +200,18 @@ public class SynthBlock extends TitledPane implements Deletable {
         }
     }
 
+    public double getVolume() {
+        return volumeSlider.getValue();
+    }
+
+    public void setVolume(double volume) {
+        volumeSlider.setValue(volume);
+    }
+
+    public String getChosenPatch(){
+        return patchesList.getValue();
+    }
+
     public SynthController getSynthController() {
         return synthController;
     }
@@ -204,4 +228,5 @@ public class SynthBlock extends TitledPane implements Deletable {
     public void onDelete() {
         sound.bind(new DC(0));
     }
+
 }

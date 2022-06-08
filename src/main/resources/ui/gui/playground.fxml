@@ -21,6 +21,10 @@
                   <HBox prefWidth="200.0">
                      <children>
                         <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goToMainMenu" text="menu" />
+                        <Region prefWidth="80.0" />
+                        <Button maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSetup" text="load setup" />
+                        <TextField fx:id="setupNameField" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="120.0" promptText="setup" />
+                        <Button maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSetup" text="save setup" />
                         <Region prefHeight="0.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
                         <ComboBox fx:id="synthNameField" minWidth="45.0" prefHeight="25.0" prefWidth="130.0" promptText="synth" />
                         <TextField fx:id="voiceCountField" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="50.0" promptText="voices" />

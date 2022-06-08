@@ -8,6 +8,8 @@ public class PolyphonyUtils {
         if(Set.of("mono", "monophonic").contains(polyphony))
             return new Monophonic();
         try{
+            if(polyphony.startsWith("poly"))
+                polyphony = polyphony.substring(4).trim();
             int voices = Integer.parseInt(polyphony);
             if(voices < 0)
                 throw new PolyphonyException();

@@ -66,8 +66,8 @@ public class MainGUI extends Application {
     public void start(Stage stage) throws IOException {
         stage.setTitle("Synth");
         stage.setScene(new Scene(new FXMLLoader(MainGUI.class.getResource("main-menu.fxml")).load()));
-        stage.setMinWidth(640);
-        stage.setMinHeight(480);
+        stage.setMinWidth(1280);
+        stage.setMinHeight(720);
         stage.show();
     }
 
