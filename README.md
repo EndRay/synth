@@ -26,9 +26,9 @@ Maybe you want to define synth's structure by your own. Then you can use StructS
 - good beautiful gui
 - sequencer builtin keyboard
 - chord machine
-- drum sequencer
 ## Final presentation
-- setups saving 
+- setups saving
+- drum sequencer 
 - bugfixes
 
 ## TODO
