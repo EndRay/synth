@@ -3,6 +3,7 @@ package database;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -36,12 +37,27 @@ public final class Database {
         }
     }
 
-    public static void drop() {
-        executeScript(new File("src/main/java/database/drop.sql"));
-    }
+//    public static void drop() {
+//        try {
+//            executeScript(new File(Database.class.getResource("drop.sql").toURI()));
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public static void init() {
-        executeScript(new File("src/main/java/database/init.sql"));
+        try (Connection c = getConnection(); Reader reader = new BufferedReader(new InputStreamReader(Database.class.getResourceAsStream("init.sql")))) {
+            ScriptRunner scriptRunner = new ScriptRunner(c);
+            scriptRunner.setLogWriter(null);
+            scriptRunner.runScript(reader);
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+//        try {
+//            executeScript(new File(Database.class.getResource("init.sql").toURI()));
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private static final String SQL_SYNTH_GET = "SELECT * FROM synths WHERE synth_name == ?";
@@ -156,6 +172,19 @@ public final class Database {
         }
     }
 
+    public static class Setup{
+        final private Collection<Block> blocks;
+        final private double BPM;
+
+        public Setup(Collection<Block> blocks, double BPM){
+            this.blocks = blocks;
+            this.BPM = BPM;
+        }
+
+        public Collection<Block> blocks(){ return blocks; }
+        public double BPM(){ return BPM; }
+    }
+
     public static class Block {
         final private String type;
         final private int x;
@@ -228,20 +257,22 @@ public final class Database {
     }
 
     private static final String SQL_SETUP_ID_GET =
-            "SELECT setup_id FROM setups WHERE setup_name = ?";
+            "SELECT setup_id, bpm FROM setups WHERE setup_name = ?";
     private static final String SQL_SETUP_BLOCKS_GET =
             "SELECT block_id, block_type, x_pos, y_pos FROM blocks WHERE setup_id = ?";
     private static final String SQL_BLOCK_PATCH_GET =
             "SELECT synth_name, patch_name, polyphony, volume FROM synth_blocks_patches NATURAL JOIN synths LEFT JOIN patches ON synth_blocks_patches.patch_id = patches.patch_id WHERE block_id = ?";
 
 
-    public static Collection<Block> getSetup(String name) throws NoSuchSetupException {
+    public static Setup getSetup(String name) throws NoSuchSetupException {
         try (Connection c = getConnection();
              PreparedStatement setupIdStatement = c.prepareStatement(SQL_SETUP_ID_GET);
              PreparedStatement setupBlocksStatement = c.prepareStatement(SQL_SETUP_BLOCKS_GET)) {
             List<Block> ans = new ArrayList<>();
             setupIdStatement.setString(1, name);
-            int id = setupIdStatement.executeQuery().getInt(1);
+            ResultSet tmp = setupIdStatement.executeQuery();
+            int id = tmp.getInt(1);
+            double BPM = tmp.getDouble(2);
             setupBlocksStatement.setInt(1, id);
             ResultSet blocks = setupBlocksStatement.executeQuery();
             while (blocks.next()) {
@@ -261,7 +292,7 @@ public final class Database {
                     }
                 } else ans.add(new Block(type, x, y));
             }
-            return ans;
+            return new Setup(ans, BPM);
         } catch (SQLException e) {
             throw new NoSuchSetupException();
         }

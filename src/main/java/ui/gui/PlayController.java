@@ -35,6 +35,7 @@ import ui.gui.multidrumsequencer.DrumSequencerBlock;
 import ui.gui.sequencer.ControlButton;
 import ui.gui.synthblock.SynthBlock;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -74,6 +75,8 @@ public class PlayController {
 
     @FXML
     Slider masterVolumeSlider;
+
+    Spinner<Integer> BPMspinner;
 
     Clock clock = new Clock();
     BooleanProperty playingProperty = new SimpleBooleanProperty(false);
@@ -341,8 +344,11 @@ public class PlayController {
         String setupName = setupNameField.getText();
         setupName = setupName.trim();
         try {
-            Collection<Database.Block> blocks = getSetup(setupName);
+            Database.Setup setup = getSetup(setupName);
+            Collection<Database.Block> blocks = setup.blocks();
             clock.clear();
+
+            BPMspinner.getValueFactory().setValue((int) setup.BPM());
             playgroundSound.bind(new DC(0));
             for (Node node : table.getChildren())
                 if (node instanceof Deletable deletable)
@@ -419,7 +425,7 @@ public class PlayController {
         }
 
         {
-            Spinner<Integer> BPMspinner = new Spinner<>();
+            BPMspinner = new Spinner<>();
             BPMspinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 999));
             BPMspinner.getValueFactory().setValue(120);
             BPMspinner.setPrefWidth(ControlButton.buttonSize * 3);

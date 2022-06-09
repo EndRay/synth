@@ -16,36 +16,28 @@ import java.util.regex.Pattern;
  */
 
 public class UtilityFilesReader {
-    private static final String permittedClassesPath = "src/main/java/structscript/PermittedClasses";
-    private static final String socketAliasesPath = "src/main/java/structscript/SocketAliases";
 
     public static Map<String, String> getSocketAliases() throws UtilityFileException {
-        try{
-            Map<String, String> socketAliases = new HashMap<>();
-            File socketAliasesFile = new File(socketAliasesPath);
-            Scanner reader = new Scanner(socketAliasesFile);
-            while(reader.hasNextLine()){
-                String line = reader.nextLine();
-                String[] tmp = line.split(" as ");
-                String name = tmp[0].trim();
-                if(tmp[0].contains(" ") || tmp[0].contains("\t"))
-                    throw new UtilityFileException("multiple words before \"as\"");
-                String[] aliases = tmp[1].split(",");
-                for(String alias : aliases)
-                    socketAliases.put(alias.trim(), name);
-            }
-            return socketAliases;
-        } catch (FileNotFoundException e) {
-            throw new UtilityFileException("no such file " + socketAliasesPath);
+        Map<String, String> socketAliases = new HashMap<>();
+        Scanner reader = new Scanner(UtilityFilesReader.class.getResourceAsStream("SocketAliases"));
+        while(reader.hasNextLine()){
+            String line = reader.nextLine();
+            String[] tmp = line.split(" as ");
+            String name = tmp[0].trim();
+            if(tmp[0].contains(" ") || tmp[0].contains("\t"))
+                throw new UtilityFileException("multiple words before \"as\"");
+            String[] aliases = tmp[1].split(",");
+            for(String alias : aliases)
+                socketAliases.put(alias.trim(), name);
         }
+        return socketAliases;
     }
 
     public static Map<String, Class<? extends SignalSource>> getPermittedClasses() throws UtilityFileException {
         try {
             Map<String, Class<? extends SignalSource>> permittedClasses = new HashMap<>();
             Pattern shiftSearcher = Pattern.compile("( {4}|\\t)");
-            File usable = new File(permittedClassesPath);
-            Scanner reader = new Scanner(usable);
+            Scanner reader = new Scanner(UtilityFilesReader.class.getResourceAsStream("PermittedClasses"));
             int lastShift = -1;
             Stack<String> classPath = new Stack<>();
             while (true) {
@@ -91,8 +83,6 @@ public class UtilityFilesReader {
                     break;
             }
             return permittedClasses;
-        } catch (FileNotFoundException e) {
-            throw new UtilityFileException("no such file " + permittedClassesPath);
         } catch (ClassNotFoundException e) {
             throw new UtilityFileException("class not found");
         }
