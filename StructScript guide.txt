@@ -1,0 +1,57 @@
+Everything that is created in StructScript is "signal sources": something that has output, so it can be bound to some input.
+
+Also, some objects in StructScript have so called "sockets" - things to which you can bind signal source. For example oscillators, generating wave have socket frequency, which is responsible for how high sound is. You can think about binding signal source to socket as about bindings in javafx.
+
+You can freely multiply and add signals.
+
+Let's start:
+
+You can take different waves, put them on output and listen to them. Open editor and enter (on the left you will find master volume control, make sound quieter):
+
+Saw(220hz) => output
+
+and build this synth ("build" button, or ctrl+enter).
+You will hear saw wave with frequency 220 hertz.
+You can make it quieter:
+Saw(220hz) * 0.1 => output
+or change its frequency:
+Saw(110hz) * 0.1 => output
+or change waveform:
+Triangle(110hz) * 0.1 => output
+or mix them:
+Saw(110hz) * 0.05 + Triangle(220hz) * 0.05 => output
+and so on.
+
+You can save signals:
+saw = Saw(220hz) * 0.05
+tri = Triangle(330hz) * 0.03
+sqr = Square(110hz) * 0.04
+sin = Sine(550hz) * 0.02
+
+You can create sliders on the right side of the editor using "Property" signal source. Try this code:
+
+Volume = Property("volume", 0.5)
+MorphProp = Property("morph", 0.5)
+Pitch = Property("pitch", 0.5).mapUni(110hz, 440hz)
+saw = Saw(Pitch)
+sqr = Pulse(Pitch)
+res = Morph(saw, sqr)
+res.morph <= MorphProp
+res * Volume => output
+
+
+
+Signal sources available thru StructScript:
+  Oscillators:
+    Saw(frequency): generates saw wave with frequency (frequency).
+    Triangle(frequency): generates triangle wave with frequency (frequency).
+    Sine(frequency): generates sine wave with frequency (frequency).
+    Pulse(frequency, pulseWidth): generates pulse wave with frequency (frequency) and pulse width (pulseWidth).
+  Envelopes:
+    ADSR (gate, trigger, attack, decay, sustain, release): generates attack-decay-sustain-release envelope with relevant stage lengths.
+    AD (gate, trigger, attack, decay): generates attack-decay envelope with relevant stage lengths.
+    AR (gate, trigger, attack, release): generates attack-release envelope with relevant stage lengths.
+  Mixers:
+    Mixer (...): can be used for mixing (just adding signals).
+    UnityMixer (...): result is average of signals on input.
+    Morph (..., morph): result is morph between two signals on input between which (morph) is located.

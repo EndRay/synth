@@ -22,6 +22,14 @@ Maybe you want to define synth's structure by your own. Then you can use StructS
 - ability to describe synth structure
 - saving synths and their patches to the database 
 - ugly but functional gui
+## Second presentation
+- good beautiful gui
+- sequencer builtin keyboard
+- chord machine
+- drum sequencer
+## Final presentation
+- setups saving 
+- bugfixes
 
 ## TODO
 ### sound things
